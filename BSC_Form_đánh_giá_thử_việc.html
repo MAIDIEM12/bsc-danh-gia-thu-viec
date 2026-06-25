@@ -306,9 +306,9 @@ input[readonly]{background:#f0f5fb;color:#88a}
 <div class="card locked" id="card2">
   <div class="sec">II. Ghi nhận công việc theo tuần <span class="wt" style="background:#eef3fa;color:#557">Chỉ ghi nhận — không tính điểm</span></div>
   <div class="info"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#005AAB" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-    <span>Ghi rõ công việc chính từng tuần · Chỉ ghi nhận, không ảnh hưởng điểm tổng · <strong>Trung bình · Đạt · Xuất sắc</strong></span></div>
+    <span>Mỗi tuần: chọn 1 hạng mục công việc theo JD của bộ phận, rồi mô tả cụ thể đã làm gì (định lượng được — số liệu, kết quả, phạm vi công việc).</span></div>
   <table class="wtbl">
-    <thead><tr><th>Tuần</th><th>Công việc đã thực hiện / Ghi chú</th><th style="width:100px">Đánh giá</th></tr></thead>
+    <thead><tr><th>Tuần</th><th style="width:220px">Hạng mục công việc (theo JD)</th><th>Mô tả cụ thể đã thực hiện</th></tr></thead>
     <tbody id="weekTbody"></tbody>
   </table>
   <div style="margin-top:.85rem"><label class="fl">Ghi chú phát sinh (nếu có)</label>
@@ -468,6 +468,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzz3Ob6S-V42UpGs8Bd8pEPNB8NK8vUFEEmya9Ur_wBqvBETzDPFtZ0y9Cej42ssbfj/exec';
 const SCRIPT_READY = SCRIPT_URL && !SCRIPT_URL.includes('YOUR_');
 const NOTIFY_EMAIL = 'maithidiem201090@gmail.com';
+const MAX_EVAL_MONTHS = 3; // Thời gian thử việc đánh giá tối đa 3 tháng
 
 // EmailJS config — đã setup thật, sẵn sàng gửi email
 const EMAILJS_KEY = 'etiy8vdDzqxP8gJTr';
@@ -616,12 +617,14 @@ function fmtDate(el){
 }
 function calcDur(){
   const startEl=document.getElementById('f_start'), endEl=document.getElementById('f_end');
+  const durEl=document.getElementById('f_duration');
   const sv=startEl.value, ev=endEl.value;
   // Reset trạng thái lỗi trước, set lại đúng nếu phát hiện sai logic dưới đây
   startEl.style.borderColor='';
   startEl.style.boxShadow='';
   endEl.style.borderColor='';
   endEl.style.boxShadow='';
+  durEl.style.color='';
   if(/\d{2}\/\d{2}\/\d{4}/.test(sv)&&/\d{2}\/\d{2}\/\d{4}/.test(ev)){
     const[sd,sm,sy]=sv.split('/'), [ed,em,ey]=ev.split('/');
     const s=new Date(`${sy}-${sm}-${sd}`), e=new Date(`${ey}-${em}-${ed}`);
@@ -629,33 +632,47 @@ function calcDur(){
     const startYearValid=parseInt(sy,10)===currentYear;
     const endYearValid=parseInt(ey,10)===currentYear;
     if(!startYearValid){
-      document.getElementById('f_duration').value=`⚠ Năm bắt đầu phải là ${currentYear}`;
+      durEl.value=`Sai năm — hãy sửa "Ngày bắt đầu" thành năm ${currentYear}`;
+      durEl.style.color='#c0392b';
       startEl.style.borderColor='#e74c3c';
       startEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
+      activeWeeks=0; renderWeeks(0);
       return;
     }
     if(!endYearValid){
-      document.getElementById('f_duration').value=`⚠ Năm kết thúc phải là ${currentYear}`;
+      durEl.value=`Sai năm — hãy sửa "Ngày kết thúc" thành năm ${currentYear}`;
+      durEl.style.color='#c0392b';
       endEl.style.borderColor='#e74c3c';
       endEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
+      activeWeeks=0; renderWeeks(0);
       return;
     }
-    if(e>s){
-      const days=Math.round((e-s)/86400000);
-      const months=Math.round(days/30.44);
-      document.getElementById('f_duration').value=`${months} tháng (${days} ngày)`;
-      if(!document.getElementById('f_evaldate').value) document.getElementById('f_evaldate').value=ev;
-      // 1 tháng = 4 tuần cố định: 2 tháng = 8 tuần, 3 tháng = 12 tuần
-      const weeks=Math.min(12, Math.max(4, months*4));
-      activeWeeks=weeks;
-      renderWeeks(weeks);
-    } else {
-      document.getElementById('f_duration').value='⚠ Ngày kết thúc phải sau ngày bắt đầu';
-      // Viền đỏ trực tiếp lên ô "Ngày kết thúc" — không chỉ cảnh báo mờ ở ô bên cạnh,
-      // để TBP thấy ngay lỗi nằm ở đúng ô nào cần sửa, không cần chờ tới lúc bấm Gửi.
+    if(e<=s){
+      durEl.value='Sai thứ tự — hãy sửa "Ngày kết thúc" thành 1 ngày sau "Ngày bắt đầu"';
+      durEl.style.color='#c0392b';
       endEl.style.borderColor='#e74c3c';
       endEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
+      activeWeeks=0; renderWeeks(0);
+      return;
     }
+    const days=Math.round((e-s)/86400000);
+    const months=Math.round(days/30.44);
+    // Tối đa đánh giá 3 tháng — nếu khoảng thời gian dài hơn, báo rõ và không cho tính tiếp
+    // (xem MAX_EVAL_MONTHS ở phần khai báo cấu hình chung của form).
+    if(months>MAX_EVAL_MONTHS){
+      durEl.value=`Vượt quá ${MAX_EVAL_MONTHS} tháng — hãy sửa lại "Ngày kết thúc" để không quá ${MAX_EVAL_MONTHS} tháng kể từ ngày bắt đầu`;
+      durEl.style.color='#c0392b';
+      endEl.style.borderColor='#e74c3c';
+      endEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
+      activeWeeks=0; renderWeeks(0);
+      return;
+    }
+    durEl.value=`${months} tháng (${days} ngày)`;
+    if(!document.getElementById('f_evaldate').value) document.getElementById('f_evaldate').value=ev;
+    // 1 tháng = 4 tuần cố định: tối đa 3 tháng = 12 tuần
+    const weeks=Math.min(MAX_EVAL_MONTHS*4, Math.max(4, months*4));
+    activeWeeks=weeks;
+    renderWeeks(weeks);
   }
 }
 
@@ -700,27 +717,24 @@ function updateTitles(){
 }
 
 // RENDER WEEKS
+// Mỗi tuần: chọn 1 hạng mục công việc theo JD (lấy từ tiêu chí chuyên môn Mục IV của
+// đúng bộ phận đang đánh giá) + textarea mô tả cụ thể đã làm gì. KHÔNG còn cột đánh giá
+// (Trung bình/Đạt/Xuất sắc) — Phần II chỉ ghi nhận, không chấm điểm.
 function renderWeeks(count){
-  const n=count||activeWeeks||12;
+  const n=count||activeWeeks||(MAX_EVAL_MONTHS*4);
+  const dCrit=currentDept?(currentDeptCriteria||DEPT_DATA[currentDept]?.criteria||[]):[];
+  const jdOptionsHtml=dCrit.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   let h='';
   for(let i=1;i<=n;i++){
     h+=`<tr><td class="wnum">Tuần ${i}</td>
-      <td><textarea id="wn${i}" placeholder="Dự án / công việc chính..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea></td>
-      <td style="vertical-align:top;padding-top:8px"><select id="ws${i}" onchange="onWkChange(${i})">
-        <option value="">— Chọn —</option>
-        <option value="tb">Trung bình</option>
-        <option value="dat">Đạt</option>
-        <option value="xs">Xuất sắc</option>
-      </select></td></tr>`;
+      <td style="vertical-align:top;padding-top:8px"><select id="wj${i}" onchange="checkS2()" style="width:100%">
+        <option value="">— Chọn hạng mục —</option>
+        ${jdOptionsHtml}
+      </select></td>
+      <td><textarea id="wn${i}" placeholder="Mô tả cụ thể, định lượng được: số liệu, kết quả, phạm vi công việc đã thực hiện trong tuần..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea></td></tr>`;
   }
   document.getElementById('weekTbody').innerHTML=h;
-}
-function onWkChange(i){
-  const v=document.getElementById('ws'+i).value;
-  const cls={tb:'#e67e22',dat:'#27ae60',xs:'#5c3fc5'};
-  const s=document.getElementById('ws'+i);
-  s.style.color=cls[v]||'';s.style.fontWeight=v?'900':'400';
-  calcAndShow();checkS2();
+  checkS2(); // luôn đồng bộ lại trạng thái khóa Phần III sau khi render lại Phần II
 }
 
 // RENDER BARS
@@ -837,6 +851,9 @@ function onDeptChange(){
   levelSel.innerHTML='<option value="">— Chọn cấp bậc —</option>';
   LEVEL_OPTIONS.forEach(l=>{const o=document.createElement('option');o.value=l.value;o.textContent=l.label;levelSel.appendChild(o);});
   renderDeptCriteria();
+  // Phần II giờ phụ thuộc bộ phận (dropdown chọn hạng mục JD) — phải render lại
+  // mỗi khi đổi bộ phận, để không bị kẹt danh sách JD của bộ phận cũ hoặc rỗng.
+  renderWeeks(activeWeeks);
   calcAndShow();
 }
 
@@ -1030,7 +1047,7 @@ function updateFinalSummary(){
   // Work log (ghi nhận, không tính điểm)
   const workComment=document.getElementById('work_comment')?.value?.trim()||'';
   let wkFilled=0;
-  for(let i=1;i<=activeWeeks;i++){ if(document.getElementById('ws'+i)?.value) wkFilled++; }
+  for(let i=1;i<=activeWeeks;i++){ if(document.getElementById('wj'+i)?.value) wkFilled++; }
   if(wkFilled>0){
     autoText+=`Đã ghi nhận công việc ${wkFilled} tuần. `;
     if(workComment) autoText+=`Ghi chú: ${workComment}. `;
@@ -1216,13 +1233,13 @@ function markDuplicateEvidence(){
   return dups;
 }
 function checkS2(){
-  // Mỗi tuần đã chọn trạng thái (ws) thì nội dung công việc (wn) cũng phải có thực chất —
-  // tránh trường hợp chọn trạng thái xong nhưng để trống hoặc ghi qua loa ở ô công việc.
+  // Mỗi tuần đã chọn hạng mục JD (wj) thì mô tả công việc (wn) cũng phải có thực chất —
+  // tránh trường hợp chọn hạng mục xong nhưng để trống hoặc ghi qua loa ở ô mô tả.
   let hasOne=false, allFilledRowsValid=true;
-  for(let i=1;i<=12;i++){
-    const statusVal=document.getElementById('ws'+i)?.value;
+  for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
+    const jdVal=document.getElementById('wj'+i)?.value;
     const noteEl=document.getElementById('wn'+i);
-    if(statusVal){
+    if(jdVal){
       hasOne=true;
       if(noteEl) markFieldQuality(noteEl);
       if(!noteEl||!isMeaningfulText(noteEl.value)) allFilledRowsValid=false;
@@ -1460,8 +1477,14 @@ async function submitForm(){
     sig_employee_title:document.getElementById('sig_employee_title').value,
     sig_emp_date:document.getElementById('sig_emp_date').value,
   };
-  const wkLabels={tb:'Trung bình',dat:'Đạt',xs:'Xuất sắc'};
-  for(let i=1;i<=12;i++){p[`w_note_${i}`]=document.getElementById('wn'+i)?.value||'';p[`w_status_${i}`]=wkLabels[document.getElementById('ws'+i)?.value]||'';}
+  // Phần II giờ ghi nhận: hạng mục JD (tên đầy đủ, không chỉ id) + mô tả cụ thể — không còn
+  // trạng thái Trung bình/Đạt/Xuất sắc (đã bỏ theo yêu cầu, Phần II chỉ ghi nhận không chấm điểm).
+  for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
+    const jdId=document.getElementById('wj'+i)?.value||'';
+    const jdCrit=dCrit.find(c=>c.id===jdId);
+    p[`w_note_${i}`]=document.getElementById('wn'+i)?.value||'';
+    p[`w_jd_${i}`]=jdCrit?jdCrit.name:'';
+  }
   CORE.forEach(c=>{const sel=document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);const m=sel?sel.className.match(/sel-(\d)/):null;p[`core_${c.id}`]=naState[`core_${c.id}`]?'N/A':(m?m[1]:'');p[`core_ev_${c.id}`]=document.getElementById(`evt_core_${c.id}`)?.value||'';});
   dCrit.forEach((c,i)=>{const sel=document.querySelector(`[id^="bopt_dept_${c.id}_"][class*="sel-"]`);const m=sel?sel.className.match(/sel-(\d)/):null;p[`dept_name_${i+1}`]=c.name;p[`dept_score_${i+1}`]=naState[`dept_${c.id}`]?'N/A':(m?m[1]:'');p[`dept_ev_${i+1}`]=document.getElementById(`evt_dept_${c.id}`)?.value||'';});
   if(hasManagement){
@@ -1551,13 +1574,13 @@ function buildEvalHTML(){
   const pCult=getCultScore()||0;
   const total=Math.round(pCore*0.38+pDept*0.38+pCult*0.24);
 
-  const wkLabels={tb:'Trung bình',dat:'Đạt',xs:'Xuất sắc'};
   let weeksHTML='';
   for(let i=1;i<=activeWeeks;i++){
     const note=document.getElementById('wn'+i)?.value;
-    const statusRaw=document.getElementById('ws'+i)?.value;
-    const status=wkLabels[statusRaw]||'';
-    if(note||status) weeksHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700;color:#005AAB">Tuần ${i}</td><td style="padding:4px 8px;border:1px solid #d0e4f7">${note||'—'}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;text-align:center;font-weight:900">${status||'—'}</td></tr>`;
+    const jdId=document.getElementById('wj'+i)?.value;
+    const jdCrit=dCrit.find(c=>c.id===jdId);
+    const jdName=jdCrit?jdCrit.name:'';
+    if(note||jdName) weeksHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700;color:#005AAB">Tuần ${i}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700">${jdName||'—'}</td><td style="padding:4px 8px;border:1px solid #d0e4f7">${note||'—'}</td></tr>`;
   }
   const workComment=document.getElementById('work_comment')?.value||'';
 
@@ -1645,7 +1668,7 @@ function buildEvalHTML(){
   </tbody></table>
 
   <div class="sec">II. Ghi nhận công việc theo tuần (không tính điểm)</div>
-  <table><thead><tr><th style="width:70px">Tuần</th><th>Công việc</th><th style="width:120px">Tình trạng</th></tr></thead><tbody>${weeksHTML||'<tr><td colspan="3" style="padding:6px 8px;border:1px solid #d0e4f7;color:#aaa;text-align:center">Chưa điền</td></tr>'}</tbody></table>
+  <table><thead><tr><th style="width:70px">Tuần</th><th style="width:200px">Hạng mục (theo JD)</th><th>Mô tả cụ thể</th></tr></thead><tbody>${weeksHTML||'<tr><td colspan="3" style="padding:6px 8px;border:1px solid #d0e4f7;color:#aaa;text-align:center">Chưa điền</td></tr>'}</tbody></table>
   ${workComment?`<div style="background:#f4f8fd;border:1px solid #d0e4f7;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:12px"><strong style="color:#005AAB">Ghi chú phát sinh:</strong> ${workComment}</div>`:''}
 
   <div class="sec">III. Năng lực cốt lõi (38%)</div>
@@ -1843,7 +1866,7 @@ async function generatePDFBase64(){
   // ===== II. CÔNG VIỆC THEO TUẦN =====
   sectionTitle('II. GHI NHẬN CÔNG VIỆC THEO TUẦN (không tính điểm)');
   if(data.weeks.length){
-    table(['Tuần','Công việc','Tình trạng'], data.weeks.map(w=>[w.label,w.note||'—',w.status||'—']), {0:{cellWidth:18},2:{cellWidth:28}});
+    table(['Tuần','Hạng mục (theo JD)','Mô tả cụ thể'], data.weeks.map(w=>[w.label,w.jd||'—',w.note||'—']), {0:{cellWidth:16},1:{cellWidth:50}});
   } else {
     bodyText('Chưa điền.');
   }
@@ -1953,13 +1976,13 @@ function collectEvalData(){
   const pCult=getCultScore()||0;
   const total=Math.round(pCore*0.38+pDept*0.38+pCult*0.24);
 
-  const wkLabels={tb:'Trung bình',dat:'Đạt',xs:'Xuất sắc'};
   const weeks=[];
   for(let i=1;i<=activeWeeks;i++){
     const note=document.getElementById('wn'+i)?.value;
-    const statusRaw=document.getElementById('ws'+i)?.value;
-    const status=wkLabels[statusRaw]||'';
-    if(note||status) weeks.push({label:'Tuần '+i, note, status});
+    const jdId=document.getElementById('wj'+i)?.value;
+    const jdCrit=dCrit.find(c=>c.id===jdId);
+    const jdName=jdCrit?jdCrit.name:'';
+    if(note||jdName) weeks.push({label:'Tuần '+i, note, jd:jdName});
   }
   const workComment=document.getElementById('work_comment')?.value||'';
 
@@ -2048,18 +2071,13 @@ function applyDeptLockFromURL(){
   });
   sel.value=lockedDept;
   sel.disabled=true;
-  sel.style.background='#f0f5fb';
-  sel.style.color='#005AAB';
-  sel.style.fontWeight='800';
-  sel.style.cursor='not-allowed';
+  // Style trông tự nhiên như 1 ô thông tin bình thường (không có dấu hiệu "bị khóa"
+  // như cursor:not-allowed hay nền xám khác biệt) — tránh gây tò mò không cần thiết.
   onDeptChange();
   checkS1();
-  // Thông báo nhỏ, rõ ràng, ngay dưới select để TBP hiểu vì sao không bấm được
-  const wrap=sel.parentElement;
-  const note=document.createElement('div');
-  note.style.cssText='font-size:10.5px;color:#005AAB;font-weight:700;margin-top:4px';
-  note.textContent='🔒 Đã khoá theo link riêng của bộ phận '+DEPT_DATA[lockedDept].label;
-  wrap.appendChild(note);
+  // Không hiển thị thông báo "Đã khóa theo link riêng..." cho TBP — tránh gây tò mò
+  // về việc có các bộ phận khác. Logic khóa cứng (TBP không chọn được bộ phận khác)
+  // vẫn giữ nguyên phía trên, chỉ bỏ phần thông báo hiển thị ra màn hình.
   // Ẩn nút Admin với TBP khi đang dùng link đã khoá — đây là link gửi cho TBP, không phải cho Admin
   const adminBtn=document.getElementById('btnAdminLinks');
   if(adminBtn) adminBtn.style.display='none';
