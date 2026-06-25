@@ -1700,10 +1700,17 @@ async function generatePDFBase64(){
   if(data.idpRows.length){
     sectionTitle('IDP — LỘ TRÌNH 3 THÁNG TIẾP THEO');
     table(['','Mục tiêu','Mentor','Đo lường'], data.idpRows, {0:{cellWidth:20}});
+    console.log('[PDF] Sau bảng IDP — y:', y, '| tổng số trang hiện tại:', doc.internal.getNumberOfPages());
   }
 
   // ===== KÝ TÊN =====
-  if(y>235){doc.addPage();y=16;}
+  // Khối ký tên cần khoảng 35mm (margin-top + 4 dòng text). Chỉ ngắt trang mới nếu
+  // phần còn lại của trang hiện tại không đủ chỗ — tránh tình trạng chữ ký bị "lọt"
+  // ra riêng 1 trang trống dù trang trước vẫn còn đủ khoảng trống để vẽ chung.
+  const SIG_BLOCK_HEIGHT=35;
+  const PAGE_BOTTOM_SAFE=282; // giới hạn an toàn trước khi chạm lề dưới A4 (297mm)
+  console.log('[PDF] y trước khối ký tên:', y, '| sẽ ngắt trang mới?', y+SIG_BLOCK_HEIGHT>PAGE_BOTTOM_SAFE);
+  if(y+SIG_BLOCK_HEIGHT>PAGE_BOTTOM_SAFE){doc.addPage();y=16;}
   y+=14;
   const sigColW=usableWidth/2-6;
   const sigLeftX=marginL, sigRightX=marginL+usableWidth/2+6;
