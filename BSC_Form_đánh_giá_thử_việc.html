@@ -288,7 +288,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
     </div>
   </div>
   <div class="r3">
-    <div><label class="fl">Ngày bắt đầu thử việc</label><input id="f_start" type="text" placeholder="dd/mm/yyyy" oninput="fmtDate(this);calcDur();checkS1()" maxlength="10"></div>
+    <div><label class="fl">Ngày bắt đầu thử việc</label><input id="f_start" type="text" placeholder="dd/mm/yyyy" oninput="fmtDate(this);calcDur();checkS1();checkEvalDateLogic()" maxlength="10"></div>
     <div><label class="fl">Ngày kết thúc thử việc</label><input id="f_end" type="text" placeholder="dd/mm/yyyy" oninput="fmtDate(this);calcDur();checkS1()" maxlength="10"></div>
     <div><label class="fl">Thời gian thử việc</label><input id="f_duration" readonly placeholder="Tự tính..."></div>
   </div>
@@ -297,7 +297,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
     <div><label class="fl">Chức vụ người đánh giá <span class="req">*</span></label><input id="f_mgr_title" type="text" placeholder="Trưởng bộ phận" oninput="checkS1();syncSigInfo()" onblur="checkS1();syncSigInfo()"></div>
   </div>
   <div class="r2">
-    <div><label class="fl">Ngày đánh giá</label><input id="f_evaldate" type="text" placeholder="dd/mm/yyyy" oninput="fmtDate(this);syncSigInfo()" maxlength="10"></div>
+    <div><label class="fl">Ngày đánh giá</label><input id="f_evaldate" type="text" placeholder="dd/mm/yyyy" oninput="fmtDate(this);syncSigInfo();checkEvalDateLogic()" maxlength="10"></div>
     <div></div>
   </div>
 </div>
@@ -385,12 +385,12 @@ input[readonly]{background:#f0f5fb;color:#88a}
   </div>
   <div id="verdict-warning" style="display:none;background:#fff0f0;border:1.5px solid #e74c3c;border-left:4px solid #c0392b;border-radius:8px;padding:10px 14px;margin:8px 0 4px;font-size:12px;color:#c0392b;font-weight:700"></div>
   <div class="r1"><label class="fl">Lý do & căn cứ quyết định <span class="req">*</span></label>
-    <textarea id="conclusion_reason" placeholder="Mô tả rõ lý do: dự án đã tham gia, kết quả quan sát, điểm mạnh/yếu cụ thể, kỳ vọng nếu gia hạn..." style="min-height:80px"></textarea></div>
+    <textarea id="conclusion_reason" placeholder="Mô tả rõ lý do: dự án đã tham gia, kết quả quan sát, điểm mạnh/yếu cụ thể, kỳ vọng nếu gia hạn..." style="min-height:80px" onblur="markFieldQuality(this)"></textarea></div>
 
   <div style="border-top:.5px solid #d0e4f7;padding-top:.85rem;margin:.85rem 0">
     <div class="r2">
-      <div><label class="fl">Điểm mạnh nổi bật <span class="req">*</span></label><textarea id="strength" placeholder="Học hỏi nhanh, phối hợp nhóm tốt, chủ động đề xuất ý tưởng..."></textarea></div>
-      <div><label class="fl">Điểm cần cải thiện <span class="req">*</span></label><textarea id="weakness" placeholder="Kỹ năng paperwork cần hoàn thiện, tốc độ xử lý brief còn chậm..."></textarea></div>
+      <div><label class="fl">Điểm mạnh nổi bật <span class="req">*</span></label><textarea id="strength" placeholder="Học hỏi nhanh, phối hợp nhóm tốt, chủ động đề xuất ý tưởng..." onblur="markFieldQuality(this)"></textarea></div>
+      <div><label class="fl">Điểm cần cải thiện <span class="req">*</span></label><textarea id="weakness" placeholder="Kỹ năng paperwork cần hoàn thiện, tốc độ xử lý brief còn chậm..." onblur="markFieldQuality(this)"></textarea></div>
     </div>
   </div>
 
@@ -615,10 +615,31 @@ function fmtDate(el){
   el.value=v;
 }
 function calcDur(){
-  const sv=document.getElementById('f_start').value, ev=document.getElementById('f_end').value;
+  const startEl=document.getElementById('f_start'), endEl=document.getElementById('f_end');
+  const sv=startEl.value, ev=endEl.value;
+  // Reset trạng thái lỗi trước, set lại đúng nếu phát hiện sai logic dưới đây
+  startEl.style.borderColor='';
+  startEl.style.boxShadow='';
+  endEl.style.borderColor='';
+  endEl.style.boxShadow='';
   if(/\d{2}\/\d{2}\/\d{4}/.test(sv)&&/\d{2}\/\d{2}\/\d{4}/.test(ev)){
     const[sd,sm,sy]=sv.split('/'), [ed,em,ey]=ev.split('/');
     const s=new Date(`${sy}-${sm}-${sd}`), e=new Date(`${ey}-${em}-${ed}`);
+    const currentYear=new Date().getFullYear(); // luôn lấy năm thật lúc chạy, không hardcode
+    const startYearValid=parseInt(sy,10)===currentYear;
+    const endYearValid=parseInt(ey,10)===currentYear;
+    if(!startYearValid){
+      document.getElementById('f_duration').value=`⚠ Năm bắt đầu phải là ${currentYear}`;
+      startEl.style.borderColor='#e74c3c';
+      startEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
+      return;
+    }
+    if(!endYearValid){
+      document.getElementById('f_duration').value=`⚠ Năm kết thúc phải là ${currentYear}`;
+      endEl.style.borderColor='#e74c3c';
+      endEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
+      return;
+    }
     if(e>s){
       const days=Math.round((e-s)/86400000);
       const months=Math.round(days/30.44);
@@ -630,6 +651,27 @@ function calcDur(){
       renderWeeks(weeks);
     } else {
       document.getElementById('f_duration').value='⚠ Ngày kết thúc phải sau ngày bắt đầu';
+      // Viền đỏ trực tiếp lên ô "Ngày kết thúc" — không chỉ cảnh báo mờ ở ô bên cạnh,
+      // để TBP thấy ngay lỗi nằm ở đúng ô nào cần sửa, không cần chờ tới lúc bấm Gửi.
+      endEl.style.borderColor='#e74c3c';
+      endEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
+    }
+  }
+}
+
+// Cảnh báo tức thời nếu "Ngày đánh giá" bị điền trước "Ngày bắt đầu thử việc" —
+// về logic không thể đánh giá nhân viên trước khi họ bắt đầu thử việc.
+function checkEvalDateLogic(){
+  const startEl=document.getElementById('f_start'), evalEl=document.getElementById('f_evaldate');
+  evalEl.style.borderColor='';
+  evalEl.style.boxShadow='';
+  const sv=startEl.value, ev=evalEl.value;
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(sv)&&/^\d{2}\/\d{2}\/\d{4}$/.test(ev)){
+    const[sd,sm,sy]=sv.split('/'), [ed,em,ey]=ev.split('/');
+    const s=new Date(`${sy}-${sm}-${sd}`), e=new Date(`${ey}-${em}-${ed}`);
+    if(e<s){
+      evalEl.style.borderColor='#e74c3c';
+      evalEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
     }
   }
 }
@@ -663,7 +705,7 @@ function renderWeeks(count){
   let h='';
   for(let i=1;i<=n;i++){
     h+=`<tr><td class="wnum">Tuần ${i}</td>
-      <td><textarea id="wn${i}" placeholder="Dự án / công việc chính..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box"></textarea></td>
+      <td><textarea id="wn${i}" placeholder="Dự án / công việc chính..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea></td>
       <td style="vertical-align:top;padding-top:8px"><select id="ws${i}" onchange="onWkChange(${i})">
         <option value="">— Chọn —</option>
         <option value="tb">Trung bình</option>
@@ -1070,18 +1112,123 @@ function syncSigInfo(){
   if(sigTitle) sigTitle.value=title;
   if(sigEmp) sigEmp.value=empName;
   if(sigEmpTitle) sigEmpTitle.value=empTitle;
-  // Only auto-fill sig_date if user hasn't manually set a different one
-  if(sigDate && !sigDate.dataset.manuallyEdited) sigDate.value=evalDate;
-  if(sigEmpDate && !sigEmpDate.dataset.manuallyEdited) sigEmpDate.value=evalDate;
+  // Ngày ký và Ngày xác nhận KHÔNG tự điền — để trống, người ký tự ghi tay
+  // khi in ra giấy hoặc ký thật, tránh trường hợp ngày tự điền không khớp
+  // với ngày ký thực tế.
 }
 function checkS1(){
   sectionDone[1]=!!(document.getElementById('f_name').value.trim()&&document.getElementById('f_dept').value&&document.getElementById('f_level').value&&document.getElementById('f_title').value&&document.getElementById('f_manager').value.trim()&&document.getElementById('f_mgr_title').value.trim());
   updateLocks();
 }
+// Kiểm tra nội dung văn bản tự do có "thực chất" hay không — không chỉ là có chữ.
+// Vì hệ thống không thể hiểu ngữ nghĩa, chỉ chặn được theo 2 quy tắc khách quan:
+// 1) Đủ độ dài tối thiểu (chặn kiểu gõ "ok", "...", "đạt", tên người qua loa)
+// 2) Đủ đa dạng từ (chặn kiểu lặp 1 từ/cụm nhiều lần, ví dụ "HR ADMIN HR ADMIN HR ADMIN")
+const MIN_MEANINGFUL_LENGTH=15; // ký tự, sau khi đã trim
+const MIN_UNIQUE_WORD_RATIO=0.5; // tỉ lệ số từ duy nhất / tổng số từ, tối thiểu 50%
+function isMeaningfulText(raw){
+  const text=(raw||'').trim();
+  if(text.length<MIN_MEANINGFUL_LENGTH) return false;
+  const words=text.toLowerCase().split(/\s+/).filter(w=>w.length>0);
+  if(words.length===0) return false;
+  const uniqueWords=new Set(words);
+  // Với câu rất ngắn (<=3 từ), không áp tỉ lệ unique (vd "Hoàn thành đúng deadline" 3 từ là hợp lệ),
+  // chỉ áp dụng từ 4 từ trở lên để tránh chặn nhầm câu ngắn nhưng hợp lệ.
+  if(words.length>3 && (uniqueWords.size/words.length)<MIN_UNIQUE_WORD_RATIO) return false;
+  return true;
+}
+// Đánh dấu viền cảnh báo (cam) lên 1 ô textarea/input khi nội dung chưa đủ thực chất —
+// giúp TBP biết ngay ô nào cần bổ sung, không chỉ thấy thông báo chung ở cấp Phần.
+function markFieldQuality(el){
+  if(!el) return;
+  if(!isMeaningfulText(el.value) && el.value.trim().length>0){
+    // Có gõ gì đó nhưng chưa đủ thực chất -> cảnh báo màu cam (khác màu đỏ dùng cho "thiếu hẳn")
+    el.style.borderColor='#e67e22';
+    el.style.boxShadow='0 0 0 3px rgba(230,126,34,.15)';
+  } else {
+    el.style.borderColor='';
+    el.style.boxShadow='';
+  }
+}
+
+// Tính độ tương đồng giữa 2 đoạn văn bản theo Jaccard similarity trên tập từ —
+// bắt được cả trường hợp sửa vài chữ rồi dán lặp (không cần giống y nguyên 100%).
+function textSimilarity(a,b){
+  const wordsA=new Set((a||'').toLowerCase().trim().split(/\s+/).filter(w=>w.length>1));
+  const wordsB=new Set((b||'').toLowerCase().trim().split(/\s+/).filter(w=>w.length>1));
+  if(wordsA.size===0||wordsB.size===0) return 0;
+  let common=0;
+  wordsA.forEach(w=>{ if(wordsB.has(w)) common++; });
+  const union=new Set([...wordsA,...wordsB]).size;
+  return union===0?0:common/union;
+}
+const DUPLICATE_SIMILARITY_THRESHOLD=0.7; // ≥70% giống nhau coi là lặp/copy-dán không sửa kỹ
+
+// Quét toàn bộ ô dẫn chứng (Mục III + IV + tiêu chí quản lý) tìm cặp giống nhau ≥70%.
+// Trả về danh sách [{elA, elB, labelA, labelB, score}] các cặp bị nghi là copy-dán hàng loạt.
+function detectDuplicateEvidence(){
+  const fields=[]; // {id, el, label}
+  CORE.forEach(c=>{
+    const el=document.getElementById(`evt_core_${c.id}`);
+    if(el && !naState[`core_${c.id}`]) fields.push({el, label:`Cốt lõi — ${c.name}`});
+  });
+  const dCrit=currentDept?(currentDeptCriteria||DEPT_DATA[currentDept]?.criteria||[]):[];
+  dCrit.forEach(c=>{
+    const el=document.getElementById(`evt_dept_${c.id}`);
+    if(el && !naState[`dept_${c.id}`]) fields.push({el, label:`Chuyên môn — ${c.name}`});
+  });
+  if(document.querySelectorAll('[id^="bi_mgmt_"]').length){
+    MANAGEMENT.forEach(c=>{
+      const el=document.getElementById(`evt_mgmt_${c.id}`);
+      if(el && !naState[`mgmt_${c.id}`]) fields.push({el, label:`Quản lý — ${c.name}`});
+    });
+  }
+  const dupPairs=[];
+  for(let i=0;i<fields.length;i++){
+    for(let j=i+1;j<fields.length;j++){
+      const valA=fields[i].el.value.trim(), valB=fields[j].el.value.trim();
+      if(!valA||!valB) continue;
+      const score=textSimilarity(valA,valB);
+      if(score>=DUPLICATE_SIMILARITY_THRESHOLD){
+        dupPairs.push({elA:fields[i].el, elB:fields[j].el, labelA:fields[i].label, labelB:fields[j].label, score});
+      }
+    }
+  }
+  return dupPairs;
+}
+
+// Đánh dấu viền tím cảnh báo lên các ô bị phát hiện trùng lặp, và trả về true nếu có lặp.
+function markDuplicateEvidence(){
+  // Xoá viền tím cũ trước khi quét lại (tránh sót viền cũ nếu đã sửa xong)
+  document.querySelectorAll('.dup-evidence-flag').forEach(el=>{
+    el.classList.remove('dup-evidence-flag');
+    el.style.borderColor='';
+    el.style.boxShadow='';
+  });
+  const dups=detectDuplicateEvidence();
+  dups.forEach(p=>{
+    [p.elA,p.elB].forEach(el=>{
+      el.classList.add('dup-evidence-flag');
+      el.style.borderColor='#8e44ad';
+      el.style.boxShadow='0 0 0 3px rgba(142,68,173,.18)';
+    });
+  });
+  return dups;
+}
 function checkS2(){
-  let hasOne=false;
-  for(let i=1;i<=12;i++){if(document.getElementById('ws'+i)?.value){hasOne=true;break;}}
-  sectionDone[2]=hasOne;updateLocks();
+  // Mỗi tuần đã chọn trạng thái (ws) thì nội dung công việc (wn) cũng phải có thực chất —
+  // tránh trường hợp chọn trạng thái xong nhưng để trống hoặc ghi qua loa ở ô công việc.
+  let hasOne=false, allFilledRowsValid=true;
+  for(let i=1;i<=12;i++){
+    const statusVal=document.getElementById('ws'+i)?.value;
+    const noteEl=document.getElementById('wn'+i);
+    if(statusVal){
+      hasOne=true;
+      if(noteEl) markFieldQuality(noteEl);
+      if(!noteEl||!isMeaningfulText(noteEl.value)) allFilledRowsValid=false;
+    }
+  }
+  sectionDone[2]=hasOne&&allFilledRowsValid;updateLocks();
 }
 function checkSects(){
   // Section 3: all active criteria must have score + evidence
@@ -1091,9 +1238,8 @@ function checkSects(){
     const scored=document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);
     if(!scored){c3=false;break;} // must have score
     const evEl=document.getElementById(`evt_core_${c.id}`);
-    if(evEl&&!evEl.value.trim()){c3=false;break;} // must have evidence
+    if(evEl){markFieldQuality(evEl); if(!isMeaningfulText(evEl.value)){c3=false;break;}} // must have meaningful evidence
   }
-  sectionDone[3]=c3;
 
   // Section 4: all rendered dept criteria must have score + evidence
   let c4=!!currentDept;
@@ -1109,7 +1255,7 @@ function checkSects(){
         const scored=document.querySelector(`[id^="bopt_dept_${cid}_"][class*="sel-"]`);
         if(!scored){c4=false;return;}
         const evEl=document.getElementById(`evt_dept_${cid}`);
-        if(evEl&&!evEl.value.trim()){c4=false;}
+        if(evEl){markFieldQuality(evEl); if(!isMeaningfulText(evEl.value)){c4=false;}}
       });
     }
     // Also require management criteria when shown (Assistant Manager and above)
@@ -1122,10 +1268,19 @@ function checkSects(){
         const scored=document.querySelector(`[id^="bopt_mgmt_${cid}_"][class*="sel-"]`);
         if(!scored){c4=false;return;}
         const evEl=document.getElementById(`evt_mgmt_${cid}`);
-        if(evEl&&!evEl.value.trim()){c4=false;}
+        if(evEl){markFieldQuality(evEl); if(!isMeaningfulText(evEl.value)){c4=false;}}
       });
     }
   }
+  // Quét toàn bộ dẫn chứng III+IV+quản lý tìm nội dung lặp ≥70% giữa các tiêu chí khác nhau
+  // (dấu hiệu copy-dán hàng loạt, không thực sự đánh giá riêng từng tiêu chí). Nếu phát hiện,
+  // không cho mở khóa Phần tiếp theo dù từng ô riêng lẻ đã đủ độ dài/đa dạng từ.
+  // QUAN TRỌNG: việc gán sectionDone phải nằm SAU bước check trùng lặp này, để không bị
+  // ghi đè bởi giá trị c3/c4 cũ tính trước khi biết có trùng lặp hay không.
+  const dupFound=markDuplicateEvidence();
+  if(dupFound.length>0){ c3=false; c4=false; }
+
+  sectionDone[3]=c3;
   sectionDone[4]=c4;
   updateLocks();
 }
@@ -1155,28 +1310,52 @@ function showToast(msg,type=''){
   setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),3500);
 }
 function validate(){
+  let _dupEvidenceFirstId=null;
+  // Hàm phụ: parse "dd/mm/yyyy" thành Date object để so sánh, trả về null nếu sai định dạng
+  function parseDMY(str){
+    if(!str||!/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return null;
+    const [d,m,y]=str.split('/');
+    const dt=new Date(`${y}-${m}-${d}`);
+    return isNaN(dt.getTime())?null:dt;
+  }
+  const startDate=parseDMY(document.getElementById('f_start').value);
+  const endDate=parseDMY(document.getElementById('f_end').value);
+  const evalDate=parseDMY(document.getElementById('f_evaldate').value);
+
   const checks=[
     [()=>!document.getElementById('f_name').value.trim(),'Thiếu: Họ tên nhân viên — Phần I','f_name'],
     [()=>!document.getElementById('f_dept').value,'Thiếu: Chọn bộ phận — Phần I','f_dept'],
     [()=>!document.getElementById('f_level').value,'Thiếu: Chọn cấp bậc — Phần I','f_level'],
     [()=>!document.getElementById('f_title').value,'Thiếu: Chọn vị trí cụ thể — Phần I','f_title'],
+    // Logic ngày: chặn hẳn (không chỉ cảnh báo mờ) nếu ngày kết thúc không sau ngày bắt đầu,
+    // hoặc ngày đánh giá nằm trước ngày bắt đầu thử việc (vô lý — không thể đánh giá trước khi
+    // nhân viên bắt đầu thử việc). Chỉ check khi cả 2 ngày liên quan đã điền đủ định dạng hợp lệ.
+    [()=>startDate&&endDate&&endDate<=startDate,'Lỗi: Ngày kết thúc thử việc phải sau ngày bắt đầu — Phần I','f_end'],
+    [()=>startDate&&evalDate&&evalDate<startDate,'Lỗi: Ngày đánh giá không thể trước ngày bắt đầu thử việc — Phần I','f_evaldate'],
+    [()=>{const y=document.getElementById('f_start').value.split('/')[2]; return y&&parseInt(y,10)!==new Date().getFullYear();},`Lỗi: Năm bắt đầu thử việc phải là ${new Date().getFullYear()} — Phần I`,'f_start'],
+    [()=>{const y=document.getElementById('f_end').value.split('/')[2]; return y&&parseInt(y,10)!==new Date().getFullYear();},`Lỗi: Năm kết thúc thử việc phải là ${new Date().getFullYear()} — Phần I`,'f_end'],
     [()=>!document.getElementById('f_manager').value.trim(),'Thiếu: Họ tên người đánh giá — Phần I','f_manager'],
     [()=>!document.getElementById('f_mgr_title').value.trim(),'Thiếu: Chức vụ người đánh giá — Phần I','f_mgr_title'],
+    [()=>{
+      const d=detectDuplicateEvidence();
+      if(d.length>0){ markDuplicateEvidence(); _dupEvidenceFirstId=d[0].elA.id; return true; }
+      return false;
+    },'Lỗi: Phát hiện dẫn chứng giống nhau giữa nhiều tiêu chí — vui lòng viết riêng cho từng tiêu chí, không copy-dán lặp lại',null],
     [()=>!sectionDone[2],'Phần II: Cần đánh giá ít nhất 1 tuần',null,'card2','ntab2'],
     [()=>!sectionDone[3],'Phần III: Chưa hoàn thành đánh giá Năng lực cốt lõi',null,'card3','ntab3'],
     [()=>!sectionDone[4],'Phần IV: Chưa hoàn thành đánh giá Năng lực chuyên môn',null,'card4','ntab4'],
     [()=>!sectionDone[5],'Phần V: Chưa hoàn thành đánh giá Culture Fit',null,'card5','ntab5'],
     [()=>!document.querySelector('input[name="conclusion"]:checked'),'Phần VII: Chưa chọn quyết định sau thử việc',null,'card7','ntab7'],
-    [()=>!document.getElementById('conclusion_reason').value.trim(),'Phần VII: Chưa điền lý do quyết định','conclusion_reason'],
-    [()=>!document.getElementById('strength').value.trim(),'Phần VII: Chưa điền điểm mạnh','strength'],
-    [()=>!document.getElementById('weakness').value.trim(),'Phần VII: Chưa điền điểm cần cải thiện','weakness'],
+    [()=>!isMeaningfulText(document.getElementById('conclusion_reason').value),'Phần VII: Lý do quyết định cần mô tả rõ hơn (không chỉ điền qua loa)','conclusion_reason'],
+    [()=>!isMeaningfulText(document.getElementById('strength').value),'Phần VII: Điểm mạnh cần mô tả rõ hơn (không chỉ điền qua loa)','strength'],
+    [()=>!isMeaningfulText(document.getElementById('weakness').value),'Phần VII: Điểm cần cải thiện cần mô tả rõ hơn (không chỉ điền qua loa)','weakness'],
     [()=>!document.getElementById('sig_manager').value.trim(),'Phần VII: Chưa điền họ tên người ký','sig_manager'],
     [()=>!document.getElementById('sig_title').value.trim(),'Phần VII: Chưa điền chức vụ người ký','sig_title'],
   ];
   for(const[check,msg,fieldId,cardId,tabId] of checks){
     if(check()){
       showToast(msg,'err');
-      focusInvalidField(fieldId,cardId,tabId);
+      focusInvalidField(fieldId||_dupEvidenceFirstId,cardId,tabId);
       return false;
     }
   }
@@ -1843,9 +2022,8 @@ renderBARSGroup('coreArea',CORE,'core');
 renderCulture();
 renderIDP();
 const td=new Date(), dd=String(td.getDate()).padStart(2,'0'), mm=String(td.getMonth()+1).padStart(2,'0'), yyyy=td.getFullYear();
-document.getElementById('sig_date').value=`${dd}/${mm}/${yyyy}`;
-document.getElementById('sig_emp_date').value=`${dd}/${mm}/${yyyy}`;
 document.getElementById('f_evaldate').value=`${dd}/${mm}/${yyyy}`;
+// Ngày ký (sig_date) và Ngày xác nhận (sig_emp_date) để trống — người ký tự điền tay.
 updateLocks();
 syncSigInfo();
 // Listen to strength/weakness for final summary update
