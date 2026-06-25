@@ -246,13 +246,13 @@ input[readonly]{background:#f0f5fb;color:#88a}
 
 <!-- NAV TABS -->
 <div class="nav-tabs" id="navTabs">
-  <div class="ntab active" onclick="scrollTo('card1','ntab1')" id="ntab1"><span class="nt-num">I</span><span class="nt-lbl">Thông tin</span></div>
-  <div class="ntab" onclick="scrollTo('card2','ntab2')" id="ntab2"><span class="nt-num">II</span><span class="nt-lbl">Công việc</span></div>
-  <div class="ntab" onclick="scrollTo('card3','ntab3')" id="ntab3"><span class="nt-num">III</span><span class="nt-lbl">Cốt lõi</span></div>
-  <div class="ntab" onclick="scrollTo('card4','ntab4')" id="ntab4"><span class="nt-num">IV</span><span class="nt-lbl">Chuyên môn</span></div>
-  <div class="ntab" onclick="scrollTo('card5','ntab5')" id="ntab5"><span class="nt-num">V</span><span class="nt-lbl">Culture Fit</span></div>
-  <div class="ntab" onclick="scrollTo('card6','ntab6')" id="ntab6"><span class="nt-num">VI</span><span class="nt-lbl">Kết quả</span></div>
-  <div class="ntab" onclick="scrollTo('card7','ntab7')" id="ntab7"><span class="nt-num">VII</span><span class="nt-lbl">Kết luận</span></div>
+  <div class="ntab active" onclick="scrollToTab('card1','ntab1')" id="ntab1"><span class="nt-num">I</span><span class="nt-lbl">Thông tin</span></div>
+  <div class="ntab" onclick="scrollToTab('card2','ntab2')" id="ntab2"><span class="nt-num">II</span><span class="nt-lbl">Công việc</span></div>
+  <div class="ntab" onclick="scrollToTab('card3','ntab3')" id="ntab3"><span class="nt-num">III</span><span class="nt-lbl">Cốt lõi</span></div>
+  <div class="ntab" onclick="scrollToTab('card4','ntab4')" id="ntab4"><span class="nt-num">IV</span><span class="nt-lbl">Chuyên môn</span></div>
+  <div class="ntab" onclick="scrollToTab('card5','ntab5')" id="ntab5"><span class="nt-num">V</span><span class="nt-lbl">Culture Fit</span></div>
+  <div class="ntab" onclick="scrollToTab('card6','ntab6')" id="ntab6"><span class="nt-num">VI</span><span class="nt-lbl">Kết quả</span></div>
+  <div class="ntab" onclick="scrollToTab('card7','ntab7')" id="ntab7"><span class="nt-num">VII</span><span class="nt-lbl">Kết luận</span></div>
 </div>
 
 <div id="formArea">
@@ -635,7 +635,7 @@ function calcDur(){
 }
 
 // SCROLL NAV
-function scrollTo(cardId, tabId){
+function scrollToTab(cardId, tabId){
   document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
   document.getElementById(cardId).scrollIntoView({behavior:'smooth',block:'start'});
@@ -1517,86 +1517,269 @@ function showPDF(){
   setTimeout(()=>w.print(),600);
 }
 
-// Sinh PDF dạng base64 HOÀN TOÀN ẨN (không mở cửa sổ, TBP không nhìn thấy gì) — dùng để đính kèm email
-// LƯU Ý KỸ THUẬT: KHÔNG dùng iframe để chứa nội dung trước khi chụp — html2canvas đọc
-// DOM của 1 iframe khác document rất không ổn định (hay ra canvas trắng dù DOM có dữ liệu
-// thật, do cách nó truy xuất computed style/layout xuyên document context). Thay vào đó,
-// chèn nội dung TRỰC TIẾP vào document hiện tại bằng 1 <div>, vẫn giấu khỏi mắt TBP bằng
-// cách đẩy ra ngoài viewport — nhưng html2canvas chụp đúng ngữ cảnh nó hiểu rõ nhất.
-let _html2pdfLoaded=false;
-async function loadHtml2pdf(){
-  if(_html2pdfLoaded||window.html2pdf) { _html2pdfLoaded=true; return; }
+// Sinh PDF dạng base64 HOÀN TOÀN ẨN (không mở cửa sổ, TBP không nhìn thấy gì) — dùng để lưu vào Drive.
+// QUYẾT ĐỊNH KỸ THUẬT QUAN TRỌNG: không dùng html2canvas/html2pdf (chụp ảnh DOM) nữa —
+// đã thử 4 cách khác nhau để ẩn/định vị container nhưng html2canvas vẫn trả về ảnh trắng
+// một cách không thể dự đoán được, dù dữ liệu đầu vào (DOM, text, table) đã được xác nhận
+// đầy đủ và đúng qua nhiều lớp kiểm tra. Đây có thể là hạn chế/bug của chính html2canvas
+// với trang có nhiều CSS phức tạp. Thay vào đó, dùng jsPDF + jspdf-autotable để VẼ TRỰC TIẾP
+// text/bảng vào PDF từ dữ liệu thật (không qua bước "chụp ảnh" nào cả) — cách này không thể
+// ra "trắng" được vì mỗi dòng/mỗi ô được lệnh vẽ rõ ràng, có hoặc không có dữ liệu là biết ngay.
+let _jspdfLoaded=false;
+async function loadJsPDF(){
+  if(_jspdfLoaded || (window.jspdf && window.jspdf.jsPDF)) { _jspdfLoaded=true; return; }
   await new Promise((resolve,reject)=>{
     const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-    s.onload=()=>{_html2pdfLoaded=true;resolve();};
-    s.onerror=()=>reject(new Error('Không tải được thư viện html2pdf.js'));
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload=resolve;
+    s.onerror=()=>reject(new Error('Không tải được thư viện jsPDF'));
     document.head.appendChild(s);
   });
+  await new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
+    s.onload=resolve;
+    s.onerror=()=>reject(new Error('Không tải được thư viện jspdf-autotable'));
+    document.head.appendChild(s);
+  });
+  _jspdfLoaded=true;
 }
+
 async function generatePDFBase64(){
-  await loadHtml2pdf();
-  const fullHtml=buildEvalHTML();
-  // Tách phần <body>...</body> ra khỏi chuỗi HTML đầy đủ mà buildEvalHTML() trả về,
-  // vì giờ ta chèn trực tiếp vào document hiện tại, không cần thẻ html/head riêng.
-  const bodyMatch=fullHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-  const innerHtml=bodyMatch?bodyMatch[1]:fullHtml;
-  const styleMatch=fullHtml.match(/<style>([\s\S]*?)<\/style>/i);
-  const innerStyle=styleMatch?styleMatch[1]:'';
+  console.log('[PDF] Bắt đầu generatePDFBase64() — phiên bản vẽ trực tiếp bằng jsPDF (không chụp ảnh DOM)');
+  await loadJsPDF();
+  console.log('[PDF] jsPDF đã sẵn sàng:', typeof window.jspdf?.jsPDF);
 
-  // Container ẩn khỏi mắt TBP nhưng VẪN nằm trong viewport thực (top:0;left:0) với
-  // opacity gần 0 + pointer-events:none — KHÔNG đẩy ra xa màn hình (vd left:-9999px),
-  // vì nhiều trình duyệt tối ưu hóa bỏ qua việc paint/render nội dung nằm quá xa viewport,
-  // khiến html2canvas chụp ra canvas trắng dù DOM có đủ dữ liệu. Cách này đảm bảo trình
-  // duyệt vẫn coi nội dung là "visible" và render đầy đủ, còn TBP thì không thấy gì vì
-  // độ mờ gần như tuyệt đối và z-index thấp nằm dưới toàn bộ giao diện thật.
-  const container=document.createElement('div');
-  container.id='_pdfRenderContainer';
-  container.style.position='fixed';
-  container.style.left='0';
-  container.style.top='0';
-  container.style.width='800px';
-  container.style.zIndex='-1';
-  container.style.opacity='0.01';
-  container.style.pointerEvents='none';
-  container.style.background='#fff';
+  const data=collectEvalData();
+  console.log('[PDF] collectEvalData() OK — tên NV:', data.name, '| tổng điểm:', data.total);
 
-  // Scope CSS riêng cho container này để không đụng vào style của form thật đang hiển thị.
-  // innerStyle gốc dùng selector "body{...}" — đổi thành #_pdfRenderContainer để áp đúng phạm vi.
-  const styleTag=document.createElement('style');
-  styleTag.textContent=`#_pdfRenderContainer{font-family:Arial,sans-serif;font-size:12px;color:#1a1a18;padding:20px;box-sizing:border-box;background:#fff}
-${innerStyle.replace(/\bbody\s*\{/g,'#_pdfRenderContainer{')}`;
-  container.appendChild(styleTag);
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const pageWidth=doc.internal.pageSize.getWidth();
+  const marginL=14, marginR=14;
+  const usableWidth=pageWidth-marginL-marginR;
+  let y=16;
 
-  const contentDiv=document.createElement('div');
-  contentDiv.innerHTML=innerHtml;
-  container.appendChild(contentDiv);
+  // Hỗ trợ tiếng Việt: jsPDF font mặc định (helvetica) không có dấu tiếng Việt đầy đủ.
+  // Dùng font 'times' (built-in của jsPDF, dựa trên Times — hỗ trợ Unicode Latin Extended
+  // tốt hơn helvetica trong jsPDF core) để giảm thiểu lỗi hiển thị dấu.
+  doc.setFont('times','normal');
 
-  document.body.appendChild(container);
-
-  // Đợi ảnh (logo base64...) thực sự decode xong trước khi chụp — base64 thường rất nhanh
-  // nhưng vẫn đợi cho chắc, tránh trường hợp máy/trình duyệt chậm chụp hụt 1 frame.
-  const imgs=Array.from(container.querySelectorAll('img'));
-  await Promise.all(imgs.map(img=>{
-    if(img.complete && img.naturalWidth>0) return Promise.resolve();
-    return new Promise(res=>{
-      img.addEventListener('load',res,{once:true});
-      img.addEventListener('error',res,{once:true});
-      setTimeout(res,1500); // mốc an toàn, không treo vô hạn
-    });
-  }));
-  // 1 frame render để layout chốt trước khi html2canvas đọc
-  await new Promise(res=>requestAnimationFrame(()=>requestAnimationFrame(res)));
-
-  try{
-    const opt={margin:10,filename:'danh_gia_thu_viec.pdf',image:{type:'jpeg',quality:0.92},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
-    const dataUri=await window.html2pdf().set(opt).from(container).outputPdf('datauristring');
-    const base64=dataUri.split(',')[1]||'';
-    if(!base64) throw new Error('html2pdf trả về dữ liệu rỗng');
-    return base64;
-  } finally {
-    document.body.removeChild(container);
+  function heading(text,size=13,bold=true){
+    doc.setFontSize(size);
+    doc.setFont('times', bold?'bold':'normal');
+    doc.setTextColor(0,90,171);
+    doc.text(text, marginL, y);
+    y+=size*0.5;
+    doc.setTextColor(20,20,18);
   }
+  function sectionTitle(text){
+    if(y>270){doc.addPage();y=16;}
+    y+=3;
+    doc.setFillColor(238,243,250);
+    doc.rect(marginL, y-4, usableWidth, 7, 'F');
+    doc.setFontSize(10.5);
+    doc.setFont('times','bold');
+    doc.setTextColor(0,90,171);
+    doc.text(text, marginL+2, y+1);
+    y+=8;
+    doc.setTextColor(20,20,18);
+    doc.setFont('times','normal');
+  }
+  function bodyText(text,size=10){
+    doc.setFontSize(size);
+    doc.setFont('times','normal');
+    doc.setTextColor(20,20,18);
+    const lines=doc.splitTextToSize(text||'—', usableWidth);
+    if(y+lines.length*5>280){doc.addPage();y=16;}
+    doc.text(lines, marginL, y);
+    y+=lines.length*5+2;
+  }
+  function table(head,rows,colWidths){
+    if(y>260){doc.addPage();y=16;}
+    doc.autoTable({
+      startY:y,
+      head:[head],
+      body:rows,
+      margin:{left:marginL,right:marginR},
+      styles:{font:'times',fontSize:9,cellPadding:2,textColor:[20,20,18],lineColor:[208,228,247],lineWidth:0.2},
+      headStyles:{fillColor:[0,90,171],textColor:[255,255,255],fontStyle:'bold',fontSize:8.5},
+      columnStyles:colWidths||{},
+      didDrawPage:()=>{}
+    });
+    y=doc.lastAutoTable.finalY+6;
+  }
+
+  // ===== HEADER =====
+  heading('BẢNG ĐÁNH GIÁ KẾT QUẢ THỬ VIỆC',14);
+  doc.setFontSize(9);doc.setTextColor(120,120,120);
+  doc.text('Blue Sky Corporation · Nội bộ — Bảo mật · Thang điểm 100', marginL, y);
+  doc.setTextColor(20,20,18);
+  y+=8;
+
+  // ===== I. THÔNG TIN =====
+  sectionTitle('I. THÔNG TIN NHÂN VIÊN');
+  table(['Trường','Nội dung'],[
+    ['Họ và tên', data.name],
+    ['Bộ phận', data.deptLabel],
+    ['Vị trí', data.title],
+    ['Cấp bậc', data.level],
+    ['Thời gian thử việc', `${data.start} → ${data.end} (${data.dur})`],
+    ['Người đánh giá', `${data.manager} (${data.mgrTitle})`],
+    ['Ngày đánh giá', data.evalDate],
+  ],{0:{cellWidth:45,fontStyle:'bold',textColor:[0,90,171]}});
+
+  // ===== II. CÔNG VIỆC THEO TUẦN =====
+  sectionTitle('II. GHI NHẬN CÔNG VIỆC THEO TUẦN (không tính điểm)');
+  if(data.weeks.length){
+    table(['Tuần','Công việc','Tình trạng'], data.weeks.map(w=>[w.label,w.note||'—',w.status||'—']), {0:{cellWidth:18},2:{cellWidth:28}});
+  } else {
+    bodyText('Chưa điền.');
+  }
+  if(data.workComment){ bodyText('Ghi chú phát sinh: '+data.workComment); }
+
+  // ===== III. NĂNG LỰC CỐT LÕI =====
+  sectionTitle('III. NĂNG LỰC CỐT LÕI (38%)');
+  table(['Tiêu chí','Điểm','Dẫn chứng'], data.coreRows, {0:{cellWidth:55},1:{cellWidth:28}});
+
+  // ===== IV. CHUYÊN MÔN =====
+  sectionTitle(`IV. NĂNG LỰC CHUYÊN MÔN — ${data.deptLabel} (38%)`);
+  if(data.deptRows.length){
+    table(['Tiêu chí','Điểm','Dẫn chứng'], data.deptRows, {0:{cellWidth:55},1:{cellWidth:28}});
+  } else {
+    bodyText('Chưa điền.');
+  }
+  if(data.mgmtRows.length){
+    bodyText('👤 Tiêu chí quản lý (Assistant Manager trở lên):');
+    table(['Tiêu chí','Điểm','Dẫn chứng'], data.mgmtRows, {0:{cellWidth:55},1:{cellWidth:28}});
+  }
+
+  // ===== V. CULTURE FIT =====
+  sectionTitle('V. CULTURE FIT (24%)');
+  table(['Tiêu chí','Đánh giá'], data.cultRows, {1:{cellWidth:55}});
+
+  // ===== VI. TỔNG ĐIỂM =====
+  sectionTitle('VI. TỔNG ĐIỂM');
+  bodyText(`Năng lực cốt lõi 38% · Chuyên môn 38% · Culture 24%  —  ${data.pCore}% · ${data.pDept}% · ${data.pCult}%`);
+  heading(`TỔNG ĐIỂM: ${data.total}/100  —  ${data.verdictText}`,12);
+  y+=2;
+
+  // ===== VII. KẾT LUẬN =====
+  sectionTitle('VII. KẾT LUẬN');
+  table(['Mục','Nội dung'],[
+    ['Quyết định', data.conclusion],
+    ['Lý do & căn cứ', data.reason||'—'],
+    ['Điểm mạnh', data.strength||'—'],
+    ['Điểm cần cải thiện', data.weakness||'—'],
+  ],{0:{cellWidth:45,fontStyle:'bold',textColor:[0,90,171]}});
+
+  if(data.idpRows.length){
+    sectionTitle('IDP — LỘ TRÌNH 3 THÁNG TIẾP THEO');
+    table(['','Mục tiêu','Mentor','Đo lường'], data.idpRows, {0:{cellWidth:20}});
+  }
+
+  // ===== KÝ TÊN =====
+  if(y>250){doc.addPage();y=16;}
+  y+=8;
+  doc.setFontSize(9);doc.setFont('times','bold');doc.setTextColor(0,90,171);
+  doc.text('NGƯỜI ĐÁNH GIÁ', marginL, y);
+  doc.text('NHÂN VIÊN ĐƯỢC ĐÁNH GIÁ', marginL+usableWidth/2, y);
+  y+=10;
+  doc.setFont('times','normal');doc.setTextColor(20,20,18);
+  doc.text(`${data.sigManager}\n${data.sigTitle}\nNgày ${data.sigDate}`, marginL, y);
+  doc.text(`${data.sigEmployee}\n${data.sigEmpTitle}\nNgày ${data.sigEmpDate}`, marginL+usableWidth/2, y);
+
+  const dataUriStr=doc.output('datauristring');
+  console.log('[PDF] jsPDF output datauristring length:', dataUriStr.length);
+  const base64=dataUriStr.split(',')[1]||'';
+  console.log('[PDF] base64 length sau khi tách:', base64.length);
+  if(!base64) throw new Error('jsPDF trả về dữ liệu rỗng');
+  return base64;
+}
+
+// Thu thập toàn bộ dữ liệu đánh giá thành object thuần (dùng chung cho buildEvalHTML và generatePDFBase64),
+// tránh lặp lại logic đọc DOM ở 2 nơi khác nhau.
+function collectEvalData(){
+  const name=document.getElementById('f_name').value||'—';
+  const dept=document.getElementById('f_dept').value;
+  const deptLabel=dept?DEPT_DATA[dept]?.label||dept:'—';
+  const title=document.getElementById('f_title').value||'—';
+  const level=document.getElementById('f_level').value||'—';
+  const manager=document.getElementById('f_manager').value||'—';
+  const mgrTitle=document.getElementById('f_mgr_title').value||'—';
+  const start=document.getElementById('f_start').value||'—';
+  const end=document.getElementById('f_end').value||'—';
+  const dur=document.getElementById('f_duration').value||'—';
+  const evalDate=document.getElementById('f_evaldate').value||'—';
+
+  const dCrit=dept?(currentDeptCriteria||DEPT_DATA[dept].criteria):[];
+  const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
+  const pCore=getGroupScore(CORE,'core')||0;
+  const pDept=getDeptScore(dCrit)||0;
+  const pCult=getCultScore()||0;
+  const total=Math.round(pCore*0.38+pDept*0.38+pCult*0.24);
+
+  const wkLabels={tb:'Trung bình',dat:'Đạt',xs:'Xuất sắc'};
+  const weeks=[];
+  for(let i=1;i<=activeWeeks;i++){
+    const note=document.getElementById('wn'+i)?.value;
+    const statusRaw=document.getElementById('ws'+i)?.value;
+    const status=wkLabels[statusRaw]||'';
+    if(note||status) weeks.push({label:'Tuần '+i, note, status});
+  }
+  const workComment=document.getElementById('work_comment')?.value||'';
+
+  const scoreLabels=['','Kém','Yếu','Đạt','Tốt','Xuất sắc'];
+  function buildRows(criteria,prefix){
+    return criteria.map(c=>{
+      const key=prefix+'_'+c.id;
+      if(naState[key]) return [c.name,'N/A',''];
+      const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
+      const m=sel?sel.className.match(/sel-(\d)/):null;
+      const sc=m?parseInt(m[1]):null;
+      const ev=document.getElementById(`evt_${prefix}_${c.id}`)?.value||'';
+      return [c.name, sc?sc+' — '+scoreLabels[sc]:'—', ev];
+    });
+  }
+  const coreRows=buildRows(CORE,'core');
+  const deptRows=buildRows(dCrit,'dept');
+  const mgmtRows=hasManagement?buildRows(MANAGEMENT,'mgmt'):[];
+
+  const cultLabels={cu1:['Chưa bao giờ','Thỉnh thoảng','Thường xuyên','Luôn luôn'],cu2:['Chưa thể hiện','Đôi khi mất bình tĩnh','Chịu được tốt','Làm tốt dưới áp lực cao'],cu3:['Khó thích nghi','Thích nghi chậm','Thích nghi tốt','Coi thay đổi là cơ hội'],cu4:['Chưa phù hợp','Đang cải thiện','Cơ bản phù hợp','Hoàn toàn phù hợp'],cu5:['Chưa thể hiện','Thỉnh thoảng','Thường xuyên','Luôn là chỗ dựa']};
+  const cultRows=CULTURE.map(c=>{
+    const el=document.querySelector(`[id^="copt_${c.id}_"].sel`);
+    const m=el?el.id.match(/_(\d)$/):null;
+    const sc=m?parseInt(m[1]):null;
+    return [c.name, sc?(sc+' — '+(cultLabels[c.id]?cultLabels[c.id][sc-1]:'')):'—'];
+  });
+
+  const conclusionMap={'hire':'Ký hợp đồng chính thức','promote':'Ký hợp đồng & Tăng chức/lương','fail':'Không tiếp tục'};
+  const conclusionVal=document.querySelector('input[name="conclusion"]:checked')?.value||'';
+  const conclusion=conclusionMap[conclusionVal]||'Chưa chọn';
+  const reason=document.getElementById('conclusion_reason')?.value||'';
+  const strength=document.getElementById('strength')?.value||'';
+  const weakness=document.getElementById('weakness')?.value||'';
+  const sigManager=document.getElementById('sig_manager')?.value||'';
+  const sigTitle=document.getElementById('sig_title')?.value||'';
+  const sigDate=document.getElementById('sig_date')?.value||'';
+  const sigEmployee=document.getElementById('sig_employee')?.value||'';
+  const sigEmpTitle=document.getElementById('sig_employee_title')?.value||'';
+  const sigEmpDate=document.getElementById('sig_emp_date')?.value||'';
+
+  const idpRows=[];
+  for(let i=1;i<=3;i++){
+    const g=document.getElementById('idp_g'+i)?.value||'';
+    const mentor=document.getElementById('idp_m'+i)?.value||'';
+    const k=document.getElementById('idp_k'+i)?.value||'';
+    if(g||mentor||k) idpRows.push(['Mục tiêu '+i, g||'—', mentor||'—', k||'—']);
+  }
+
+  const verdictText=document.getElementById('vd_title')?.textContent||'';
+
+  return {name,deptLabel,title,level,manager,mgrTitle,start,end,dur,evalDate,
+    pCore,pDept,pCult,total,weeks,workComment,coreRows,deptRows,mgmtRows,cultRows,
+    conclusion,reason,strength,weakness,sigManager,sigTitle,sigDate,sigEmployee,sigEmpTitle,sigEmpDate,
+    idpRows,verdictText};
 }
 
 
