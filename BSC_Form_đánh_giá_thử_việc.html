@@ -294,7 +294,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
   </div>
   <div class="r2">
     <div><label class="fl">Quản lý trực tiếp — Họ tên <span class="req">*</span></label><input id="f_manager" type="text" placeholder="Nguyễn Thị B" oninput="checkS1();syncSigInfo()" onblur="checkS1();syncSigInfo()"></div>
-    <div><label class="fl">Chức vụ người đánh giá <span class="req">*</span></label><input id="f_mgr_title" type="text" placeholder="Trưởng bộ phận Planning" oninput="checkS1();syncSigInfo()" onblur="checkS1();syncSigInfo()"></div>
+    <div><label class="fl">Chức vụ người đánh giá <span class="req">*</span></label><input id="f_mgr_title" type="text" placeholder="Trưởng bộ phận" oninput="checkS1();syncSigInfo()" onblur="checkS1();syncSigInfo()"></div>
   </div>
   <div class="r2">
     <div><label class="fl">Ngày đánh giá</label><input id="f_evaldate" type="text" placeholder="dd/mm/yyyy" oninput="fmtDate(this);syncSigInfo()" maxlength="10"></div>
@@ -710,7 +710,7 @@ function renderBARSGroup(containerId,criteria,prefix){
       <div class="bi-detail" id="det_${prefix}_${crit.id}"></div>
       <div class="ev-box" id="ev_${prefix}_${crit.id}">
         <label>✏️ Nhận xét & dẫn chứng <span style="color:#c0392b;font-weight:900">*bắt buộc</span> — cần điền để mở phần tiếp theo</label>
-        <textarea id="evt_${prefix}_${crit.id}" rows="3" style="min-height:64px;resize:vertical" placeholder="Bắt buộc — Mô tả tình huống cụ thể đã quan sát (tuần, dự án, hành động, kết quả)..." oninput="checkSects()" onblur="checkSects()" onpaste="setTimeout(checkSects,0)"></textarea>
+        <textarea id="evt_${prefix}_${crit.id}" rows="3" style="min-height:64px;resize:vertical" placeholder="Bắt buộc — Nêu tình huống thực tế đã quan sát để minh chứng cho mức điểm này..." oninput="checkSects()" onblur="checkSects()" onpaste="setTimeout(checkSects,0)"></textarea>
       </div>`;
     wrap.appendChild(div);
   });
@@ -770,9 +770,9 @@ function renderIDP(){
   let h='';
   const taStyle='width:100%;resize:vertical;min-height:60px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box';
   for(let i=1;i<=3;i++) h+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-    <div><label class="fl">Mục tiêu ${i}</label><textarea id="idp_g${i}" rows="3" style="${taStyle}" placeholder="Ví dụ: Tự viết proposal độc lập..."></textarea></div>
+    <div><label class="fl">Mục tiêu ${i}</label><textarea id="idp_g${i}" rows="3" style="${taStyle}" placeholder="Mô tả ngắn gọn năng lực hoặc kết quả cần đạt được trong 3 tháng tới..."></textarea></div>
     <div><label class="fl">Người hỗ trợ / Mentor</label><textarea id="idp_m${i}" rows="3" style="${taStyle}" placeholder="Tên người hỗ trợ..."></textarea></div>
-    <div><label class="fl">Cách đo lường</label><textarea id="idp_k${i}" rows="3" style="${taStyle}" placeholder="Ví dụ: 1 proposal được duyệt..."></textarea></div>
+    <div><label class="fl">Cách đo lường</label><textarea id="idp_k${i}" rows="3" style="${taStyle}" placeholder="Tiêu chí cụ thể để biết mục tiêu đã đạt được..."></textarea></div>
   </div>`;
   document.getElementById('idpArea').innerHTML=h;
 }
@@ -782,6 +782,14 @@ function onDeptChange(){
   document.getElementById('f_level').innerHTML='<option value="">— Chọn cấp bậc —</option>';
   document.getElementById('f_title').innerHTML='<option value="">— Chọn cấp bậc trước —</option>';
   naState=Object.fromEntries(Object.entries(naState).filter(([k])=>!k.startsWith('dept_')));
+  // Placeholder ô "Chức vụ người đánh giá" tự đổi theo đúng bộ phận đã chọn,
+  // tránh hiện cố định 1 bộ phận (vd Planning) gây hiểu lầm cho TBP bộ phận khác.
+  const mgrTitleEl=document.getElementById('f_mgr_title');
+  if(mgrTitleEl){
+    mgrTitleEl.placeholder=currentDept&&DEPT_DATA[currentDept]
+      ?`Trưởng bộ phận ${DEPT_DATA[currentDept].label}`
+      :'Trưởng bộ phận';
+  }
   if(!currentDept){document.getElementById('deptArea').innerHTML='<div style="text-align:center;padding:2rem;color:#aac;font-size:13px">Chọn bộ phận ở Phần I.</div>';return;}
   const levelSel=document.getElementById('f_level');
   levelSel.innerHTML='<option value="">— Chọn cấp bậc —</option>';
