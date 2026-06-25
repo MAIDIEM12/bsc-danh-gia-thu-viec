@@ -1620,10 +1620,24 @@ async function generatePDFBase64(){
     y=doc.lastAutoTable.finalY+6;
   }
 
-  // ===== HEADER =====
-  heading('BẢNG ĐÁNH GIÁ KẾT QUẢ THỬ VIỆC',14);
-  doc.setFontSize(9);doc.setTextColor(120,120,120);
-  doc.text('Blue Sky Corporation · Nội bộ — Bảo mật · Thang điểm 100', marginL, y);
+  // ===== HEADER (logo + tiêu đề) =====
+  // Lấy logo từ chính ảnh đang hiển thị trên form (đã là data URI base64 sẵn có trong DOM)
+  const logoSrc=document.querySelector('.hdr img')?.src||'';
+  let headerTextX=marginL;
+  if(logoSrc){
+    try{
+      const logoW=22, logoH=22*(0.55); // tỉ lệ gần đúng theo logo gốc (ngang hơn vuông)
+      doc.addImage(logoSrc, 'PNG', marginL, y-6, logoW, logoH);
+      headerTextX=marginL+logoW+5;
+    }catch(err){
+      console.warn('[PDF] Không vẽ được logo (bỏ qua, vẫn tiếp tục tạo PDF):', err);
+    }
+  }
+  doc.setFontSize(14);doc.setFont('Roboto','bold');doc.setTextColor(0,90,171);
+  doc.text('BẢNG ĐÁNH GIÁ KẾT QUẢ THỬ VIỆC', headerTextX, y);
+  y+=6;
+  doc.setFontSize(9);doc.setFont('Roboto','normal');doc.setTextColor(120,120,120);
+  doc.text('Blue Sky Corporation · Nội bộ — Bảo mật · Thang điểm 100', headerTextX, y);
   doc.setTextColor(20,20,18);
   y+=8;
 
@@ -1689,15 +1703,31 @@ async function generatePDFBase64(){
   }
 
   // ===== KÝ TÊN =====
-  if(y>250){doc.addPage();y=16;}
-  y+=8;
+  if(y>235){doc.addPage();y=16;}
+  y+=14;
+  const sigColW=usableWidth/2-6;
+  const sigLeftX=marginL, sigRightX=marginL+usableWidth/2+6;
+  // Đường kẻ ngang phía trên tên (giống khung chữ ký thật)
+  doc.setDrawColor(20,20,18);
+  doc.setLineWidth(0.3);
+  doc.line(sigLeftX, y, sigLeftX+sigColW, y);
+  doc.line(sigRightX, y, sigRightX+sigColW, y);
+  y+=5;
   doc.setFontSize(9);doc.setFont('Roboto','bold');doc.setTextColor(0,90,171);
-  doc.text('NGƯỜI ĐÁNH GIÁ', marginL, y);
-  doc.text('NHÂN VIÊN ĐƯỢC ĐÁNH GIÁ', marginL+usableWidth/2, y);
-  y+=10;
-  doc.setFont('Roboto','normal');doc.setTextColor(20,20,18);
-  doc.text(`${data.sigManager}\n${data.sigTitle}\nNgày ${data.sigDate}`, marginL, y);
-  doc.text(`${data.sigEmployee}\n${data.sigEmpTitle}\nNgày ${data.sigEmpDate}`, marginL+usableWidth/2, y);
+  doc.text('NGƯỜI ĐÁNH GIÁ', sigLeftX, y);
+  doc.text('NHÂN VIÊN ĐƯỢC ĐÁNH GIÁ', sigRightX, y);
+  y+=6;
+  doc.setFontSize(10);doc.setFont('Roboto','bold');doc.setTextColor(20,20,18);
+  doc.text(data.sigManager||'—', sigLeftX, y);
+  doc.text(data.sigEmployee||'—', sigRightX, y);
+  y+=5;
+  doc.setFontSize(9);doc.setFont('Roboto','normal');doc.setTextColor(80,80,80);
+  doc.text(data.sigTitle||'—', sigLeftX, y);
+  doc.text(data.sigEmpTitle||'—', sigRightX, y);
+  y+=5;
+  doc.text('Ngày '+(data.sigDate||'—'), sigLeftX, y);
+  doc.text('Ngày '+(data.sigEmpDate||'—'), sigRightX, y);
+  doc.setTextColor(20,20,18);
 
   const dataUriStr=doc.output('datauristring');
   console.log('[PDF] jsPDF output datauristring length:', dataUriStr.length);
