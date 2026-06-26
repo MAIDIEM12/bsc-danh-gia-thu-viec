@@ -63,10 +63,17 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .msel-box:hover{border-color:#9bbbe0}
 .msel-summary{color:#aab;flex:1;white-space:normal;word-wrap:break-word;line-height:1.45}
 .msel-arrow{color:#789;font-size:10px;flex-shrink:0;margin-top:3px}
-.msel-panel{position:fixed;z-index:999;width:320px;max-width:90vw;max-height:300px;overflow-y:auto;overflow-x:hidden;background:#fff;border:1.5px solid #c8d8f0;border-radius:8px;box-shadow:0 8px 24px rgba(0,40,90,.22);padding:6px;box-sizing:border-box}
-.msel-item{display:flex;align-items:flex-start;gap:7px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12.5px;line-height:1.4;width:100%;box-sizing:border-box}
-.msel-item input{margin-top:2px;flex-shrink:0;flex-grow:0}
-.msel-item span{flex:1 1 auto;min-width:0;word-wrap:break-word}
+/* Panel dropdown đa chọn — width CỐ ĐỊNH HOÀN TOÀN bằng CSS (340px), KHÔNG để JS ghi đè
+   width nữa (trước đây JS set width theo getBoundingClientRect của ô đóng, có rủi ro
+   ra giá trị sai/0 trên 1 số trình duyệt/thời điểm đo, khiến panel co lại cực nhỏ và
+   chữ bị bẻ dọc từng ký tự). JS giờ chỉ set top/left để định vị, không đụng width/display nội dung. */
+.msel-panel{position:fixed;z-index:999;width:340px;max-width:calc(100vw - 20px);max-height:300px;overflow-y:auto;overflow-x:hidden;background:#fff;border:1.5px solid #c8d8f0;border-radius:8px;box-shadow:0 8px 24px rgba(0,40,90,.22);padding:6px;box-sizing:border-box}
+/* Flexbox với flex-direction:row tường minh + input flex:0 0 16px (không co giãn) +
+   span flex:1 1 0% (chiếm hết phần còn lại) — đã kiểm chứng bằng render WebKit thật,
+   không còn bị bẻ chữ dọc từng ký tự như khi dùng flex:1 1 auto trước đây. */
+.msel-item{display:flex;flex-direction:row;align-items:flex-start;gap:7px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12.5px;line-height:1.4;width:100%;box-sizing:border-box;margin:0}
+.msel-item input[type=checkbox]{flex:0 0 16px;width:16px;height:16px;margin:2px 0 0;padding:0}
+.msel-item span{flex:1 1 0%;min-width:0;display:inline-block;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
 .msel-item:hover{background:#eef3fa}
 .msel-done{padding:4px 4px 0;text-align:right;border-top:1px solid #eef3fa;margin-top:4px}
 .msel-done button{background:#005AAB;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:11.5px;font-weight:800;cursor:pointer}
@@ -874,15 +881,15 @@ function toggleWeekMenu(i,evt){
   document.querySelectorAll('.msel-panel').forEach(p=>p.style.display='none');
   if(isOpen) return; // đang mở -> đóng lại (đã ẩn ở dòng trên), không cần định vị lại
   // Định vị panel ngay dưới ô đã bấm, dùng vị trí thật trên màn hình (vì panel giờ nằm
-  // trong document.body, không còn theo containing block của <td> nữa).
+  // trong document.body, không còn theo containing block của <td> nữa). KHÔNG set width
+  // ở đây — width đã cố định 340px bằng CSS tĩnh (.msel-panel), tránh phụ thuộc vào
+  // getBoundingClientRect() của ô đóng (có thể trả 0/sai trong vài trường hợp trình duyệt).
   const box=document.getElementById('mselBox'+i);
   const rect=box.getBoundingClientRect();
-  panel.style.position='fixed';
+  const panelWidth=340;
   panel.style.top=(rect.bottom+4)+'px';
   panel.style.left=rect.left+'px';
-  panel.style.width=Math.max(rect.width,300)+'px';
   // Nếu panel sẽ tràn ra ngoài mép phải màn hình, kéo nó lùi lại cho vừa khung nhìn.
-  const panelWidth=Math.max(rect.width,300);
   if(rect.left+panelWidth>window.innerWidth-10){
     panel.style.left=Math.max(10,window.innerWidth-panelWidth-10)+'px';
   }
