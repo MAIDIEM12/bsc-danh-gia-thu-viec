@@ -63,7 +63,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .msel-box:hover{border-color:#9bbbe0}
 .msel-summary{color:#aab;flex:1;white-space:normal;word-wrap:break-word;line-height:1.45}
 .msel-arrow{color:#789;font-size:10px;flex-shrink:0;margin-top:3px}
-.msel-panel{position:absolute;top:100%;left:0;z-index:30;width:320px;max-width:90vw;max-height:300px;overflow-y:auto;overflow-x:hidden;background:#fff;border:1.5px solid #c8d8f0;border-radius:8px;box-shadow:0 6px 18px rgba(0,40,90,.14);padding:6px;margin-top:3px;box-sizing:border-box}
+.msel-panel{position:fixed;z-index:999;width:320px;max-width:90vw;max-height:300px;overflow-y:auto;overflow-x:hidden;background:#fff;border:1.5px solid #c8d8f0;border-radius:8px;box-shadow:0 8px 24px rgba(0,40,90,.22);padding:6px;box-sizing:border-box}
 .msel-item{display:flex;align-items:flex-start;gap:7px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12.5px;line-height:1.4;width:100%;box-sizing:border-box}
 .msel-item input{margin-top:2px;flex-shrink:0;flex-grow:0}
 .msel-item span{flex:1 1 auto;min-width:0;word-wrap:break-word}
@@ -808,10 +808,13 @@ function onTitleChange(){
 // Mỗi tuần: 1 ô "dropdown đa chọn" tự xây (không phải <select> gốc, vì select gốc không
 // hỗ trợ tick nhiều kèm checkbox đẹp) — bấm vào ô để mở panel tick chọn nhiều hạng mục JD
 // + "Khác", đóng lại tự hiện tóm tắt các mục đã chọn. Giữ đúng layout bảng như form gốc.
+// QUAN TRỌNG: panel KHÔNG đặt position:absolute lồng trong <td> của bảng nữa — từng bị vỡ
+// layout (chữ bẻ dọc từng ký tự) vì containing block bên trong bảng tính toán width sai.
+// Giờ panel là 1 phần tử DUY NHẤT, gắn thẳng vào document.body, dùng position:fixed và
+// toggleWeekMenu() tự tính toán vị trí (top/left) bằng getBoundingClientRect() của ô đã bấm —
+// hoàn toàn độc lập khỏi mọi ảnh hưởng CSS của bảng/td cha.
 function renderWeeks(count){
   const n=count||activeWeeks||(MAX_EVAL_MONTHS*4);
-  // Cùng điều kiện chặn như renderDeptCriteria(): nếu cấp bậc này có nhiều lựa chọn vị trí
-  // cụ thể nhưng TBP chưa chọn, không hiện sẵn JD của vị trí mặc định nào cả.
   const lvl=document.getElementById('f_level')?.value;
   const titleMapForLvl=currentDept&&TITLE_MAP[currentDept]&&TITLE_MAP[currentDept][lvl];
   const needsPositionChoice=Array.isArray(titleMapForLvl);
@@ -821,25 +824,34 @@ function renderWeeks(count){
     sectionDone[2]=false;updateLocks();
     return;
   }
-  // Phần II dùng TOÀN BỘ danh sách JD của vị trí (không qua currentDeptCriteria — biến đó
-  // đã bị cắt theo cấp bậc cho Mục IV, vd Executive chỉ còn 3/5 tiêu chí). Phần II là "ghi
-  // nhận đã làm gì", không phải "đánh giá", nên luôn cho chọn từ đầy đủ JD của vị trí.
   const dKey=effectiveDeptKey||currentDept;
   const dCrit=dKey?(DEPT_DATA[dKey]?.criteria||[]):[];
   let h='';
+  for(let i=1;i<=n;i++){
+    h+=`<tr><td class="wnum">Tuần ${i}</td>
+      <td style="vertical-align:top;padding-top:8px">
+        <div class="msel-box" id="mselBox${i}" onclick="toggleWeekMenu(${i},event)">
+          <span id="mselSummary${i}" class="msel-summary">— Chọn hạng mục —</span>
+          <span class="msel-arrow">▾</span>
+        </div>
+      </td>
+      <td><textarea id="wn${i}" placeholder="Mô tả cụ thể, định lượng được: số liệu, kết quả, phạm vi công việc đã thực hiện trong tuần (cho tất cả hạng mục đã chọn)..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea></td></tr>`;
+  }
+  document.getElementById('weekTbody').innerHTML=h;
+  // Tạo SẴN toàn bộ panel cho mọi tuần, gắn 1 LẦN vào document.body (ngoài bảng hoàn toàn) —
+  // mỗi panel ẩn sẵn (display:none), toggleWeekMenu() sẽ định vị + hiện đúng panel cần dùng.
+  const oldContainer=document.getElementById('weekPanelsContainer');
+  if(oldContainer) oldContainer.remove();
+  const panelsContainer=document.createElement('div');
+  panelsContainer.id='weekPanelsContainer';
+  let panelsHtml='';
   for(let i=1;i<=n;i++){
     const itemsHtml=dCrit.map(c=>`
         <label class="msel-item">
           <input type="checkbox" id="wjc${i}_${c.id}" onchange="onWeekJdToggle(${i})">
           <span>${c.name}</span>
         </label>`).join('');
-    h+=`<tr><td class="wnum">Tuần ${i}</td>
-      <td style="vertical-align:top;padding-top:8px;position:relative">
-        <div class="msel-box" id="mselBox${i}" onclick="toggleWeekMenu(${i},event)">
-          <span id="mselSummary${i}" class="msel-summary">— Chọn hạng mục —</span>
-          <span class="msel-arrow">▾</span>
-        </div>
-        <div class="msel-panel" id="mselPanel${i}" style="display:none">
+    panelsHtml+=`<div class="msel-panel" id="mselPanel${i}" style="display:none">
           ${itemsHtml}
           <label class="msel-item">
             <input type="checkbox" id="wjc${i}_other" onchange="toggleWeekOther(${i})">
@@ -849,20 +861,37 @@ function renderWeeks(count){
             <input type="text" id="wother${i}" placeholder="Ghi rõ việc khác ngoài JD..." oninput="onWeekJdToggle(${i})" onblur="checkS2()" style="width:100%;padding:5px 7px;border:1.5px solid #c8d8f0;border-radius:5px;font-size:12.5px;box-sizing:border-box">
           </div>
           <div class="msel-done"><button type="button" onclick="closeWeekMenu(${i})">Xong</button></div>
-        </div>
-      </td>
-      <td><textarea id="wn${i}" placeholder="Mô tả cụ thể, định lượng được: số liệu, kết quả, phạm vi công việc đã thực hiện trong tuần (cho tất cả hạng mục đã chọn)..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea></td></tr>`;
+        </div>`;
   }
-  document.getElementById('weekTbody').innerHTML=h;
+  panelsContainer.innerHTML=panelsHtml;
+  document.body.appendChild(panelsContainer);
   checkS2(); // luôn đồng bộ lại trạng thái khóa Phần III sau khi render lại Phần II
 }
 function toggleWeekMenu(i,evt){
   evt.stopPropagation();
   const panel=document.getElementById('mselPanel'+i);
   const isOpen=panel.style.display==='block';
-  // Đóng mọi panel khác đang mở trước khi mở panel này (chỉ 1 panel mở tại 1 thời điểm)
   document.querySelectorAll('.msel-panel').forEach(p=>p.style.display='none');
-  panel.style.display=isOpen?'none':'block';
+  if(isOpen) return; // đang mở -> đóng lại (đã ẩn ở dòng trên), không cần định vị lại
+  // Định vị panel ngay dưới ô đã bấm, dùng vị trí thật trên màn hình (vì panel giờ nằm
+  // trong document.body, không còn theo containing block của <td> nữa).
+  const box=document.getElementById('mselBox'+i);
+  const rect=box.getBoundingClientRect();
+  panel.style.position='fixed';
+  panel.style.top=(rect.bottom+4)+'px';
+  panel.style.left=rect.left+'px';
+  panel.style.width=Math.max(rect.width,300)+'px';
+  // Nếu panel sẽ tràn ra ngoài mép phải màn hình, kéo nó lùi lại cho vừa khung nhìn.
+  const panelWidth=Math.max(rect.width,300);
+  if(rect.left+panelWidth>window.innerWidth-10){
+    panel.style.left=Math.max(10,window.innerWidth-panelWidth-10)+'px';
+  }
+  // Nếu panel sẽ tràn xuống dưới mép màn hình, mở panel lên TRÊN ô thay vì xuống dưới.
+  const estimatedPanelHeight=Math.min(300, 50+ (document.querySelectorAll(`#mselPanel${i} .msel-item`).length*36));
+  if(rect.bottom+estimatedPanelHeight>window.innerHeight-10){
+    panel.style.top=Math.max(10,rect.top-estimatedPanelHeight-4)+'px';
+  }
+  panel.style.display='block';
 }
 function closeWeekMenu(i){
   document.getElementById('mselPanel'+i).style.display='none';
@@ -880,9 +909,6 @@ function onWeekJdToggle(i){
   const names=getWeekJDNames(i,dCrit);
   const summaryEl=document.getElementById('mselSummary'+i);
   if(summaryEl){
-    // Hiện rõ TÊN THẬT các hạng mục đã chọn (nối bằng dấu phẩy), không chỉ đếm số —
-    // để TBP nhìn vào ô đóng cũng biết ngay đã chọn gì, không cần mở lại panel.
-    // title="..." cho phép hover xem đầy đủ khi văn bản dài bị cắt ngắn (CSS ellipsis).
     const summaryText=names.length?names.join(', '):'';
     summaryEl.textContent=summaryText||'— Chọn hạng mục —';
     summaryEl.title=summaryText;
