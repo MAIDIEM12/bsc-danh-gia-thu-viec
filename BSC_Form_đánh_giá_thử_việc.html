@@ -58,6 +58,19 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .wtbl td{padding:5px 6px;border-bottom:.5px solid #e4eef8;vertical-align:middle}
 .wtbl tr:last-child td{border-bottom:none}
 .wtbl tr:hover td{background:#f4f8fd}
+/* Dropdown đa chọn (chọn nhiều hạng mục JD/tuần) — trông giống 1 ô select bình thường khi đóng */
+.msel-box{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;border:1.5px solid #c8d8f0;border-radius:6px;padding:7px 10px;background:#fff;cursor:pointer;font-size:12.5px;user-select:none;min-height:34px}
+.msel-box:hover{border-color:#9bbbe0}
+.msel-summary{color:#aab;flex:1;white-space:normal;word-wrap:break-word;line-height:1.45}
+.msel-arrow{color:#789;font-size:10px;flex-shrink:0;margin-top:3px}
+.msel-panel{position:absolute;top:100%;left:0;z-index:30;width:320px;max-width:90vw;max-height:300px;overflow-y:auto;overflow-x:hidden;background:#fff;border:1.5px solid #c8d8f0;border-radius:8px;box-shadow:0 6px 18px rgba(0,40,90,.14);padding:6px;margin-top:3px;box-sizing:border-box}
+.msel-item{display:flex;align-items:flex-start;gap:7px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12.5px;line-height:1.4;width:100%;box-sizing:border-box}
+.msel-item input{margin-top:2px;flex-shrink:0;flex-grow:0}
+.msel-item span{flex:1 1 auto;min-width:0;word-wrap:break-word}
+.msel-item:hover{background:#eef3fa}
+.msel-done{padding:4px 4px 0;text-align:right;border-top:1px solid #eef3fa;margin-top:4px}
+.msel-done button{background:#005AAB;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:11.5px;font-weight:800;cursor:pointer}
+.msel-done button:hover{background:#00488a}
 .wnum{font-size:11px;font-weight:900;color:#005AAB;white-space:nowrap;width:52px}
 .wtbl input{font-size:12px;padding:5px 7px;border-radius:6px}
 .wtbl select{font-size:12px;padding:5px 6px;border-radius:6px;width:100px}
@@ -284,7 +297,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
       </select>
     </div>
     <div><label class="fl">Vị trí cụ thể <span class="req">*</span></label>
-      <select id="f_title" onchange="checkS1()"><option value="">— Chọn cấp bậc trước —</option></select>
+      <select id="f_title" onchange="checkS1();onTitleChange()"><option value="">— Chọn cấp bậc trước —</option></select>
     </div>
   </div>
   <div class="r3">
@@ -306,8 +319,11 @@ input[readonly]{background:#f0f5fb;color:#88a}
 <div class="card locked" id="card2">
   <div class="sec">II. Ghi nhận công việc theo tuần <span class="wt" style="background:#eef3fa;color:#557">Chỉ ghi nhận — không tính điểm</span></div>
   <div class="info"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#005AAB" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-    <span>Mỗi tuần: tick chọn TẤT CẢ hạng mục JD đã làm trong tuần đó (có thể chọn nhiều), thêm "Khác" nếu có việc ngoài JD, rồi mô tả cụ thể đã làm gì (định lượng được — số liệu, kết quả, phạm vi công việc).</span></div>
-  <div id="weekTbody"></div>
+    <span>Mỗi tuần: bấm vào ô "Hạng mục công việc" để chọn TẤT CẢ hạng mục JD đã làm trong tuần đó (có thể chọn nhiều, có cả "Khác" nếu việc ngoài JD), rồi mô tả cụ thể đã làm gì.</span></div>
+  <table class="wtbl">
+    <thead><tr><th>Tuần</th><th style="width:240px">Hạng mục công việc (theo JD)</th><th>Mô tả cụ thể đã thực hiện</th></tr></thead>
+    <tbody id="weekTbody"></tbody>
+  </table>
 </div>
 
 <!-- III -->
@@ -500,7 +516,25 @@ const TITLE_MAP={
   project:{executive:'Project Executive',senior:'Senior Project Executive',assistant:'Assistant Project Manager',junior:'Junior Project Manager',manager:'Project Manager',director:'Project Director'},
   design:{executive:'Design Executive',senior:'Senior Design Executive',assistant:'Assistant Design Manager',junior:'Junior Design Manager',manager:'Design Manager',director:'Creative Director'},
   finance:{executive:'Finance Executive',senior:'Senior Finance Executive',assistant:'Assistant Finance Manager',junior:'Junior Finance Manager',manager:'Finance Manager',director:'Finance Director'},
-  hr:{executive:'HR Executive',senior:'Senior HR Executive',assistant:'Assistant HR Manager',junior:'Junior HR Manager',manager:'HR Manager',director:'HR Director'},
+  hr:{
+    executive:[
+      {title:'HR Executive',deptKey:'hr'},
+      {title:'Admin/Lễ tân',deptKey:'hr_letan'},
+      {title:'Tuyển dụng BTG',deptKey:'hr_tuyendungbtg'},
+      {title:'Bảo vệ',deptKey:'hr_baove'},
+      {title:'Tạp vụ',deptKey:'hr_tapvu'},
+      {title:'Tài xế',deptKey:'hr_taixe'},
+    ],
+    senior:[
+      {title:'Senior HR Executive',deptKey:'hr'},
+      {title:'Admin/Lễ tân',deptKey:'hr_letan'},
+      {title:'Tuyển dụng BTG',deptKey:'hr_tuyendungbtg'},
+      {title:'Bảo vệ',deptKey:'hr_baove'},
+      {title:'Tạp vụ',deptKey:'hr_tapvu'},
+      {title:'Tài xế',deptKey:'hr_taixe'},
+    ],
+    assistant:'Assistant HR Manager',junior:'Junior HR Manager',manager:'HR Manager',director:'HR Director',
+  },
   procurement:{executive:'Procurement Executive',senior:'Senior Procurement Executive',assistant:'Assistant Procurement Manager',junior:'Junior Procurement Manager',manager:'Procurement Manager',director:'Procurement Director'},
   warehouse:{executive:'Warehouse Executive',senior:'Senior Warehouse Executive',assistant:'Assistant Warehouse Manager',junior:'Junior Warehouse Manager',manager:'Warehouse Manager',director:'Warehouse Director'},
   bd:{executive:'BD Executive',senior:'Senior BD Executive',assistant:'Assistant BD Manager',junior:'Junior BD Manager',manager:'BD Manager',director:'BD Director'},
@@ -569,6 +603,40 @@ const DEPT_DATA={
     {id:'d4',name:'Xây dựng văn hóa công ty thực chất',levelHint:{exec:'Kỳ vọng: Tham gia tích cực vào các hoạt động văn hóa nội bộ',senior:'Kỳ vọng: Chủ động đề xuất hoạt động gắn kết phù hợp với team',asst:'Kỳ vọng: Tự tổ chức được hoạt động văn hóa quy mô nhỏ',junior:'Kỳ vọng: Đánh giá hiệu quả hoạt động văn hóa, cải tiến liên tục',mgr:'Kỳ vọng: Xây dựng văn hóa công ty — không phải treo poster, mà thật sự làm được',dir:'Kỳ vọng: Định hình văn hóa doanh nghiệp dài hạn cùng BOD'},scores:['Không tổ chức được hoạt động gắn kết, văn hóa công ty mờ nhạt','Tổ chức được nhưng hình thức, ít người tham gia thực chất','Hoạt động diễn ra đúng kế hoạch, nhân viên tham gia ở mức ổn','Nhân viên tích cực tham gia, văn hóa công ty rõ nét và thực chất','Xuất sắc — văn hóa mạnh thật sự, không chỉ "treo poster" mà thấy rõ trong vận hành']},
     {id:'d5',name:'Hiểu luật lao động & ứng xử linh hoạt',levelHint:{exec:'Kỳ vọng: Giao tiếp tốt, đáng tin và biết giữ bí mật thông tin nhân sự',senior:'Kỳ vọng: Hiểu cơ bản luật lao động khi xử lý hợp đồng/nghỉ việc',asst:'Kỳ vọng: Tư vấn cơ bản đúng luật cho các tình huống nhân sự thường gặp',junior:'Kỳ vọng: Xử lý độc lập tình huống nhân sự nhạy cảm theo đúng luật',mgr:'Kỳ vọng: Hiểu luật lao động đủ để biết khi nào cần thẳng thắn, khi nào cần linh hoạt',dir:'Kỳ vọng: Cố vấn pháp lý lao động chiến lược cho BOD'},scores:['Không hiểu luật lao động cơ bản, xử lý sai quy trình gây rủi ro pháp lý','Hiểu sơ sài, hay cần hỏi lại hoặc xử lý chưa đúng chuẩn','Hiểu đủ cơ bản, xử lý đúng quy trình các trường hợp thông thường','Hiểu sâu, biết khi nào cần thẳng thắn khi nào cần linh hoạt phù hợp tình huống','Xuất sắc — tư vấn chuẩn xác, bảo vệ cả công ty và quyền lợi nhân viên hợp lý']},
   ]},
+  hr_letan:{label:'HR & Admin — Admin/Lễ tân',hint:'Tiêu chí Admin/Lễ tân — theo Bảng KPI Phòng HCNS 2026',criteria:[
+    {id:'d1',name:'Đón tiếp & hướng dẫn khách',scores:['Thái độ không lịch sự, hướng dẫn sai hoặc để khách tự xử lý, không kiểm soát ra vào','Đón tiếp được nhưng thiếu chuyên nghiệp, đôi khi bỏ sót quy định ra vào','Đón tiếp lịch sự, hướng dẫn rõ ràng, kiểm soát ra vào đúng quy định phần lớn trường hợp','Chuyên nghiệp, rõ ràng, kiểm soát ra vào chặt chẽ, khách hài lòng','Xuất sắc — luôn chủ động, khách và nội bộ đều đánh giá cao sự chuyên nghiệp']},
+    {id:'d2',name:'Đặt VPP, photo, book vé & thanh toán',scores:['Thường trễ hạn >24h, sai quy trình, thanh toán chậm quá ngày 20','Đôi khi trễ hạn hoặc sai sót nhỏ trong quy trình/thanh toán','Đúng quy trình, hoàn thành <24h, thanh toán đúng hạn trước ngày 20 phần lớn','Luôn đúng hạn <24h, thanh toán trước ngày 20 tháng kế tiếp, không sai sót','Xuất sắc — chủ động dự trù trước, không bao giờ trễ hạn hoặc sai quy trình']},
+    {id:'d3',name:'Hỗ trợ tuyển dụng',scores:['Chậm >3 ngày, đăng tuyển ít kênh, không hỗ trợ hiệu quả cho tuyển dụng','Hỗ trợ được nhưng chậm hoặc chỉ dùng 1-2 kênh đăng tuyển','Hỗ trợ đúng hạn <3 ngày, đăng tối thiểu 3 kênh theo yêu cầu','Hỗ trợ nhanh, đa kênh, chủ động phối hợp với HR để tuyển hiệu quả hơn','Xuất sắc — luôn vượt yêu cầu, ứng viên chất lượng tốt nhờ hỗ trợ chủ động']},
+    {id:'d4',name:'Quản lý hồ sơ & chấm công',scores:['Hồ sơ/chấm công thường sai hoặc thiếu, khó tra soát khi cần','Quản lý được nhưng đôi khi sai sót hoặc thiếu sót nhỏ','Hồ sơ & chấm công đúng, đủ, dễ tra soát phần lớn thời điểm','Hồ sơ & chấm công luôn đúng, đủ, hệ thống hóa rõ ràng, dễ tra soát','Xuất sắc — không sai sót, là chuẩn tham khảo cho việc quản lý hồ sơ']},
+    {id:'d5',name:'Hỗ trợ sự kiện nội bộ',scores:['Chuẩn bị sai yêu cầu hoặc trễ >3 ngày, ảnh hưởng tới sự kiện','Chuẩn bị được nhưng đôi khi thiếu hoặc trễ hạn nhẹ','Chuẩn bị đúng yêu cầu, đúng hạn <3 ngày trước sự kiện','Chuẩn bị kỹ, chủ động kiểm tra lại trước sự kiện, không sai sót','Xuất sắc — sự kiện luôn suôn sẻ nhờ sự chuẩn bị chu đáo, chủ động']},
+  ]},
+  hr_tuyendungbtg:{label:'HR & Admin — Tuyển dụng BTG',hint:'Tiêu chí Tuyển dụng BTG — theo Bảng KPI Phòng HCNS 2026',criteria:[
+    {id:'d1',name:'Tuyển đủ nhân sự BTG',scores:['Thường không đạt, dưới 70% đúng hạn hoặc chất lượng thấp','Đạt được một phần, khoảng 70-90% đúng hạn/chất lượng','Đạt ≥90% đúng hạn, đúng chất lượng phần lớn các đợt tuyển','Đạt ổn định ≥90%, ít khi thiếu hụt nhân sự BTG khi cần','Xuất sắc — luôn đủ và đúng chất lượng, kể cả các đợt tuyển gấp']},
+    {id:'d2',name:'Quản lý hồ sơ BTG',scores:['Hồ sơ thường thiếu, không có file tổng hợp rõ ràng','Hồ sơ tương đối đầy đủ nhưng file tổng hợp chưa nhất quán','Hồ sơ đầy đủ, có file tổng hợp rõ ràng phần lớn trường hợp','Hồ sơ 100% đầy đủ, file tổng hợp cập nhật liên tục','Xuất sắc — hệ thống hồ sơ BTG là chuẩn tham khảo cho phòng']},
+    {id:'d3',name:'Chấm công & thanh toán BTG/CTV',scores:['Sai số liệu thường xuyên hoặc trễ hạn >7 ngày','Đôi khi sai số liệu hoặc trễ hạn nhẹ','Đúng số liệu, đúng hạn <7 ngày phần lớn các lần thanh toán','Đúng số liệu, đúng hạn ổn định, BTG/CTV không phàn nàn','Xuất sắc — không sai sót, luôn đúng hạn dù số lượng BTG lớn']},
+    {id:'d4',name:'Phối hợp & phản hồi thông tin',scores:['Phản hồi chậm >12h thường xuyên, ảnh hưởng công việc các bộ phận khác','Phản hồi được nhưng đôi khi chậm hơn 12h','Phản hồi đúng hạn <12h phần lớn các yêu cầu phối hợp','Phản hồi nhanh, chủ động cập nhật tình trạng cho các bên liên quan','Xuất sắc — luôn phản hồi nhanh, phối hợp trơn tru với mọi bộ phận']},
+  ]},
+  hr_baove:{label:'HR & Admin — Bảo vệ',hint:'Tiêu chí Bảo vệ — theo Bảng KPI Phòng HCNS 2026',criteria:[
+    {id:'d1',name:'Đảm bảo an ninh & tài sản',scores:['Có thất thoát/mất mát, không ghi nhận vi phạm đầy đủ','Cơ bản an toàn nhưng đôi khi bỏ sót ghi nhận vi phạm','Không mất mát, ghi nhận vi phạm đầy đủ mỗi ngày phần lớn thời điểm','Kiểm soát chặt chẽ, không mất mát, ghi nhận vi phạm đầy đủ, kịp thời','Xuất sắc — an ninh tuyệt đối, chủ động phát hiện rủi ro trước khi xảy ra']},
+    {id:'d2',name:'Thái độ & kỷ luật',scores:['Thường đi trễ, sai đồng phục hoặc thiếu lịch sự với khách/nhân viên','Đôi khi vi phạm giờ giấc/đồng phục nhưng không thường xuyên','Đúng giờ, đúng đồng phục, lịch sự phần lớn thời điểm','Luôn đúng giờ, đúng đồng phục, lịch sự, là gương mẫu trong team','Xuất sắc — kỷ luật tuyệt đối, được đánh giá cao từ nội bộ và khách']},
+    {id:'d3',name:'Ghi sổ nhật ký & giám sát khách',scores:['Ghi thiếu hoặc sai mẫu thường xuyên, khó tra soát khi cần','Ghi được nhưng đôi khi thiếu thông tin hoặc sai mẫu nhẹ','Ghi đủ, đúng mẫu phần lớn các ca làm việc','Ghi đầy đủ, đúng mẫu, chi tiết, dễ tra soát mọi lúc','Xuất sắc — nhật ký chuẩn mực, hỗ trợ tốt cho điều tra khi có sự cố']},
+    {id:'d4',name:'Hỗ trợ vận chuyển hàng hóa',scores:['Phối hợp sai vai trò hoặc không báo cáo hàng tuần','Phối hợp được nhưng báo cáo không đều hoặc thiếu chi tiết','Phối hợp đúng vai trò, báo cáo hàng tuần đầy đủ phần lớn thời điểm','Phối hợp tốt, báo cáo đầy đủ, kịp thời, hỗ trợ hiệu quả cho vận chuyển','Xuất sắc — luôn chủ động hỗ trợ, không để chậm trễ vận chuyển']},
+    {id:'d5',name:'Xử lý sự cố PCCC',scores:['Không kiểm tra thiết bị đúng hạn, không có phương án xử lý sự cố','Kiểm tra được nhưng đôi khi trễ hạn (sau ngày 5 tháng kế tiếp)','Kiểm tra thiết bị đúng hạn trước ngày 5 tháng kế tiếp phần lớn các lần','Kiểm tra đầy đủ, đúng hạn, chủ động báo cáo thiết bị hư hỏng','Xuất sắc — luôn sẵn sàng ứng phó, thiết bị PCCC luôn trong trạng thái tốt']},
+  ]},
+  hr_tapvu:{label:'HR & Admin — Tạp vụ',hint:'Tiêu chí Tạp vụ — theo Bảng KPI Phòng HCNS 2026',criteria:[
+    {id:'d1',name:'Làm sạch khu vực',scores:['Dưới 80% đạt checklist, không đúng tần suất 2 lần/ngày','Đạt khoảng 80-95% checklist, đôi khi thiếu 1 lần/ngày','Đạt ≥95%, đúng checklist, đúng tần suất 2 lần/ngày phần lớn thời điểm','Đạt ổn định ≥95%, sạch sẽ đồng đều mọi khu vực, đúng tần suất','Xuất sắc — luôn sạch sẽ vượt mong đợi, không cần nhắc nhở']},
+    {id:'d2',name:'Quản lý dụng cụ thiết bị',scores:['Không có báo cáo hàng tháng hoặc để thất thoát dụng cụ','Có báo cáo nhưng không đều hoặc có thất thoát nhỏ','Báo cáo hàng tháng đầy đủ, không thất thoát phần lớn thời điểm','Báo cáo đầy đủ, đúng hạn, không thất thoát, quản lý dụng cụ gọn gàng','Xuất sắc — quản lý dụng cụ là chuẩn mực, không bao giờ thất thoát']},
+    {id:'d3',name:'Tiết kiệm & bảo quản',scores:['Chi phí dụng cụ vượt quá 5%/tháng thường xuyên','Chi phí dao động quanh mức 5%/tháng, chưa ổn định','Chi phí dụng cụ dưới 5%/tháng phần lớn các tháng','Chi phí ổn định dưới 5%/tháng, biết tiết kiệm hợp lý','Xuất sắc — luôn tối ưu chi phí, bảo quản dụng cụ rất tốt']},
+    {id:'d4',name:'Dọn phòng họp/sự kiện',scores:['Thường mất hơn 10 phút sau khi kết thúc mới dọn xong','Dọn xong trong khoảng 10-15 phút, đôi khi chậm hơn','Dọn xong <10 phút sau khi kết thúc phần lớn các lần','Dọn nhanh, gọn, <10 phút, sẵn sàng cho lượt sử dụng tiếp theo','Xuất sắc — luôn nhanh chóng, phòng họp/sự kiện luôn sẵn sàng ngay']},
+    {id:'d5',name:'Tuân thủ quy định vệ sinh & giờ giấc',scores:['Thường vi phạm giờ giấc hoặc tiêu chuẩn vệ sinh','Đôi khi vi phạm nhẹ giờ giấc hoặc tiêu chuẩn','Tuân thủ đúng tiêu chuẩn, đúng giờ phần lớn thời điểm','Luôn tuân thủ đúng giờ, đúng tiêu chuẩn, không vi phạm','Xuất sắc — gương mẫu về kỷ luật giờ giấc và vệ sinh']},
+  ]},
+  hr_taixe:{label:'HR & Admin — Tài xế',hint:'Tiêu chí Tài xế — theo Bảng KPI Phòng HCNS 2026',criteria:[
+    {id:'d1',name:'Đúng giờ & đúng tuyến',scores:['Thường trễ ≥2 lần/tháng hoặc đi sai tuyến','Đôi khi trễ nhưng dưới 2 lần/tháng','Đúng giờ (trước 10 phút), đúng tuyến phần lớn các chuyến','Luôn đến trước 10 phút, đúng tuyến, không trễ','Xuất sắc — luôn chủ động đến sớm, linh hoạt xử lý tình huống giao thông']},
+    {id:'d2',name:'An toàn & tuân thủ giao thông',scores:['Có vi phạm giao thông hoặc từng xảy ra tai nạn','Không vi phạm nghiêm trọng nhưng còn vài lỗi nhỏ','Không vi phạm, không tai nạn trong phần lớn thời gian đánh giá','Luôn tuân thủ giao thông nghiêm túc, lái xe an toàn tuyệt đối','Xuất sắc — gương mẫu về an toàn, không một lần vi phạm hay sự cố']},
+    {id:'d3',name:'Bảo quản vật dụng & xe',scores:['Xe/vật dụng thường hư hỏng hoặc rơi vỡ do bất cẩn','Bảo quản được nhưng đôi khi có hư hỏng/rơi vỡ nhẹ','Xe và vật dụng không hư, không rơi vỡ phần lớn thời điểm','Bảo quản tốt, xe luôn sạch sẽ, không hư hỏng, không rơi vỡ','Xuất sắc — xe và vật dụng luôn trong trạng thái tốt nhất']},
+    {id:'d4',name:'Bảo dưỡng xe định kỳ',scores:['Không chủ động báo trước, hay trễ lịch bảo dưỡng','Có báo trước nhưng đôi khi trễ lịch bảo dưỡng','Chủ động báo trước, đúng lịch bảo dưỡng phần lớn thời điểm','Luôn chủ động báo trước, đúng lịch, xe vận hành ổn định','Xuất sắc — chủ động theo dõi và đề xuất bảo dưỡng kịp thời']},
+    {id:'d5',name:'Nhật ký hành trình & hỗ trợ',scores:['Ghi nhật ký thiếu hoặc trễ, không linh hoạt khi cần điều phối','Ghi nhật ký được nhưng đôi khi trễ hoặc thiếu chi tiết','Ghi nhật ký trong ngày, linh hoạt điều phối phần lớn các trường hợp','Ghi nhật ký đầy đủ, kịp thời, luôn linh hoạt hỗ trợ khi cần','Xuất sắc — chủ động hỗ trợ, nhật ký rõ ràng, luôn sẵn sàng điều phối']},
+  ]},
   warehouse:{label:'Warehouse / Kho',hint:'Tiêu chí chuyên môn Warehouse — theo JD BSC 2026 (xuất nhập kho, tồn kho, trách nhiệm tài sản)',criteria:[
     {id:'d1',name:'Nhập/xuất kho theo lệnh dự án',scores:['Không quản lý được, hay thất thoát hoặc sai lệch số liệu nghiêm trọng','Quản lý được nhưng hay sai chứng từ hoặc nhầm hàng giữa các dự án','Xuất nhập đúng quy trình, chứng từ cơ bản đầy đủ, ít sai sót','Chứng từ chính xác, xuất nhập logic và đúng hạn theo lệnh dự án','Hệ thống hóa xuất nhập hoàn toàn, không sai sót, là chuẩn của kho']},
     {id:'d2',name:'Biết chính xác vị trí & số lượng hàng tồn — không cần tra file',scores:['Không nắm được hàng nằm đâu, phải tra file mất thời gian dài','Nắm được một phần, vẫn cần tra file thường xuyên cho phần còn lại','Nắm được phần lớn vị trí hàng hóa quan trọng, tra file cho phần ít dùng','Nắm chắc vị trí & số lượng hầu hết hàng hóa, tra file rất ít','Biết chính xác cái gì nằm kệ nào, còn bao nhiêu, giao dự án nào — không cần tra file']},
@@ -602,6 +670,10 @@ const CULTURE=[
 
 // STATE
 let naState={}, currentDept='', sectionDone={1:false,2:false,3:false,4:false,5:false,6:false}, activeWeeks=12, currentDeptCriteria=null;
+// effectiveDeptKey: bộ phận "thực dùng" để lấy tiêu chí Mục IV — thường = currentDept,
+// nhưng có thể đổi sang key khác (vd hr_letan, hr_baove...) khi TBP chọn 1 vị trí đặc thù
+// trong số nhiều lựa chọn cùng 1 cấp bậc (xem TITLE_MAP.hr.executive/senior dạng array).
+let effectiveDeptKey='';
 
 // DATE FORMAT HELPER
 function fmtDate(el){
@@ -701,56 +773,130 @@ function updateTitles(){
   const lvl=document.getElementById('f_level').value;
   const titleSel=document.getElementById('f_title');
   titleSel.innerHTML='<option value="">— Chọn cấp bậc trước —</option>';
+  effectiveDeptKey=dept; // mặc định = bộ phận đã chọn, có thể bị đổi nếu chọn vị trí đặc thù dưới đây
   if(dept&&lvl&&TITLE_MAP[dept]&&TITLE_MAP[dept][lvl]){
     const t=TITLE_MAP[dept][lvl];
-    const o=document.createElement('option');o.value=t;o.textContent=t;o.selected=true;
-    titleSel.appendChild(o);
-    titleSel.value=t;
+    if(Array.isArray(t)){
+      // Nhiều lựa chọn cùng cấp bậc (vd HR Executive: HR chuyên môn / Admin-Lễ tân / Bảo vệ...) —
+      // để trống cho TBP TỰ CHỌN đúng vị trí thật của nhân viên, không tự chọn sẵn 1 cái.
+      titleSel.innerHTML='<option value="">— Chọn vị trí cụ thể —</option>';
+      t.forEach(opt=>{
+        const o=document.createElement('option');
+        o.value=opt.title; o.textContent=opt.title; o.dataset.deptKey=opt.deptKey;
+        titleSel.appendChild(o);
+      });
+    } else {
+      const o=document.createElement('option');o.value=t;o.textContent=t;o.selected=true;
+      titleSel.appendChild(o);
+      titleSel.value=t;
+    }
   }
-  renderDeptCriteria();
+  onTitleChange();
   syncSigInfo();
+}
+// Khi TBP chọn 1 trong nhiều "Vị trí cụ thể" (trường hợp HR có nhiều vị trí đặc thù cùng
+// 1 cấp bậc) — cập nhật effectiveDeptKey đúng theo vị trí đã chọn, rồi render lại Mục IV.
+function onTitleChange(){
+  const titleSel=document.getElementById('f_title');
+  const selectedOpt=titleSel.options[titleSel.selectedIndex];
+  effectiveDeptKey=(selectedOpt&&selectedOpt.dataset&&selectedOpt.dataset.deptKey)||currentDept;
+  renderDeptCriteria();
+  renderWeeks(activeWeeks); // đồng bộ lại Phần II theo đúng vị trí/cấp bậc vừa chọn
 }
 
 // RENDER WEEKS
-// Mỗi tuần: TICK CHỌN NHIỀU hạng mục JD (checkbox, không giới hạn số lượng) — vì 1 tuần
-// TBP có thể làm nhiều đầu việc khác nhau trong JD, không chỉ 1 việc duy nhất. Có thêm ô
-// "Khác" để ghi việc ngoài JD nếu có. Sau đó 1 ô mô tả CHUNG cho cả tuần (không phải mỗi
-// hạng mục 1 ô riêng, theo đúng yêu cầu — giữ form gọn, mô tả tổng hợp công việc cả tuần).
+// Mỗi tuần: 1 ô "dropdown đa chọn" tự xây (không phải <select> gốc, vì select gốc không
+// hỗ trợ tick nhiều kèm checkbox đẹp) — bấm vào ô để mở panel tick chọn nhiều hạng mục JD
+// + "Khác", đóng lại tự hiện tóm tắt các mục đã chọn. Giữ đúng layout bảng như form gốc.
 function renderWeeks(count){
   const n=count||activeWeeks||(MAX_EVAL_MONTHS*4);
-  const dCrit=currentDept?(currentDeptCriteria||DEPT_DATA[currentDept]?.criteria||[]):[];
+  // Cùng điều kiện chặn như renderDeptCriteria(): nếu cấp bậc này có nhiều lựa chọn vị trí
+  // cụ thể nhưng TBP chưa chọn, không hiện sẵn JD của vị trí mặc định nào cả.
+  const lvl=document.getElementById('f_level')?.value;
+  const titleMapForLvl=currentDept&&TITLE_MAP[currentDept]&&TITLE_MAP[currentDept][lvl];
+  const needsPositionChoice=Array.isArray(titleMapForLvl);
+  const titleChosen=document.getElementById('f_title')?.value;
+  if(needsPositionChoice&&!titleChosen){
+    document.getElementById('weekTbody').innerHTML=`<tr><td colspan="3" style="padding:1.25rem;text-align:center;color:#aac;font-size:13px">Chọn "Vị trí cụ thể" ở Phần I để hiện đúng danh sách công việc tương ứng.</td></tr>`;
+    sectionDone[2]=false;updateLocks();
+    return;
+  }
+  // Phần II dùng TOÀN BỘ danh sách JD của vị trí (không qua currentDeptCriteria — biến đó
+  // đã bị cắt theo cấp bậc cho Mục IV, vd Executive chỉ còn 3/5 tiêu chí). Phần II là "ghi
+  // nhận đã làm gì", không phải "đánh giá", nên luôn cho chọn từ đầy đủ JD của vị trí.
+  const dKey=effectiveDeptKey||currentDept;
+  const dCrit=dKey?(DEPT_DATA[dKey]?.criteria||[]):[];
   let h='';
   for(let i=1;i<=n;i++){
-    const checkboxesHtml=dCrit.map(c=>`
-      <label style="display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border-radius:6px;cursor:pointer;font-size:12.5px;line-height:1.4">
-        <input type="checkbox" id="wjc${i}_${c.id}" onchange="checkS2()" style="margin-top:2px;flex-shrink:0">
-        <span>${c.name}</span>
-      </label>`).join('');
-    h+=`<div class="week-card" id="weekCard${i}" style="border:1px solid #d8e4f5;border-radius:10px;padding:.85rem 1rem;margin-bottom:.75rem;background:#fbfdff">
-      <div style="font-weight:900;color:#005AAB;font-size:13px;margin-bottom:8px">Tuần ${i}</div>
-      <div style="font-size:11px;font-weight:800;color:#6688aa;margin-bottom:4px;text-transform:uppercase">Hạng mục công việc (theo JD) — chọn tất cả hạng mục đã làm trong tuần</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2px;margin-bottom:8px">
-        ${checkboxesHtml}
-        <label style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:6px;cursor:pointer;font-size:12.5px">
-          <input type="checkbox" id="wjc${i}_other" onchange="toggleWeekOther(${i});checkS2()" style="flex-shrink:0">
-          <span>Khác (việc ngoài JD, nếu có)</span>
-        </label>
-      </div>
-      <div id="wOtherWrap${i}" style="display:none;margin-bottom:8px">
-        <input type="text" id="wother${i}" placeholder="Ghi rõ việc khác ngoài JD đã làm trong tuần..." oninput="checkS2()" onblur="checkS2()" style="width:100%;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;box-sizing:border-box">
-      </div>
-      <label class="fl" style="font-size:11px">Mô tả cụ thể đã thực hiện trong tuần (định lượng được)</label>
-      <textarea id="wn${i}" placeholder="Mô tả cụ thể, định lượng được: số liệu, kết quả, phạm vi công việc đã thực hiện trong tuần (cho tất cả hạng mục đã chọn trên)..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea>
-    </div>`;
+    const itemsHtml=dCrit.map(c=>`
+        <label class="msel-item">
+          <input type="checkbox" id="wjc${i}_${c.id}" onchange="onWeekJdToggle(${i})">
+          <span>${c.name}</span>
+        </label>`).join('');
+    h+=`<tr><td class="wnum">Tuần ${i}</td>
+      <td style="vertical-align:top;padding-top:8px;position:relative">
+        <div class="msel-box" id="mselBox${i}" onclick="toggleWeekMenu(${i},event)">
+          <span id="mselSummary${i}" class="msel-summary">— Chọn hạng mục —</span>
+          <span class="msel-arrow">▾</span>
+        </div>
+        <div class="msel-panel" id="mselPanel${i}" style="display:none">
+          ${itemsHtml}
+          <label class="msel-item">
+            <input type="checkbox" id="wjc${i}_other" onchange="toggleWeekOther(${i})">
+            <span>Khác (việc ngoài JD, nếu có)</span>
+          </label>
+          <div id="wOtherWrap${i}" style="display:none;padding:6px 10px 8px">
+            <input type="text" id="wother${i}" placeholder="Ghi rõ việc khác ngoài JD..." oninput="onWeekJdToggle(${i})" onblur="checkS2()" style="width:100%;padding:5px 7px;border:1.5px solid #c8d8f0;border-radius:5px;font-size:12.5px;box-sizing:border-box">
+          </div>
+          <div class="msel-done"><button type="button" onclick="closeWeekMenu(${i})">Xong</button></div>
+        </div>
+      </td>
+      <td><textarea id="wn${i}" placeholder="Mô tả cụ thể, định lượng được: số liệu, kết quả, phạm vi công việc đã thực hiện trong tuần (cho tất cả hạng mục đã chọn)..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea></td></tr>`;
   }
   document.getElementById('weekTbody').innerHTML=h;
   checkS2(); // luôn đồng bộ lại trạng thái khóa Phần III sau khi render lại Phần II
+}
+function toggleWeekMenu(i,evt){
+  evt.stopPropagation();
+  const panel=document.getElementById('mselPanel'+i);
+  const isOpen=panel.style.display==='block';
+  // Đóng mọi panel khác đang mở trước khi mở panel này (chỉ 1 panel mở tại 1 thời điểm)
+  document.querySelectorAll('.msel-panel').forEach(p=>p.style.display='none');
+  panel.style.display=isOpen?'none':'block';
+}
+function closeWeekMenu(i){
+  document.getElementById('mselPanel'+i).style.display='none';
 }
 function toggleWeekOther(i){
   const checked=document.getElementById(`wjc${i}_other`).checked;
   document.getElementById(`wOtherWrap${i}`).style.display=checked?'block':'none';
   if(!checked) document.getElementById(`wother${i}`).value='';
+  onWeekJdToggle(i);
 }
+// Cập nhật dòng tóm tắt hiển thị trên ô đóng + đồng bộ lại trạng thái khóa
+function onWeekJdToggle(i){
+  const dKey=effectiveDeptKey||currentDept;
+  const dCrit=dKey?(DEPT_DATA[dKey]?.criteria||[]):[];
+  const names=getWeekJDNames(i,dCrit);
+  const summaryEl=document.getElementById('mselSummary'+i);
+  if(summaryEl){
+    // Hiện rõ TÊN THẬT các hạng mục đã chọn (nối bằng dấu phẩy), không chỉ đếm số —
+    // để TBP nhìn vào ô đóng cũng biết ngay đã chọn gì, không cần mở lại panel.
+    // title="..." cho phép hover xem đầy đủ khi văn bản dài bị cắt ngắn (CSS ellipsis).
+    const summaryText=names.length?names.join(', '):'';
+    summaryEl.textContent=summaryText||'— Chọn hạng mục —';
+    summaryEl.title=summaryText;
+    summaryEl.style.color=names.length?'#005AAB':'#aab';
+    summaryEl.style.fontWeight=names.length?'800':'400';
+  }
+  checkS2();
+}
+// Đóng panel đang mở khi bấm ra ngoài (gắn 1 lần duy nhất ở cấp document)
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.msel-box')&&!e.target.closest('.msel-panel')){
+    document.querySelectorAll('.msel-panel').forEach(p=>p.style.display='none');
+  }
+});
 
 // RENDER BARS
 function renderBARSGroup(containerId,criteria,prefix){
@@ -850,6 +996,7 @@ function renderIDP(){
 
 function onDeptChange(){
   currentDept=document.getElementById('f_dept').value;
+  effectiveDeptKey=currentDept; // reset về mặc định khi đổi bộ phận, có thể bị đổi lại sau khi chọn vị trí cụ thể
   document.getElementById('f_level').innerHTML='<option value="">— Chọn cấp bậc —</option>';
   document.getElementById('f_title').innerHTML='<option value="">— Chọn cấp bậc trước —</option>';
   naState=Object.fromEntries(Object.entries(naState).filter(([k])=>!k.startsWith('dept_')));
@@ -875,10 +1022,30 @@ function onDeptChange(){
 function renderDeptCriteria(){
   if(!currentDept) return;
   const lvl=document.getElementById('f_level').value;
-  const d=DEPT_DATA[currentDept];
+  // Nếu cấp bậc này có NHIỀU lựa chọn vị trí cụ thể (vd HR Executive/Senior: HR chuyên môn /
+  // Admin-Lễ tân / Bảo vệ...) nhưng TBP CHƯA chọn ô "Vị trí cụ thể" — không render sẵn bất kỳ
+  // tiêu chí nào, tránh tình trạng hiện nhầm tiêu chí mặc định rồi TBP lỡ điền trước khi
+  // chọn đúng vị trí thật, gây mất công điền lại.
+  const titleMapForLvl=TITLE_MAP[currentDept]&&TITLE_MAP[currentDept][lvl];
+  const needsPositionChoice=Array.isArray(titleMapForLvl);
+  const titleChosen=document.getElementById('f_title').value;
+  if(needsPositionChoice&&!titleChosen){
+    document.getElementById('deptHint').textContent='Vui lòng chọn "Vị trí cụ thể" ở Phần I trước khi đánh giá năng lực chuyên môn.';
+    document.getElementById('deptArea').innerHTML='<div style="text-align:center;padding:1.5rem;color:#aac;font-size:13px">Chọn "Vị trí cụ thể" ở Phần I để hiện đúng tiêu chí chuyên môn tương ứng.</div>';
+    document.getElementById('mgmtArea').innerHTML='';
+    const noteEl0=document.getElementById('deptLevelNote');
+    if(noteEl0) noteEl0.style.display='none';
+    currentDeptCriteria=[];
+    return;
+  }
+  const dKey=effectiveDeptKey||currentDept;
+  const d=DEPT_DATA[dKey];
   if(!d) return;
   document.getElementById('deptHint').textContent=d.hint;
-  // Level-aware: Executive=3 criteria, Senior=4, Asst/Junior/Manager/Director=all 5 + management
+  // Level-aware: Executive=3 criteria, Senior=4, Asst/Junior/Manager/Director=all 5 + management.
+  // Quy tắc cắt giảm áp dụng đồng nhất cho mọi vị trí, kể cả 5 vị trí đặc thù HCNS mới
+  // (hr_letan, hr_baove, hr_tapvu, hr_taixe, hr_tuyendungbtg) — dù các vị trí này thực tế
+  // chỉ dùng tới Executive/Senior, không có cấp quản lý.
   let criteriaToShow=d.criteria;
   let levelNote='';
   const isManagerLevel=['assistant','junior','manager','director'].includes(lvl);
@@ -1259,7 +1426,12 @@ function checkS2(){
   // và ô mô tả chung của tuần đó phải có thực chất — tránh trường hợp tick xong nhưng
   // để trống hoặc ghi qua loa ở ô mô tả.
   let hasOne=false, allFilledRowsValid=true;
-  const dCrit=currentDept?(currentDeptCriteria||DEPT_DATA[currentDept]?.criteria||[]):[];
+  // Dùng TOÀN BỘ JD (không qua currentDeptCriteria đã bị cắt theo cấp bậc cho Mục IV) —
+  // checkbox ở Phần II được render từ đầy đủ JD nên phải kiểm tra khớp với cùng nguồn đó,
+  // nếu không các checkbox ở tiêu chí thứ 4-5 (bị cắt khỏi Mục IV với Executive/Senior)
+  // sẽ không được nhận diện dù đã tick.
+  const dKey=effectiveDeptKey||currentDept;
+  const dCrit=dKey?(DEPT_DATA[dKey]?.criteria||[]):[];
   for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
     const noteEl=document.getElementById('wn'+i);
     if(!noteEl) continue; // tuần chưa được render (vượt quá activeWeeks hiện tại)
@@ -1486,6 +1658,10 @@ async function submitForm(){
   const btn=document.getElementById('btnSubmit');btn.disabled=true;btn.textContent='Đang gửi...';
   const dept=document.getElementById('f_dept').value;
   const dCrit=dept?(currentDeptCriteria||DEPT_DATA[dept].criteria):[];
+  // dCritFull: TOÀN BỘ JD của vị trí thực dùng (effectiveDeptKey) — dùng riêng cho Phần II,
+  // vì Phần II cho TBP chọn từ đầy đủ JD, không bị cắt theo cấp bậc như dCrit (Mục IV).
+  const fullDeptKey=effectiveDeptKey||dept;
+  const dCritFull=fullDeptKey?(DEPT_DATA[fullDeptKey]?.criteria||[]):[];
   const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
   const pCore=getGroupScore(CORE,'core')||0;
   const pDept=getDeptScore(dCrit)||0;
@@ -1519,7 +1695,7 @@ async function submitForm(){
   // mô tả cụ thể chung cho cả tuần — không còn trạng thái Trung bình/Đạt/Xuất sắc.
   for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
     p[`w_note_${i}`]=document.getElementById('wn'+i)?.value||'';
-    p[`w_jd_${i}`]=getWeekJDNames(i,dCrit).join('; ');
+    p[`w_jd_${i}`]=getWeekJDNames(i,dCritFull).join('; ');
   }
   CORE.forEach(c=>{const sel=document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);const m=sel?sel.className.match(/sel-(\d)/):null;p[`core_${c.id}`]=naState[`core_${c.id}`]?'N/A':(m?m[1]:'');p[`core_ev_${c.id}`]=document.getElementById(`evt_core_${c.id}`)?.value||'';});
   dCrit.forEach((c,i)=>{const sel=document.querySelector(`[id^="bopt_dept_${c.id}_"][class*="sel-"]`);const m=sel?sel.className.match(/sel-(\d)/):null;p[`dept_name_${i+1}`]=c.name;p[`dept_score_${i+1}`]=naState[`dept_${c.id}`]?'N/A':(m?m[1]:'');p[`dept_ev_${i+1}`]=document.getElementById(`evt_dept_${c.id}`)?.value||'';});
@@ -1604,6 +1780,7 @@ function buildEvalHTML(){
   const evalDate=document.getElementById('f_evaldate').value||'—';
 
   const dCrit=dept?(currentDeptCriteria||DEPT_DATA[dept].criteria):[];
+  const dCritFull=(effectiveDeptKey||dept)?(DEPT_DATA[effectiveDeptKey||dept]?.criteria||[]):[];
   const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
   const pCore=getGroupScore(CORE,'core')||0;
   const pDept=getDeptScore(dCrit)||0;
@@ -1613,7 +1790,7 @@ function buildEvalHTML(){
   let weeksHTML='';
   for(let i=1;i<=activeWeeks;i++){
     const note=document.getElementById('wn'+i)?.value;
-    const jdNames=getWeekJDNames(i,dCrit);
+    const jdNames=getWeekJDNames(i,dCritFull);
     const jdName=jdNames.join('; ');
     if(note||jdName) weeksHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700;color:#005AAB">Tuần ${i}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700">${jdName||'—'}</td><td style="padding:4px 8px;border:1px solid #d0e4f7">${note||'—'}</td></tr>`;
   }
@@ -2002,6 +2179,7 @@ function collectEvalData(){
   const evalDate=document.getElementById('f_evaldate').value||'—';
 
   const dCrit=dept?(currentDeptCriteria||DEPT_DATA[dept].criteria):[];
+  const dCritFull=(effectiveDeptKey||dept)?(DEPT_DATA[effectiveDeptKey||dept]?.criteria||[]):[];
   const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
   const pCore=getGroupScore(CORE,'core')||0;
   const pDept=getDeptScore(dCrit)||0;
@@ -2011,7 +2189,7 @@ function collectEvalData(){
   const weeks=[];
   for(let i=1;i<=activeWeeks;i++){
     const note=document.getElementById('wn'+i)?.value;
-    const jdNames=getWeekJDNames(i,dCrit);
+    const jdNames=getWeekJDNames(i,dCritFull);
     const jdName=jdNames.join('; ');
     if(note||jdName) weeks.push({label:'Tuần '+i, note, jd:jdName});
   }
