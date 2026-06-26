@@ -306,18 +306,13 @@ input[readonly]{background:#f0f5fb;color:#88a}
 <div class="card locked" id="card2">
   <div class="sec">II. Ghi nhận công việc theo tuần <span class="wt" style="background:#eef3fa;color:#557">Chỉ ghi nhận — không tính điểm</span></div>
   <div class="info"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#005AAB" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-    <span>Mỗi tuần: chọn 1 hạng mục công việc theo JD của bộ phận, rồi mô tả cụ thể đã làm gì (định lượng được — số liệu, kết quả, phạm vi công việc).</span></div>
-  <table class="wtbl">
-    <thead><tr><th>Tuần</th><th style="width:220px">Hạng mục công việc (theo JD)</th><th>Mô tả cụ thể đã thực hiện</th></tr></thead>
-    <tbody id="weekTbody"></tbody>
-  </table>
-  <div style="margin-top:.85rem"><label class="fl">Ghi chú phát sinh (nếu có)</label>
-    <textarea id="work_comment" placeholder="Ghi chú các phát sinh chung trong quá trình làm việc (nếu có) — không đánh giá năng lực ở đây, phần năng lực đánh giá ở Mục III & IV..." oninput="calcAndShow()"></textarea></div>
+    <span>Mỗi tuần: tick chọn TẤT CẢ hạng mục JD đã làm trong tuần đó (có thể chọn nhiều), thêm "Khác" nếu có việc ngoài JD, rồi mô tả cụ thể đã làm gì (định lượng được — số liệu, kết quả, phạm vi công việc).</span></div>
+  <div id="weekTbody"></div>
 </div>
 
 <!-- III -->
 <div class="card locked" id="card3">
-  <div class="sec">III. Năng lực cốt lõi <span class="wt">Trọng số 25%</span></div>
+  <div class="sec">III. Tinh thần làm việc <span class="wt">Trọng số 38%</span></div>
   <div class="info"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#005AAB" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
     <span>Chọn điểm 1–5 · Click để xem mô tả chi tiết · Chọn <strong>Áp Dụng / Không Áp Dụng</strong> · Điểm 1–2 hoặc 4–5 yêu cầu dẫn chứng</span></div>
   <div id="coreArea"></div>
@@ -325,7 +320,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
 
 <!-- IV -->
 <div class="card locked" id="card4">
-  <div class="sec">IV. Năng lực chuyên môn theo bộ phận <span class="wt">Trọng số 25%</span></div>
+  <div class="sec">IV. Năng lực chuyên môn theo bộ phận <span class="wt">Trọng số 38%</span></div>
   <div class="info"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#005AAB" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
     <span id="deptHint">Tiêu chí sẽ hiển thị theo bộ phận đã chọn ở Phần I.</span></div>
   <div id="deptLevelNote" style="display:none;background:#fff8e6;border:1.5px solid #f5c842;border-left:4px solid #f5a623;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;font-weight:700;color:#7c4a00"></div>
@@ -335,7 +330,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
 
 <!-- V -->
 <div class="card locked" id="card5">
-  <div class="sec">V. Phù hợp văn hóa BSC <span class="wt">Trọng số 15%</span></div>
+  <div class="sec">V. Phù hợp văn hóa BSC <span class="wt">Trọng số 24%</span></div>
   <div class="info"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#005AAB" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
     <span>Quan sát hành vi thực tế trong toàn bộ thời gian thử việc · <strong>1=Thấp nhất · 4=Cao nhất</strong></span></div>
   <div id="cultureArea"></div>
@@ -717,24 +712,44 @@ function updateTitles(){
 }
 
 // RENDER WEEKS
-// Mỗi tuần: chọn 1 hạng mục công việc theo JD (lấy từ tiêu chí chuyên môn Mục IV của
-// đúng bộ phận đang đánh giá) + textarea mô tả cụ thể đã làm gì. KHÔNG còn cột đánh giá
-// (Trung bình/Đạt/Xuất sắc) — Phần II chỉ ghi nhận, không chấm điểm.
+// Mỗi tuần: TICK CHỌN NHIỀU hạng mục JD (checkbox, không giới hạn số lượng) — vì 1 tuần
+// TBP có thể làm nhiều đầu việc khác nhau trong JD, không chỉ 1 việc duy nhất. Có thêm ô
+// "Khác" để ghi việc ngoài JD nếu có. Sau đó 1 ô mô tả CHUNG cho cả tuần (không phải mỗi
+// hạng mục 1 ô riêng, theo đúng yêu cầu — giữ form gọn, mô tả tổng hợp công việc cả tuần).
 function renderWeeks(count){
   const n=count||activeWeeks||(MAX_EVAL_MONTHS*4);
   const dCrit=currentDept?(currentDeptCriteria||DEPT_DATA[currentDept]?.criteria||[]):[];
-  const jdOptionsHtml=dCrit.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   let h='';
   for(let i=1;i<=n;i++){
-    h+=`<tr><td class="wnum">Tuần ${i}</td>
-      <td style="vertical-align:top;padding-top:8px"><select id="wj${i}" onchange="checkS2()" style="width:100%">
-        <option value="">— Chọn hạng mục —</option>
-        ${jdOptionsHtml}
-      </select></td>
-      <td><textarea id="wn${i}" placeholder="Mô tả cụ thể, định lượng được: số liệu, kết quả, phạm vi công việc đã thực hiện trong tuần..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea></td></tr>`;
+    const checkboxesHtml=dCrit.map(c=>`
+      <label style="display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border-radius:6px;cursor:pointer;font-size:12.5px;line-height:1.4">
+        <input type="checkbox" id="wjc${i}_${c.id}" onchange="checkS2()" style="margin-top:2px;flex-shrink:0">
+        <span>${c.name}</span>
+      </label>`).join('');
+    h+=`<div class="week-card" id="weekCard${i}" style="border:1px solid #d8e4f5;border-radius:10px;padding:.85rem 1rem;margin-bottom:.75rem;background:#fbfdff">
+      <div style="font-weight:900;color:#005AAB;font-size:13px;margin-bottom:8px">Tuần ${i}</div>
+      <div style="font-size:11px;font-weight:800;color:#6688aa;margin-bottom:4px;text-transform:uppercase">Hạng mục công việc (theo JD) — chọn tất cả hạng mục đã làm trong tuần</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2px;margin-bottom:8px">
+        ${checkboxesHtml}
+        <label style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:6px;cursor:pointer;font-size:12.5px">
+          <input type="checkbox" id="wjc${i}_other" onchange="toggleWeekOther(${i});checkS2()" style="flex-shrink:0">
+          <span>Khác (việc ngoài JD, nếu có)</span>
+        </label>
+      </div>
+      <div id="wOtherWrap${i}" style="display:none;margin-bottom:8px">
+        <input type="text" id="wother${i}" placeholder="Ghi rõ việc khác ngoài JD đã làm trong tuần..." oninput="checkS2()" onblur="checkS2()" style="width:100%;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;box-sizing:border-box">
+      </div>
+      <label class="fl" style="font-size:11px">Mô tả cụ thể đã thực hiện trong tuần (định lượng được)</label>
+      <textarea id="wn${i}" placeholder="Mô tả cụ thể, định lượng được: số liệu, kết quả, phạm vi công việc đã thực hiện trong tuần (cho tất cả hạng mục đã chọn trên)..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea>
+    </div>`;
   }
   document.getElementById('weekTbody').innerHTML=h;
   checkS2(); // luôn đồng bộ lại trạng thái khóa Phần III sau khi render lại Phần II
+}
+function toggleWeekOther(i){
+  const checked=document.getElementById(`wjc${i}_other`).checked;
+  document.getElementById(`wOtherWrap${i}`).style.display=checked?'block':'none';
+  if(!checked) document.getElementById(`wother${i}`).value='';
 }
 
 // RENDER BARS
@@ -1045,12 +1060,10 @@ function updateFinalSummary(){
   let autoText='';
 
   // Work log (ghi nhận, không tính điểm)
-  const workComment=document.getElementById('work_comment')?.value?.trim()||'';
   let wkFilled=0;
-  for(let i=1;i<=activeWeeks;i++){ if(document.getElementById('wj'+i)?.value) wkFilled++; }
+  for(let i=1;i<=activeWeeks;i++){ if(getWeekJDNames(i,dCrit||[]).length>0) wkFilled++; }
   if(wkFilled>0){
     autoText+=`Đã ghi nhận công việc ${wkFilled} tuần. `;
-    if(workComment) autoText+=`Ghi chú: ${workComment}. `;
   }
 
   // Core strengths & weaknesses from evidence — chỉ tên tiêu chí + dẫn chứng, không kèm điểm số
@@ -1232,17 +1245,35 @@ function markDuplicateEvidence(){
   });
   return dups;
 }
+// Đọc danh sách hạng mục JD đã tick cho 1 tuần (kể cả "Khác" nếu có ghi nội dung) —
+// trả về mảng tên, dùng chung cho calcAndShow/submitForm/buildEvalHTML/collectEvalData.
+function getWeekJDNames(weekIdx, dCrit){
+  const names=dCrit.filter(c=>document.getElementById(`wjc${weekIdx}_${c.id}`)?.checked).map(c=>c.name);
+  const otherChecked=document.getElementById(`wjc${weekIdx}_other`)?.checked;
+  const otherText=document.getElementById(`wother${weekIdx}`)?.value?.trim()||'';
+  if(otherChecked&&otherText) names.push(`Khác: ${otherText}`);
+  return names;
+}
 function checkS2(){
-  // Mỗi tuần đã chọn hạng mục JD (wj) thì mô tả công việc (wn) cũng phải có thực chất —
-  // tránh trường hợp chọn hạng mục xong nhưng để trống hoặc ghi qua loa ở ô mô tả.
+  // Mỗi tuần: cần TICK ÍT NHẤT 1 hạng mục (checkbox JD hoặc "Khác" có ghi nội dung),
+  // và ô mô tả chung của tuần đó phải có thực chất — tránh trường hợp tick xong nhưng
+  // để trống hoặc ghi qua loa ở ô mô tả.
   let hasOne=false, allFilledRowsValid=true;
+  const dCrit=currentDept?(currentDeptCriteria||DEPT_DATA[currentDept]?.criteria||[]):[];
   for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
-    const jdVal=document.getElementById('wj'+i)?.value;
     const noteEl=document.getElementById('wn'+i);
-    if(jdVal){
+    if(!noteEl) continue; // tuần chưa được render (vượt quá activeWeeks hiện tại)
+    const anyJdChecked=dCrit.some(c=>document.getElementById(`wjc${i}_${c.id}`)?.checked);
+    const otherChecked=document.getElementById(`wjc${i}_other`)?.checked;
+    const otherText=document.getElementById(`wother${i}`)?.value?.trim()||'';
+    // "Khác" chỉ tính là 1 hạng mục hợp lệ nếu tick VÀ có ghi rõ nội dung — tick mà để
+    // trống ô ghi rõ thì coi như chưa chọn hạng mục nào (tránh tick qua loa không nội dung).
+    const otherValid=otherChecked&&otherText.length>0;
+    const weekHasSelection=anyJdChecked||otherValid;
+    if(weekHasSelection){
       hasOne=true;
-      if(noteEl) markFieldQuality(noteEl);
-      if(!noteEl||!isMeaningfulText(noteEl.value)) allFilledRowsValid=false;
+      markFieldQuality(noteEl);
+      if(!isMeaningfulText(noteEl.value)) allFilledRowsValid=false;
     }
   }
   sectionDone[2]=hasOne&&allFilledRowsValid;updateLocks();
@@ -1254,7 +1285,7 @@ function checkSects(){
   // (2) Tính điều kiện khóa: dựa trên kết quả đã quét ở bước (1), không trộn lẫn 2 việc này
   //     để tránh tình trạng early-return làm bỏ sót việc đánh dấu các ô phía sau.
 
-  // ----- Section 3: Năng lực cốt lõi -----
+  // ----- Section 3: Tinh thần làm việc -----
   let c3=true;
   for(const c of CORE){
     if(naState[`core_${c.id}`]) continue; // N/A skipped
@@ -1364,7 +1395,7 @@ function validate(){
       return false;
     },'Lỗi: Phát hiện dẫn chứng giống nhau giữa nhiều tiêu chí — vui lòng viết riêng cho từng tiêu chí, không copy-dán lặp lại',null],
     [()=>!sectionDone[2],'Phần II: Cần đánh giá ít nhất 1 tuần',null,'card2','ntab2'],
-    [()=>!sectionDone[3],'Phần III: Chưa hoàn thành đánh giá Năng lực cốt lõi',null,'card3','ntab3'],
+    [()=>!sectionDone[3],'Phần III: Chưa hoàn thành đánh giá Tinh thần làm việc',null,'card3','ntab3'],
     [()=>!sectionDone[4],'Phần IV: Chưa hoàn thành đánh giá Năng lực chuyên môn',null,'card4','ntab4'],
     [()=>!sectionDone[5],'Phần V: Chưa hoàn thành đánh giá Culture Fit',null,'card5','ntab5'],
     [()=>!document.querySelector('input[name="conclusion"]:checked'),'Phần VII: Chưa chọn quyết định sau thử việc',null,'card7','ntab7'],
@@ -1423,7 +1454,7 @@ QUẢN LÝ ĐÁNH GIÁ: ${p.manager} (${p.mgr_title})
 Ngày đánh giá: ${p.sig_date}
 
 KẾT QUẢ:
-- Năng lực cốt lõi (38%): ${p.pct_core}%
+- Tinh thần làm việc (38%): ${p.pct_core}%
 - Chuyên môn (38%): ${p.pct_dept}%
 - Culture Fit (24%): ${p.pct_culture}%
 - TỔNG ĐIỂM: ${p.total_score}/100 — ${verdict}
@@ -1484,11 +1515,11 @@ async function submitForm(){
   };
   // Phần II giờ ghi nhận: hạng mục JD (tên đầy đủ, không chỉ id) + mô tả cụ thể — không còn
   // trạng thái Trung bình/Đạt/Xuất sắc (đã bỏ theo yêu cầu, Phần II chỉ ghi nhận không chấm điểm).
+  // Phần II giờ ghi nhận: danh sách hạng mục JD đã tick (có thể nhiều, nối bằng "; ") +
+  // mô tả cụ thể chung cho cả tuần — không còn trạng thái Trung bình/Đạt/Xuất sắc.
   for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
-    const jdId=document.getElementById('wj'+i)?.value||'';
-    const jdCrit=dCrit.find(c=>c.id===jdId);
     p[`w_note_${i}`]=document.getElementById('wn'+i)?.value||'';
-    p[`w_jd_${i}`]=jdCrit?jdCrit.name:'';
+    p[`w_jd_${i}`]=getWeekJDNames(i,dCrit).join('; ');
   }
   CORE.forEach(c=>{const sel=document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);const m=sel?sel.className.match(/sel-(\d)/):null;p[`core_${c.id}`]=naState[`core_${c.id}`]?'N/A':(m?m[1]:'');p[`core_ev_${c.id}`]=document.getElementById(`evt_core_${c.id}`)?.value||'';});
   dCrit.forEach((c,i)=>{const sel=document.querySelector(`[id^="bopt_dept_${c.id}_"][class*="sel-"]`);const m=sel?sel.className.match(/sel-(\d)/):null;p[`dept_name_${i+1}`]=c.name;p[`dept_score_${i+1}`]=naState[`dept_${c.id}`]?'N/A':(m?m[1]:'');p[`dept_ev_${i+1}`]=document.getElementById(`evt_dept_${c.id}`)?.value||'';});
@@ -1582,12 +1613,10 @@ function buildEvalHTML(){
   let weeksHTML='';
   for(let i=1;i<=activeWeeks;i++){
     const note=document.getElementById('wn'+i)?.value;
-    const jdId=document.getElementById('wj'+i)?.value;
-    const jdCrit=dCrit.find(c=>c.id===jdId);
-    const jdName=jdCrit?jdCrit.name:'';
+    const jdNames=getWeekJDNames(i,dCrit);
+    const jdName=jdNames.join('; ');
     if(note||jdName) weeksHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700;color:#005AAB">Tuần ${i}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700">${jdName||'—'}</td><td style="padding:4px 8px;border:1px solid #d0e4f7">${note||'—'}</td></tr>`;
   }
-  const workComment=document.getElementById('work_comment')?.value||'';
 
   const scoreLabels=['','Kém','Yếu','Đạt','Tốt','Xuất sắc'];
   function buildRows(criteria,prefix){
@@ -1674,9 +1703,8 @@ function buildEvalHTML(){
 
   <div class="sec">II. Ghi nhận công việc theo tuần (không tính điểm)</div>
   <table><thead><tr><th style="width:70px">Tuần</th><th style="width:200px">Hạng mục (theo JD)</th><th>Mô tả cụ thể</th></tr></thead><tbody>${weeksHTML||'<tr><td colspan="3" style="padding:6px 8px;border:1px solid #d0e4f7;color:#aaa;text-align:center">Chưa điền</td></tr>'}</tbody></table>
-  ${workComment?`<div style="background:#f4f8fd;border:1px solid #d0e4f7;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:12px"><strong style="color:#005AAB">Ghi chú phát sinh:</strong> ${workComment}</div>`:''}
 
-  <div class="sec">III. Năng lực cốt lõi (38%)</div>
+  <div class="sec">III. Tinh thần làm việc (38%)</div>
   <table><thead><tr><th>Tiêu chí</th><th style="width:160px">Điểm</th><th>Dẫn chứng</th></tr></thead><tbody>${coreHTML}</tbody></table>
 
   <div class="sec">IV. Năng lực chuyên môn — ${deptLabel} (38%)</div>
@@ -1688,7 +1716,7 @@ function buildEvalHTML(){
 
   <div class="sec">VI. Tổng điểm</div>
   <div class="score-box">
-    <div><div style="font-size:11px;opacity:.8;margin-bottom:2px">Năng lực cốt lõi 38% · Chuyên môn 38% · Culture 24%</div>
+    <div><div style="font-size:11px;opacity:.8;margin-bottom:2px">Tinh thần làm việc 38% · Chuyên môn 38% · Culture 24%</div>
     <div style="font-size:13px">${pCore}% · ${pDept}% · ${pCult}%</div></div>
     <div style="text-align:right"><div class="total-num">${total}/100</div><div style="font-size:11px;opacity:.8">Tổng điểm</div></div>
   </div>
@@ -1875,10 +1903,9 @@ async function generatePDFBase64(){
   } else {
     bodyText('Chưa điền.');
   }
-  if(data.workComment){ bodyText('Ghi chú phát sinh: '+data.workComment); }
 
-  // ===== III. NĂNG LỰC CỐT LÕI =====
-  sectionTitle('III. NĂNG LỰC CỐT LÕI (38%)');
+  // ===== III. TINH THẦN LÀM VIỆC =====
+  sectionTitle('III. TINH THẦN LÀM VIỆC (38%)');
   table(['Tiêu chí','Điểm','Dẫn chứng'], data.coreRows, {0:{cellWidth:55},1:{cellWidth:28}});
 
   // ===== IV. CHUYÊN MÔN =====
@@ -1899,7 +1926,7 @@ async function generatePDFBase64(){
 
   // ===== VI. TỔNG ĐIỂM =====
   sectionTitle('VI. TỔNG ĐIỂM');
-  bodyText(`Năng lực cốt lõi 38% · Chuyên môn 38% · Culture 24%  —  ${data.pCore}% · ${data.pDept}% · ${data.pCult}%`);
+  bodyText(`Tinh thần làm việc 38% · Chuyên môn 38% · Culture 24%  —  ${data.pCore}% · ${data.pDept}% · ${data.pCult}%`);
   heading(`TỔNG ĐIỂM: ${data.total}/100  —  ${data.verdictText}`,12);
   y+=2;
 
@@ -1984,12 +2011,10 @@ function collectEvalData(){
   const weeks=[];
   for(let i=1;i<=activeWeeks;i++){
     const note=document.getElementById('wn'+i)?.value;
-    const jdId=document.getElementById('wj'+i)?.value;
-    const jdCrit=dCrit.find(c=>c.id===jdId);
-    const jdName=jdCrit?jdCrit.name:'';
+    const jdNames=getWeekJDNames(i,dCrit);
+    const jdName=jdNames.join('; ');
     if(note||jdName) weeks.push({label:'Tuần '+i, note, jd:jdName});
   }
-  const workComment=document.getElementById('work_comment')?.value||'';
 
   const scoreLabels=['','Kém','Yếu','Đạt','Tốt','Xuất sắc'];
   function buildRows(criteria,prefix){
@@ -2039,7 +2064,7 @@ function collectEvalData(){
   const verdictText=document.getElementById('vd_title')?.textContent||'';
 
   return {name,deptLabel,title,level,manager,mgrTitle,start,end,dur,evalDate,
-    pCore,pDept,pCult,total,weeks,workComment,coreRows,deptRows,mgmtRows,cultRows,
+    pCore,pDept,pCult,total,weeks,coreRows,deptRows,mgmtRows,cultRows,
     conclusion,reason,strength,weakness,sigManager,sigTitle,sigDate,sigEmployee,sigEmpTitle,sigEmpDate,
     idpRows,verdictText};
 }
