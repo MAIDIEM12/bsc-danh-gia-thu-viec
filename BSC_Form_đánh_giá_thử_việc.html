@@ -1248,44 +1248,49 @@ function checkS2(){
   sectionDone[2]=hasOne&&allFilledRowsValid;updateLocks();
 }
 function checkSects(){
-  // Section 3: all active criteria must have score + evidence
+  // QUAN TRỌNG: tách 2 việc riêng biệt —
+  // (1) Đánh dấu UI: LUÔN quét và markFieldQuality() cho MỌI ô có hiển thị, không break/return
+  //     sớm — để TBP thấy đúng TẤT CẢ ô đang lỗi cùng lúc (không chỉ ô lỗi đầu tiên).
+  // (2) Tính điều kiện khóa: dựa trên kết quả đã quét ở bước (1), không trộn lẫn 2 việc này
+  //     để tránh tình trạng early-return làm bỏ sót việc đánh dấu các ô phía sau.
+
+  // ----- Section 3: Năng lực cốt lõi -----
   let c3=true;
   for(const c of CORE){
     if(naState[`core_${c.id}`]) continue; // N/A skipped
     const scored=document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);
-    if(!scored){c3=false;break;} // must have score
     const evEl=document.getElementById(`evt_core_${c.id}`);
-    if(evEl){markFieldQuality(evEl); if(!isMeaningfulText(evEl.value)){c3=false;break;}} // must have meaningful evidence
+    if(evEl) markFieldQuality(evEl); // luôn đánh dấu, không phụ thuộc các tiêu chí khác
+    if(!scored){c3=false;continue;} // thiếu điểm — vẫn tiếp tục quét các tiêu chí còn lại
+    if(evEl && !isMeaningfulText(evEl.value)){c3=false;}
   }
 
-  // Section 4: all rendered dept criteria must have score + evidence
+  // ----- Section 4: Năng lực chuyên môn (+ Quản lý nếu có) -----
   let c4=!!currentDept;
   if(c4){
-    // Get currently rendered criteria (may be subset based on level)
     const rendered=document.querySelectorAll('[id^="bi_dept_"]');
     if(!rendered.length){c4=false;}
     else{
       rendered.forEach(el=>{
-        if(!c4) return;
         const cid=el.id.replace('bi_dept_','');
         if(naState[`dept_${cid}`]) return; // N/A skipped
         const scored=document.querySelector(`[id^="bopt_dept_${cid}_"][class*="sel-"]`);
-        if(!scored){c4=false;return;}
         const evEl=document.getElementById(`evt_dept_${cid}`);
-        if(evEl){markFieldQuality(evEl); if(!isMeaningfulText(evEl.value)){c4=false;}}
+        if(evEl) markFieldQuality(evEl); // luôn đánh dấu mọi ô, không phụ thuộc c4 hiện tại
+        if(!scored){c4=false;return;}
+        if(evEl && !isMeaningfulText(evEl.value)){c4=false;}
       });
     }
-    // Also require management criteria when shown (Assistant Manager and above)
     const mgmtRendered=document.querySelectorAll('[id^="bi_mgmt_"]');
     if(mgmtRendered.length){
       mgmtRendered.forEach(el=>{
-        if(!c4) return;
         const cid=el.id.replace('bi_mgmt_','');
         if(naState[`mgmt_${cid}`]) return;
         const scored=document.querySelector(`[id^="bopt_mgmt_${cid}_"][class*="sel-"]`);
-        if(!scored){c4=false;return;}
         const evEl=document.getElementById(`evt_mgmt_${cid}`);
-        if(evEl){markFieldQuality(evEl); if(!isMeaningfulText(evEl.value)){c4=false;}}
+        if(evEl) markFieldQuality(evEl); // luôn đánh dấu mọi ô, không phụ thuộc c4 hiện tại
+        if(!scored){c4=false;return;}
+        if(evEl && !isMeaningfulText(evEl.value)){c4=false;}
       });
     }
   }
