@@ -65,10 +65,11 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .msel-arrow{color:#789;font-size:10px;flex-shrink:0;margin-top:3px}
 .week-selected-list{margin-top:6px;display:flex;flex-direction:column;gap:4px}
 .week-item-row{padding:5px 10px;background:#eef6ff;border:1px solid #c8e0fa;border-radius:6px;font-size:12.5px;color:#005AAB;font-weight:700}
-.khac-toggle{display:flex;align-items:center;gap:6px;margin-top:6px;cursor:pointer;font-size:11.5px;color:#778;user-select:none}
-.khac-toggle input{width:14px;height:14px;cursor:pointer;accent-color:#005AAB}
-.khac-toggle em{font-style:normal;color:#9aa}
-.khac-toggle.checked{color:#005AAB;font-weight:800}
+.khac-toggle{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px;cursor:pointer;font-size:10px;color:#789;user-select:none;border-right:.5px solid #d0e4f7;text-align:center}
+.khac-toggle input{width:15px;height:15px;cursor:pointer;accent-color:#005AAB;margin:0 0 2px}
+.khac-toggle span{font-weight:800;font-size:11px;display:block}
+.khac-toggle em{font-style:normal;color:#9aa;font-size:9px;display:block;line-height:1.15}
+.khac-toggle.checked{color:#005AAB;background:#eef6ff}
 .khac-toggle.checked em{color:#557}
 .khac-note{margin-top:6px}
 /* Panel dropdown đa chọn — width CỐ ĐỊNH HOÀN TOÀN bằng CSS (340px), KHÔNG để JS ghi đè
@@ -101,7 +102,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .atbtn.apply.active{background:#005AAB;border-color:#005AAB;color:#fff}
 .atbtn.noapply.active{background:#e74c3c;border-color:#e74c3c;color:#fff}
 .atbtn .ck{width:13px;height:13px;border:1.5px solid currentColor;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;flex-shrink:0}
-.bi-opts{display:grid;grid-template-columns:repeat(5,1fr);border-top:.5px solid #d0e4f7}
+.bi-opts{display:grid;grid-template-columns:repeat(4,1fr);border-top:.5px solid #d0e4f7}
 .bopt{padding:8px 4px;text-align:center;cursor:pointer;border-right:.5px solid #d0e4f7;transition:all .14s}
 .bopt:last-child{border-right:none}
 .bopt:hover{background:#d8ecff}
@@ -373,17 +374,13 @@ input[readonly]{background:#f0f5fb;color:#88a}
 
 <!-- VI -->
 <div class="card locked" id="card6">
-  <div class="sec">VI. Xác nhận hoàn tất đánh giá</div>
-  <div style="background:#f4f8fd;border:1.5px solid #d0e4f7;border-radius:12px;padding:28px 24px;text-align:center">
-    <div style="font-size:32px;margin-bottom:10px">🔒</div>
-    <div style="font-size:14px;font-weight:900;color:#005AAB;margin-bottom:8px">Kết quả tổng hợp được giữ bảo mật</div>
-    <div style="font-size:12.5px;color:#557;max-width:480px;margin:0 auto;line-height:1.6">
-      Điểm số và xếp loại tổng hợp sẽ <strong>không hiển thị</strong> ở bước này, nhằm đảm bảo người đánh giá tập trung vào quan sát hành vi khách quan ở từng tiêu chí — không bị ảnh hưởng ngược lại bởi điểm số.
-      Kết quả đầy đủ sẽ có trong file PDF / email gửi về HR sau khi hoàn tất.
-    </div>
-    <div id="vi_status_box" style="margin-top:18px;padding:12px 16px;border-radius:9px;font-size:13px;font-weight:800;background:#fde8e8;color:#c0392b;display:inline-block">
-      ⏳ Chưa hoàn thành đủ các phần đánh giá phía trên
-    </div>
+  <div class="sec">VI. Tổng điểm</div>
+  <div id="vi_score_visible" style="background:#f4f8fd;border:1.5px solid #d0e4f7;border-radius:12px;padding:18px 20px">
+    <ul id="vi_score_list" style="margin:0;padding-left:20px;font-size:13px;line-height:2;color:#223"></ul>
+    <div id="vi_score_total" style="margin-top:8px;font-size:14px;font-weight:900;color:#005AAB"></div>
+  </div>
+  <div id="vi_status_box" style="margin-top:14px;padding:12px 16px;border-radius:9px;font-size:13px;font-weight:800;background:#fde8e8;color:#c0392b;display:inline-block">
+    ⏳ Chưa hoàn thành đủ các phần đánh giá phía trên
   </div>
   <!-- Hidden elements kept for JS calculation compatibility — not visible to reviewer -->
   <div style="display:none">
@@ -958,11 +955,11 @@ function renderBARSGroup(containerId,criteria,prefix){
       <div class="bi-opts">
         ${crit.scores.map((s,i)=>`<div class="bopt" id="bopt_${prefix}_${crit.id}_${i+1}" data-s="${i+1}" onclick="selBOpt('${prefix}','${crit.id}',${i+1},'${encodeURIComponent(s)}')">
           <span class="bopt-score">${i+1}</span><span class="bopt-label">${sl[i]}</span></div>`).join('')}
+        <label class="khac-toggle" id="khacToggle_${prefix}_${crit.id}">
+          <input type="checkbox" id="khacChk_${prefix}_${crit.id}" onchange="toggleKhac('${prefix}','${crit.id}')">
+          <span>Khác</span><em>không tính điểm</em>
+        </label>
       </div>
-      <label class="khac-toggle" id="khacToggle_${prefix}_${crit.id}">
-        <input type="checkbox" id="khacChk_${prefix}_${crit.id}" onchange="toggleKhac('${prefix}','${crit.id}')">
-        <span>Khác <em>(không thuộc 3 mức trên — không tính điểm)</em></span>
-      </label>
       <div class="bi-detail" id="det_${prefix}_${crit.id}"></div>
       <div class="ev-box" id="ev_${prefix}_${crit.id}">
         <label id="evLabel_${prefix}_${crit.id}">✏️ Nhận xét & dẫn chứng <span style="color:#c0392b;font-weight:900">*bắt buộc</span> — cần điền để mở phần tiếp theo</label>
@@ -1227,6 +1224,82 @@ function getCultScore(){
   return Math.round(vals.reduce((a,b)=>a+b,0)/(CULTURE.length*4)*100);
 }
 
+// Gom nhóm "Tổng hợp quan sát" dùng CHUNG cho cả màn hình web (updateFinalSummary) và
+// cả 2 bản xuất PDF (buildEvalHTML + generatePDFBase64) — viết 1 lần, đảm bảo nội dung
+// hiển thị trên web và trên file in/PDF luôn khớp nhau, sửa 1 chỗ là đồng bộ hết.
+// Tính breakdown điểm theo đúng cấu trúc "Hạng mục: % đạt được / % trọng số chuẩn cao nhất".
+// Tự động nhận diện cấp bậc (qua hasManagement, vốn đã được suy ra từ Phần I — cấp bậc
+// Assistant Manager trở lên mới có Tiêu chí quản lý) để tách 38% Chuyên môn thành
+// 19% Chuyên môn + 19% Quản lý khi cần — tổng vẫn = 38%, KHÔNG đổi công thức tổng điểm gốc.
+// Dùng CHUNG cho web (card VI) và cả 2 bản PDF, đảm bảo luôn khớp nhau.
+function getScoreBreakdown(){
+  const pCore=getGroupScore(CORE,'core');
+  const dCrit=currentDept?(currentDeptCriteria||DEPT_DATA[currentDept].criteria):null;
+  const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
+  const pSpecialty=dCrit?getGroupScore(dCrit,'dept'):null;
+  const pMgmt=hasManagement?getGroupScore(MANAGEMENT,'mgmt'):null;
+  const pCult=getCultScore();
+
+  const items=[{label:'Tinh thần làm việc',pct:pCore,weight:38}];
+  if(hasManagement){
+    items.push({label:'Năng lực chuyên môn theo bộ phận',pct:pSpecialty,weight:19});
+    items.push({label:'Tiêu chí quản lý',pct:pMgmt,weight:19});
+  } else {
+    items.push({label:'Năng lực chuyên môn theo bộ phận',pct:pSpecialty,weight:38});
+  }
+  items.push({label:'Phù hợp văn hóa BSC',pct:pCult,weight:24});
+
+  let complete=true;
+  items.forEach(it=>{
+    it.contribution=(it.pct===null)?null:Math.round(it.pct*it.weight/100);
+    if(it.pct===null) complete=false;
+  });
+  // Tổng dùng đúng 1 công thức gốc (không cộng dồn từng mục đã làm tròn riêng) để luôn
+  // khớp 100% với "TỔNG ĐIỂM" chính thức dùng cho Kết luận/đề xuất ở nơi khác trong form.
+  const total=complete?Math.round(
+    pCore*0.38 + pSpecialty*(hasManagement?0.19:0.38) + (hasManagement?pMgmt*0.19:0) + pCult*0.24
+  ):null;
+  return {items,total,complete,hasManagement};
+}
+
+// Thống kê % hoàn thành ghi nhận công việc theo tuần (Phần II) — CHỈ dùng để in vào file/PDF
+// gửi HR, KHÔNG hiển thị trên link web cho TBP (tránh lộ số liệu trong lúc đang đánh giá).
+function getWeekCompletionStats(dCrit){
+  let filled=0;
+  const missing=[];
+  for(let i=1;i<=activeWeeks;i++){
+    if(getWeekJDNames(i,dCrit||[]).length>0) filled++;
+    else missing.push(i);
+  }
+  const total=activeWeeks||0;
+  const pct=total>0?Math.round(filled/total*100):0;
+  return {filled,total,pct,missing};
+}
+
+function getObservationGroups(dCrit){
+  const tot=[], yeu=[], khac=[];
+  function collect(criteria,prefix){
+    for(const c of criteria){
+      const key=`${prefix}_${c.id}`;
+      if(naState[key]) continue; // Không Áp Dụng — bỏ qua, không đưa vào tóm tắt
+      if(khacState[key]){ khac.push(c.name); continue; }
+      const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
+      const m=sel?sel.className.match(/sel-(\d)/):null;
+      const sc=m?parseInt(m[1]):null;
+      if(sc===3) tot.push(c.name);
+      else if(sc===1) yeu.push(c.name);
+      // sc===2 (Đạt) hoặc chưa chọn mức -> không đưa vào tóm tắt
+    }
+  }
+  collect(CORE,'core');
+  if(currentDept&&dCrit) collect(dCrit,'dept');
+  const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
+  if(hasManagement) collect(MANAGEMENT,'mgmt');
+  let wkFilled=0;
+  for(let i=1;i<=activeWeeks;i++){ if(getWeekJDNames(i,dCrit||[]).length>0) wkFilled++; }
+  return {tot,yeu,khac,wkFilled};
+}
+
 function calcAndShow(){
   const pCore=getGroupScore(CORE,'core');
   const dCrit=currentDept?(currentDeptCriteria||DEPT_DATA[currentDept].criteria):null;
@@ -1265,8 +1338,23 @@ function calcAndShow(){
     sectionDone[6]=false;
     if(statusBox){statusBox.style.background='#fde8e8';statusBox.style.color='#c0392b';statusBox.innerHTML='⏳ Chưa hoàn thành đủ các phần đánh giá phía trên'+(incomplete.length?'<div style="margin-top:8px;font-size:11.5px;font-weight:700">'+incomplete.join('<br>')+'</div>':'');}
   }
+  renderScoreBreakdown();
   updateFinalSummary();
   updateLocks();
+}
+
+// Hiển thị breakdown "[Hạng mục]: X% / Y% (Chuẩn cao nhất)" theo đúng cấu trúc yêu cầu —
+// dùng chung getScoreBreakdown() với 2 bản PDF để luôn khớp số liệu giữa web và file xuất.
+function renderScoreBreakdown(){
+  const listEl=document.getElementById('vi_score_list');
+  const totalEl=document.getElementById('vi_score_total');
+  if(!listEl||!totalEl) return;
+  const {items,total}=getScoreBreakdown();
+  listEl.innerHTML=items.map(it=>{
+    const val=it.contribution===null?'—':it.contribution+'%';
+    return `<li><strong>${it.label}:</strong> ${val} / ${it.weight}%</li>`;
+  }).join('');
+  totalEl.textContent=`TỔNG ĐIỂM SỐ % CÁC MỤC: ${total===null?'—':total+'%'} / 100%`;
 }
 
 function setVerdict(total,pc,pd,pcu,incomplete=[]){
@@ -1304,38 +1392,10 @@ function updateFinalSummary(){
   document.getElementById('fs_decision').textContent=cv?dmap[cv]:'— Chưa chọn —';
 
   // AUTO-GENERATE SUMMARY from all evaluation data — KHÔNG hiện số điểm/% (tránh bias ngược lên TBP)
-  // LOGIC TÓM TẮT ĐIỀU HÀNH (executive summary) — KHÔNG liệt kê toàn bộ tiêu chí (sẽ thành
-  // 1 bức tường chữ rất dài và dư thừa vì đã có đầy đủ trong Phần III/IV/V + PDF):
-  //  - Bỏ qua mức "Đạt" (đúng kỳ vọng cơ bản, không có gì đặc biệt cần nêu trong tóm tắt).
-  //  - Chỉ nêu tiêu chí ở mức "Tốt" (điểm mạnh nổi bật), "Chưa đạt" (cần cải thiện) và "Khác"
-  //    (ghi chú riêng) — đúng tinh thần "tổng kết", không phải "liệt kê dữ liệu thô".
-  //  - Gom theo NHÓM có tiêu đề rõ (Điểm nổi bật / Cần cải thiện / Ghi chú khác), mỗi tiêu chí
-  //    vẫn là 1 dòng riêng trong nhóm của nó.
-  //  - Dẫn chứng được CẮT NGẮN (≤70 ký tự) — chỉ để gợi nhớ, không dán nguyên văn đoạn dài.
-  // KHÔNG còn cắt/hiện dẫn chứng trong tóm tắt — chỉ liệt kê TÊN TIÊU CHÍ cho gọn,
-  // dẫn chứng đầy đủ vẫn xem được ở Phần III/IV/V và trong PDF xuất ra.
-  const tot=[], yeu=[], khac=[];
-  function collectCritLines(criteria,prefix){
-    for(const c of criteria){
-      const key=`${prefix}_${c.id}`;
-      if(naState[key]) continue; // Không Áp Dụng — bỏ qua, không đưa vào tóm tắt
-      if(khacState[key]){ khac.push(c.name); continue; }
-      const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
-      const m=sel?sel.className.match(/sel-(\d)/):null;
-      const sc=m?parseInt(m[1]):null;
-      if(sc===3) tot.push(c.name);
-      else if(sc===1) yeu.push(c.name);
-      // sc===2 (Đạt) hoặc chưa chọn mức -> không đưa vào tóm tắt
-    }
-  }
-  collectCritLines(CORE,'core');
-  if(currentDept&&dCrit) collectCritLines(dCrit,'dept');
-  const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
-  if(hasManagement) collectCritLines(MANAGEMENT,'mgmt');
+  // LOGIC TÓM TẮT ĐIỀU HÀNH (executive summary) — dùng getObservationGroups() chung với PDF.
+  const {tot,yeu,khac,wkFilled}=getObservationGroups(dCrit);
 
   let lines=[];
-  let wkFilled=0;
-  for(let i=1;i<=activeWeeks;i++){ if(getWeekJDNames(i,dCrit||[]).length>0) wkFilled++; }
   if(wkFilled>0) lines.push(`Đã ghi nhận công việc ${wkFilled} tuần.`);
   if(tot.length){ lines.push(''); lines.push('✅ ĐIỂM NỔI BẬT (Tốt):'); tot.forEach(t=>lines.push('• '+t)); }
   if(yeu.length){ lines.push(''); lines.push('⚠️ CẦN CẢI THIỆN (Chưa đạt):'); yeu.forEach(t=>lines.push('• '+t)); }
@@ -1836,8 +1896,8 @@ function buildEvalHTML(){
   let weeksHTML='';
   for(let i=1;i<=activeWeeks;i++){
     const jdNames=getWeekJDNames(i,dCritFull);
-    const jdName=jdNames.join('; ');
-    if(jdName) weeksHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700;color:#005AAB">Tuần ${i}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700">${jdName||'—'}</td></tr>`;
+    const jdName=jdNames.join('<br>');
+    if(jdName) weeksHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700;color:#005AAB">Tuần ${i}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700;line-height:1.6">${jdName||'—'}</td></tr>`;
   }
 
   const scoreLabels=['','Chưa đạt','Đạt','Tốt','Khác'];
@@ -1923,6 +1983,11 @@ function buildEvalHTML(){
   </tbody></table>
 
   <div class="sec">II. Ghi nhận công việc theo tuần (không tính điểm)</div>
+  ${(()=>{
+    const ws=getWeekCompletionStats(dCritFull);
+    const missingText=ws.missing.length?` — Còn thiếu: ${ws.missing.map(i=>'Tuần '+i).join(', ')}`:' — Đã ghi nhận đủ tất cả các tuần';
+    return `<div style="font-size:11.5px;font-weight:700;color:${ws.missing.length?'#c0392b':'#1a5c30'};margin-bottom:6px">Tỷ lệ hoàn thành ghi nhận: ${ws.filled}/${ws.total} tuần (${ws.pct}%)${missingText}</div>`;
+  })()}
   <table><thead><tr><th style="width:70px">Tuần</th><th>Hạng mục (theo JD)</th></tr></thead><tbody>${weeksHTML||'<tr><td colspan="2" style="padding:6px 8px;border:1px solid #d0e4f7;color:#aaa;text-align:center">Chưa điền</td></tr>'}</tbody></table>
 
   <div class="sec">III. Tinh thần làm việc (38%)</div>
@@ -1936,12 +2001,29 @@ function buildEvalHTML(){
   <table><thead><tr><th>Tiêu chí</th><th style="width:200px">Đánh giá</th></tr></thead><tbody>${cultHTML}</tbody></table>
 
   <div class="sec">VI. Tổng điểm</div>
-  <div class="score-box">
-    <div><div style="font-size:11px;opacity:.8;margin-bottom:2px">Tinh thần làm việc 38% · Chuyên môn 38% · Culture 24%</div>
-    <div style="font-size:13px">${pCore}% · ${pDept}% · ${pCult}%</div></div>
-    <div style="text-align:right"><div class="total-num">${total}/100</div><div style="font-size:11px;opacity:.8">Tổng điểm</div></div>
+  <div class="score-box" style="display:block">
+    ${(()=>{
+      const {items,total:totalBd}=getScoreBreakdown();
+      const rows=items.map(it=>`<li><strong>${it.label}:</strong> ${it.contribution===null?'—':it.contribution+'%'} / ${it.weight}%</li>`).join('');
+      return `<ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.9">${rows}</ul>
+      <div style="margin-top:6px;font-weight:900;font-size:13px">TỔNG ĐIỂM SỐ % CÁC MỤC: ${totalBd===null?'—':totalBd+'%'} / 100%</div>`;
+    })()}
   </div>
   <div class="verdict">${verdictText}</div>
+
+  ${(()=>{
+    const {tot,yeu,khac,wkFilled}=getObservationGroups(dCrit);
+    const blocks=[];
+    if(tot.length) blocks.push(`<div style="margin-top:6px"><strong style="color:#1a5c30">✅ ĐIỂM NỔI BẬT (Tốt):</strong><ul style="margin:4px 0 0;padding-left:18px">${tot.map(t=>`<li>${t}</li>`).join('')}</ul></div>`);
+    if(yeu.length) blocks.push(`<div style="margin-top:6px"><strong style="color:#c0392b">⚠️ CẦN CẢI THIỆN (Chưa đạt):</strong><ul style="margin:4px 0 0;padding-left:18px">${yeu.map(t=>`<li>${t}</li>`).join('')}</ul></div>`);
+    if(khac.length) blocks.push(`<div style="margin-top:6px"><strong style="color:#005AAB">📝 GHI CHÚ KHÁC:</strong><ul style="margin:4px 0 0;padding-left:18px">${khac.map(t=>`<li>${t}</li>`).join('')}</ul></div>`);
+    if(!blocks.length) return '';
+    return `<div class="sec">Tổng hợp quan sát (tham khảo)</div>
+  <div style="padding:10px 12px;background:#fff;border-radius:8px;border:1px solid #d0e4f7;font-size:12px">
+    ${wkFilled>0?`<div>Đã ghi nhận công việc ${wkFilled} tuần.</div>`:''}
+    ${blocks.join('')}
+  </div>`;
+  })()}
 
   <div class="sec">VII. Kết luận</div>
   <table><tbody>
@@ -2105,7 +2187,7 @@ async function generatePDFBase64(){
 
   // ===== I. THÔNG TIN =====
   sectionTitle('I. THÔNG TIN NHÂN VIÊN');
-  table(['Trường','Nội dung'],[
+  table(['Thông tin','Nội dung'],[
     ['Họ và tên', data.name],
     ['Bộ phận', data.deptLabel],
     ['Vị trí', data.title],
@@ -2117,6 +2199,17 @@ async function generatePDFBase64(){
 
   // ===== II. CÔNG VIỆC THEO TUẦN =====
   sectionTitle('II. GHI NHẬN CÔNG VIỆC THEO TUẦN (không tính điểm)');
+  {
+    const ws=data.weekStats;
+    const missingText=ws.missing.length?` — Còn thiếu: ${ws.missing.map(i=>'Tuần '+i).join(', ')}`:' — Đã ghi nhận đủ tất cả các tuần';
+    const statLine=`Tỷ lệ hoàn thành ghi nhận: ${ws.filled}/${ws.total} tuần (${ws.pct}%)${missingText}`;
+    doc.setFontSize(9.5);doc.setFont('Roboto','bold');
+    doc.setTextColor(...(ws.missing.length?[192,57,43]:[26,92,48]));
+    const slLines=doc.splitTextToSize(statLine, usableWidth);
+    if(y+slLines.length*5>280){doc.addPage();y=16;}
+    doc.text(slLines, marginL, y); y+=slLines.length*5+2;
+    doc.setTextColor(20,20,18);doc.setFont('Roboto','normal');
+  }
   if(data.weeks.length){
     table(['Tuần','Hạng mục (theo JD)'], data.weeks.map(w=>[w.label,w.jd||'—']), {0:{cellWidth:16}});
   } else {
@@ -2145,9 +2238,39 @@ async function generatePDFBase64(){
 
   // ===== VI. TỔNG ĐIỂM =====
   sectionTitle('VI. TỔNG ĐIỂM');
-  bodyText(`Tinh thần làm việc 38% · Chuyên môn 38% · Culture 24%  —  ${data.pCore}% · ${data.pDept}% · ${data.pCult}%`);
-  heading(`TỔNG ĐIỂM: ${data.total}/100  —  ${data.verdictText}`,12);
+  {
+    const {items,total:totalBd}=data.scoreBreakdown;
+    items.forEach(it=>{
+      bodyText(`${it.label}: ${it.contribution===null?'—':it.contribution+'%'} / ${it.weight}%`);
+    });
+    heading(`TỔNG ĐIỂM SỐ % CÁC MỤC: ${totalBd===null?'—':totalBd+'%'} / 100%  —  ${data.verdictText}`,12);
+  }
   y+=2;
+
+  // ===== TỔNG HỢP QUAN SÁT (THAM KHẢO) =====
+  // KHÔNG dùng icon emoji (✅⚠️📝) ở đây vì font Roboto nhúng trong jsPDF không đảm bảo có
+  // đủ glyph emoji (có thể hiện ô vuông trống) — dùng tiêu đề chữ + màu sắc phân biệt để
+  // vẫn rõ ràng, an toàn hiển thị 100% trên mọi máy đọc PDF.
+  {
+    const {tot,yeu,khac,wkFilled}=data.obsGroups;
+    if(tot.length||yeu.length||khac.length||wkFilled>0){
+      sectionTitle('TỔNG HỢP QUAN SÁT (THAM KHẢO)');
+      if(wkFilled>0) bodyText(`Đã ghi nhận công việc ${wkFilled} tuần.`);
+      function obsGroup(title,items,color){
+        if(!items.length) return;
+        if(y>270){doc.addPage();y=16;}
+        doc.setFontSize(10);doc.setFont('Roboto','bold');doc.setTextColor(...color);
+        doc.text(title, marginL, y); y+=5;
+        doc.setFont('Roboto','normal');doc.setTextColor(20,20,18);
+        items.forEach(t=>bodyText('• '+t));
+        y+=1;
+      }
+      obsGroup('ĐIỂM NỔI BẬT (TỐT):', tot, [26,92,48]);
+      obsGroup('CẦN CẢI THIỆN (CHƯA ĐẠT):', yeu, [192,57,43]);
+      obsGroup('GHI CHÚ KHÁC:', khac, [0,90,171]);
+      y+=2;
+    }
+  }
 
   // ===== VII. KẾT LUẬN =====
   sectionTitle('VII. KẾT LUẬN');
@@ -2229,7 +2352,7 @@ function collectEvalData(){
   const weeks=[];
   for(let i=1;i<=activeWeeks;i++){
     const jdNames=getWeekJDNames(i,dCritFull);
-    const jdName=jdNames.join('; ');
+    const jdName=jdNames.join('\n');
     if(jdName) weeks.push({label:'Tuần '+i, jd:jdName});
   }
 
@@ -2282,7 +2405,7 @@ function collectEvalData(){
   return {name,deptLabel,title,level,manager,mgrTitle,start,end,dur,evalDate,
     pCore,pDept,pCult,total,weeks,coreRows,deptRows,mgmtRows,cultRows,
     conclusion,weakness,sigManager,sigTitle,sigDate,sigEmployee,sigEmpTitle,sigEmpDate,
-    idpRows,verdictText};
+    idpRows,verdictText,obsGroups:getObservationGroups(dCrit),scoreBreakdown:getScoreBreakdown(),weekStats:getWeekCompletionStats(dCritFull)};
 }
 
 
