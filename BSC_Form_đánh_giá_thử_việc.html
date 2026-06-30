@@ -63,6 +63,14 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .msel-box:hover{border-color:#9bbbe0}
 .msel-summary{color:#aab;flex:1;white-space:normal;word-wrap:break-word;line-height:1.45}
 .msel-arrow{color:#789;font-size:10px;flex-shrink:0;margin-top:3px}
+.week-selected-list{margin-top:6px;display:flex;flex-direction:column;gap:4px}
+.week-item-row{padding:5px 10px;background:#eef6ff;border:1px solid #c8e0fa;border-radius:6px;font-size:12.5px;color:#005AAB;font-weight:700}
+.khac-toggle{display:flex;align-items:center;gap:6px;margin-top:6px;cursor:pointer;font-size:11.5px;color:#778;user-select:none}
+.khac-toggle input{width:14px;height:14px;cursor:pointer;accent-color:#005AAB}
+.khac-toggle em{font-style:normal;color:#9aa}
+.khac-toggle.checked{color:#005AAB;font-weight:800}
+.khac-toggle.checked em{color:#557}
+.khac-note{margin-top:6px}
 /* Panel dropdown đa chọn — width CỐ ĐỊNH HOÀN TOÀN bằng CSS (340px), KHÔNG để JS ghi đè
    width nữa (trước đây JS set width theo getBoundingClientRect của ô đóng, có rủi ro
    ra giá trị sai/0 trên 1 số trình duyệt/thời điểm đo, khiến panel co lại cực nhỏ và
@@ -115,7 +123,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .ev-box{display:block;margin:0 10px 8px;background:#fffbf0;border:1px solid #f5d87a;border-radius:7px;padding:8px 10px}
 .ev-box label{font-size:11px;color:#b7791f;font-weight:900;margin-bottom:4px;display:block}
 .ev-box textarea{border-color:#f5d87a;font-size:12px;min-height:44px}
-.bi.na-mode .bi-opts,.bi.na-mode .bi-detail,.bi.na-mode .ev-box{opacity:.25;pointer-events:none}
+.bi.na-mode .bi-opts,.bi.na-mode .bi-detail,.bi.na-mode .ev-box,.bi.na-mode .khac-toggle{opacity:.25;pointer-events:none}
 
 /* CULTURE */
 .cult-item{border:1px solid #d0e4f7;border-radius:9px;overflow:hidden;margin-bottom:.55rem}
@@ -270,7 +278,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
   <div class="ntab" onclick="scrollToTab('card2','ntab2')" id="ntab2"><span class="nt-num">II</span><span class="nt-lbl">Công việc</span></div>
   <div class="ntab" onclick="scrollToTab('card3','ntab3')" id="ntab3"><span class="nt-num">III</span><span class="nt-lbl">Cốt lõi</span></div>
   <div class="ntab" onclick="scrollToTab('card4','ntab4')" id="ntab4"><span class="nt-num">IV</span><span class="nt-lbl">Chuyên môn</span></div>
-  <div class="ntab" onclick="scrollToTab('card5','ntab5')" id="ntab5"><span class="nt-num">V</span><span class="nt-lbl">Culture Fit</span></div>
+  <div class="ntab" onclick="scrollToTab('card5','ntab5')" id="ntab5"><span class="nt-num">V</span><span class="nt-lbl">Phù hợp văn hóa BSC</span></div>
   <div class="ntab" onclick="scrollToTab('card6','ntab6')" id="ntab6"><span class="nt-num">VI</span><span class="nt-lbl">Kết quả</span></div>
   <div class="ntab" onclick="scrollToTab('card7','ntab7')" id="ntab7"><span class="nt-num">VII</span><span class="nt-lbl">Kết luận</span></div>
 </div>
@@ -326,9 +334,9 @@ input[readonly]{background:#f0f5fb;color:#88a}
 <div class="card locked" id="card2">
   <div class="sec">II. Ghi nhận công việc theo tuần <span class="wt" style="background:#eef3fa;color:#557">Chỉ ghi nhận — không tính điểm</span></div>
   <div class="info"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#005AAB" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-    <span>Mỗi tuần: bấm vào ô "Hạng mục công việc" để chọn TẤT CẢ hạng mục JD đã làm trong tuần đó (có thể chọn nhiều, có cả "Khác" nếu việc ngoài JD), rồi mô tả cụ thể đã làm gì.</span></div>
+    <span>Mỗi tuần: bấm vào ô "Hạng mục công việc" để chọn TẤT CẢ hạng mục JD đã làm trong tuần đó (có thể chọn nhiều, có cả "Khác" nếu việc ngoài JD). Mỗi hạng mục đã tick sẽ tự hiện thành 1 dòng riêng bên dưới — không cần mô tả thêm.</span></div>
   <table class="wtbl">
-    <thead><tr><th>Tuần</th><th style="width:240px">Hạng mục công việc (theo JD)</th><th>Mô tả cụ thể đã thực hiện</th></tr></thead>
+    <thead><tr><th style="width:90px">Tuần</th><th>Hạng mục công việc (theo JD)</th></tr></thead>
     <tbody id="weekTbody"></tbody>
   </table>
 </div>
@@ -358,7 +366,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
     <span>Quan sát hành vi thực tế trong toàn bộ thời gian thử việc · <strong>1=Thấp nhất · 4=Cao nhất</strong></span></div>
   <div id="cultureArea"></div>
   <div class="cult-score-row" id="cultScoreRow" style="display:none">
-    <span class="cult-score-label">Tỉ lệ đạt được (Culture Fit)</span>
+    <span class="cult-score-label">Tỉ lệ đạt được (Phù hợp văn hóa BSC)</span>
     <span class="cult-score-pct" id="cultPct">—</span>
   </div>
 </div>
@@ -396,23 +404,15 @@ input[readonly]{background:#f0f5fb;color:#88a}
   <div class="concl-opts">
     <label class="coption" id="co_hire" onclick="selC('hire')"><input type="radio" name="conclusion" value="hire">
       <div><div class="coption-title">✅ Ký hợp đồng chính thức</div><div class="coption-desc">Nhân viên đạt yêu cầu thử việc, chuyển sang hợp đồng lao động chính thức</div></div></label>
-    <label class="coption" id="co_promote" onclick="selC('promote')"><input type="radio" name="conclusion" value="promote">
-      <div><div class="coption-title">⭐ Ký hợp đồng & Xem xét tăng chức / tăng lương</div><div class="coption-desc">Nhân viên xuất sắc, vượt kỳ vọng — đề xuất nâng cấp bậc hoặc điều chỉnh lương</div></div></label>
     <label class="coption" id="co_fail" onclick="selC('fail')"><input type="radio" name="conclusion" value="fail">
       <div><div class="coption-title">❌ Không tiếp tục hợp đồng</div><div class="coption-desc">Nhân viên không đáp ứng yêu cầu tối thiểu sau thời gian thử việc</div></div></label>
   </div>
   <div id="verdict-warning" style="display:none;background:#fff0f0;border:1.5px solid #e74c3c;border-left:4px solid #c0392b;border-radius:8px;padding:10px 14px;margin:8px 0 4px;font-size:12px;color:#c0392b;font-weight:700"></div>
-  <div class="r1"><label class="fl">Lý do & căn cứ quyết định <span class="req">*</span></label>
-    <textarea id="conclusion_reason" placeholder="Mô tả rõ lý do: dự án đã tham gia, kết quả quan sát, điểm mạnh/yếu cụ thể, kỳ vọng nếu gia hạn..." style="min-height:80px" onblur="markFieldQuality(this)"></textarea></div>
-
   <div style="border-top:.5px solid #d0e4f7;padding-top:.85rem;margin:.85rem 0">
-    <div class="r2">
-      <div><label class="fl">Điểm mạnh nổi bật <span class="req">*</span></label><textarea id="strength" placeholder="Học hỏi nhanh, phối hợp nhóm tốt, chủ động đề xuất ý tưởng..." onblur="markFieldQuality(this)"></textarea></div>
-      <div><label class="fl">Điểm cần cải thiện <span class="req">*</span></label><textarea id="weakness" placeholder="Kỹ năng paperwork cần hoàn thiện, tốc độ xử lý brief còn chậm..." onblur="markFieldQuality(this)"></textarea></div>
-    </div>
+    <div class="r1"><label class="fl">Điểm cần cải thiện <span class="req">*</span></label><textarea id="weakness" placeholder="Kỹ năng paperwork cần hoàn thiện, tốc độ xử lý brief còn chậm..." style="min-height:80px" onblur="markFieldQuality(this)"></textarea></div>
   </div>
 
-  <div style="margin:.5rem 0 .5rem"><div style="font-size:12px;font-weight:900;color:#005AAB;margin-bottom:2px">IDP — Lộ trình phát triển 3 tháng tiếp theo</div>
+  <div style="margin:.5rem 0 .5rem"><div style="font-size:12px;font-weight:900;color:#005AAB;margin-bottom:2px">Lộ trình phát triển 3 tháng tiếp theo</div>
     <div style="font-size:11px;color:#88a;font-weight:700">3 mục tiêu phát triển · Người hỗ trợ · Cách đo lường</div></div>
   <div id="idpArea"></div>
 
@@ -421,9 +421,8 @@ input[readonly]{background:#f0f5fb;color:#88a}
     <div class="sec" style="margin-bottom:.75rem">Tổng kết quan sát (tham khảo)</div>
     <div class="final-summary" id="finalSummary">
       <div style="margin-top:0;padding:10px 12px;background:#fff;border-radius:8px;border:1px solid #d0e4f7">
-        <div style="font-size:11px;font-weight:900;color:#005AAB;margin-bottom:4px">Tổng hợp quan sát hành vi (không kèm điểm số)</div>
-        <div style="font-size:12px;color:#335;font-weight:600" id="fs_summary_text">Hoàn thành đánh giá để xem tổng kết tự động.</div>
-        <textarea id="final_summary_ta" rows="5" style="width:100%;margin-top:8px;resize:vertical;min-height:100px;font-size:12px;border:1.5px solid #c8d8f0;border-radius:7px;padding:8px 10px;font-family:inherit" placeholder="Tự động tổng hợp khi hoàn thành đánh giá..."></textarea>
+        <div style="font-size:11px;font-weight:900;color:#005AAB;margin-bottom:4px">Tổng hợp quan sát hành vi (không kèm điểm số) — tự động tổng hợp từ các tiêu chí đã chọn</div>
+        <div style="font-size:12px;color:#335;font-weight:600;white-space:pre-line" id="fs_summary_text">Hoàn thành đánh giá để xem tổng kết tự động.</div>
       </div>
       <!-- Hidden: numeric scores kept for JS/PDF/email compatibility, not shown to reviewer -->
       <div style="display:none">
@@ -551,119 +550,119 @@ const TITLE_MAP={
 // Tiêu chí quản lý — chỉ áp dụng từ Assistant Manager trở lên (mọi bộ phận)
 // Tên tiêu chí theo đúng văn bản đánh giá thử việc gốc của BSC (mục "Dành cho vị trí ở các cấp quản lý")
 const MANAGEMENT=[
-  {id:'m1',name:'Khả năng lãnh đạo',scores:['Không thể hiện được vai trò lãnh đạo, team không tin tưởng theo','Lãnh đạo còn yếu, team thiếu định hướng rõ ràng khi cần','Lãnh đạo cơ bản đủ, team theo được khi có hướng dẫn cụ thể','Lãnh đạo tốt, truyền cảm hứng, team chủ động theo định hướng','Lãnh đạo xuất sắc, là hình mẫu — team tin tưởng và phát triển rõ rệt']},
-  {id:'m2',name:'Kỹ năng phân công — giám sát',scores:['Không phân công được, công việc team rối loạn hoặc trùng lặp','Phân công cơ bản nhưng giám sát yếu, hay phát sinh trễ deadline','Phân công và giám sát đủ tốt, team hoàn thành đúng hạn phần lớn','Phân công hợp lý theo năng lực từng người, giám sát chủ động','Xuất sắc, tối ưu hiệu suất team rõ rệt, không để sót việc nào']},
-  {id:'m3',name:'Tính quyết định & quyết đoán',scores:['Không tự ra quyết định được, mọi việc đều phải hỏi cấp trên','Ra quyết định được với việc đơn giản, còn lúng túng việc phức tạp','Ra quyết định hợp lý trong phạm vi được giao, ít cần phê duyệt lại','Quyết đoán, dứt khoát, đưa ra quyết định kịp thời và hiệu quả','Quyết đoán xuất sắc, dám chịu trách nhiệm, quyết định ảnh hưởng tích cực']},
-  {id:'m4',name:'Quản lý con người / công việc',scores:['Không quản lý được con người hay công việc, team mất kiểm soát','Quản lý còn lỏng, hay phát sinh mâu thuẫn hoặc chậm tiến độ','Quản lý đủ ổn, xử lý được tình huống thông thường trong team','Quản lý tốt cả con người và công việc, team vận hành trơn tru','Xuất sắc — quản lý chủ động, team gắn kết và hiệu suất cao']},
-  {id:'m5',name:'Kỹ năng lập kế hoạch',scores:['Không lập được kế hoạch, công việc triển khai tùy hứng','Có kế hoạch nhưng thiếu chi tiết hoặc thiếu tính khả thi','Lập kế hoạch cơ bản đủ dùng, đôi khi cần điều chỉnh giữa đường','Lập kế hoạch rõ ràng, khả thi, bám sát được tiến độ đề ra','Xuất sắc — kế hoạch chi tiết, dự phòng rủi ro tốt, luôn đạt mục tiêu']},
+  {id:'m1',name:'Khả năng lãnh đạo',scores:['Không thể hiện được vai trò lãnh đạo, team không tin tưởng theo. Lãnh đạo còn yếu, team thiếu định hướng rõ ràng khi cần','Lãnh đạo cơ bản đủ, team theo được khi có hướng dẫn cụ thể','Lãnh đạo tốt, truyền cảm hứng, team chủ động theo định hướng. Lãnh đạo xuất sắc, là hình mẫu — team tin tưởng và phát triển rõ rệt']},
+  {id:'m2',name:'Kỹ năng phân công — giám sát',scores:['Không phân công được, công việc team rối loạn hoặc trùng lặp. Phân công cơ bản nhưng giám sát yếu, hay phát sinh trễ deadline','Phân công và giám sát đủ tốt, team hoàn thành đúng hạn phần lớn','Phân công hợp lý theo năng lực từng người, giám sát chủ động. Xuất sắc, tối ưu hiệu suất team rõ rệt, không để sót việc nào']},
+  {id:'m3',name:'Tính quyết định & quyết đoán',scores:['Không tự ra quyết định được, mọi việc đều phải hỏi cấp trên. Ra quyết định được với việc đơn giản, còn lúng túng việc phức tạp','Ra quyết định hợp lý trong phạm vi được giao, ít cần phê duyệt lại','Quyết đoán, dứt khoát, đưa ra quyết định kịp thời và hiệu quả. Quyết đoán xuất sắc, dám chịu trách nhiệm, quyết định ảnh hưởng tích cực']},
+  {id:'m4',name:'Quản lý con người / công việc',scores:['Không quản lý được con người hay công việc, team mất kiểm soát. Quản lý còn lỏng, hay phát sinh mâu thuẫn hoặc chậm tiến độ','Quản lý đủ ổn, xử lý được tình huống thông thường trong team','Quản lý tốt cả con người và công việc, team vận hành trơn tru. Xuất sắc — quản lý chủ động, team gắn kết và hiệu suất cao']},
+  {id:'m5',name:'Kỹ năng lập kế hoạch',scores:['Không lập được kế hoạch, công việc triển khai tùy hứng. Có kế hoạch nhưng thiếu chi tiết hoặc thiếu tính khả thi','Lập kế hoạch cơ bản đủ dùng, đôi khi cần điều chỉnh giữa đường','Lập kế hoạch rõ ràng, khả thi, bám sát được tiến độ đề ra. Xuất sắc — kế hoạch chi tiết, dự phòng rủi ro tốt, luôn đạt mục tiêu']},
 ];
 
 const CORE=[
-  {id:'c1',name:'Hoàn thành đúng deadline',scores:['Không hoàn thành hoặc bỏ sót — ảnh hưởng nghiêm trọng tiến độ','Thường xuyên trễ, cần giám sát sát mới hoàn thành','Đôi khi trễ nhỏ, nhắc 1–2 lần là xong — mức chấp nhận được','Hầu hết đúng hạn, báo trước nếu có rủi ro — tốt','Luôn đúng / trước hạn, chủ động báo sớm — gương mẫu']},
-  {id:'c2',name:'Chất lượng output công việc',scores:['Output không dùng được, làm lại toàn bộ','Thiếu sót lớn, cần chỉnh sửa đáng kể','Đạt cơ bản, đôi khi cần điều chỉnh nhỏ','Tốt, đúng kỳ vọng, ít cần chỉnh sửa','Xuất sắc, vượt kỳ vọng, dùng làm tham chiếu']},
-  {id:'c3',name:'Khả năng tiếp thu & học hỏi',scores:['Không tiếp thu được dù hướng dẫn nhiều lần','Tiếp thu chậm, lặp lỗi cũ thường xuyên','Sau 2–3 lần hướng dẫn tự làm được','Sau 1 lần hướng dẫn tự làm, chủ động hỏi','Tự học, áp dụng mới không cần hướng dẫn']},
-  {id:'c4',name:'Tinh thần hợp tác & phối hợp nhóm',scores:['Không phối hợp hoặc gây mâu thuẫn','Chỉ làm khi được yêu cầu, ít chủ động','Phối hợp được, đôi khi cần nhắc nhở','Chủ động phối hợp tốt, không cần nhắc','Cầu nối tích cực, luôn sẵn sàng hỗ trợ']},
-  {id:'c5',name:'Giao tiếp nội bộ & phản hồi thông tin',scores:['Để thông tin rớt thường xuyên, gây ách tắc','Phản hồi chậm, hay mất thông tin quan trọng','Phản hồi đủ nhưng đôi khi chậm hoặc chưa rõ','Đúng lúc, rõ ràng, cập nhật đầy đủ','Xuất sắc, chủ động báo cáo, không bao giờ rớt']},
-  {id:'c6',name:'Thái độ & trách nhiệm với công việc',scores:['Đùn đẩy, thiếu trách nhiệm, thiếu tôn trọng','Thỉnh thoảng thiếu trách nhiệm, cần giám sát','Có trách nhiệm cơ bản, tuân thủ quy trình','Trách nhiệm cao, xử lý chủ động, không cần nhắc','Gương mẫu, truyền cảm hứng cho đồng nghiệp']},
+  {id:'c1',name:'Hoàn thành đúng deadline',scores:['Không hoàn thành hoặc bỏ sót — ảnh hưởng nghiêm trọng tiến độ. Thường xuyên trễ, cần giám sát sát mới hoàn thành','Đôi khi trễ nhỏ, nhắc 1–2 lần là xong — mức chấp nhận được','Hầu hết đúng hạn, báo trước nếu có rủi ro — tốt. Luôn đúng / trước hạn, chủ động báo sớm — gương mẫu']},
+  {id:'c2',name:'Chất lượng output công việc',scores:['Output không dùng được, làm lại toàn bộ. Thiếu sót lớn, cần chỉnh sửa đáng kể','Đạt cơ bản, đôi khi cần điều chỉnh nhỏ','Tốt, đúng kỳ vọng, ít cần chỉnh sửa. Xuất sắc, vượt kỳ vọng, dùng làm tham chiếu']},
+  {id:'c3',name:'Khả năng tiếp thu & học hỏi',scores:['Không tiếp thu được dù hướng dẫn nhiều lần. Tiếp thu chậm, lặp lỗi cũ thường xuyên','Sau 2–3 lần hướng dẫn tự làm được','Sau 1 lần hướng dẫn tự làm, chủ động hỏi. Tự học, áp dụng mới không cần hướng dẫn']},
+  {id:'c4',name:'Tinh thần hợp tác & phối hợp nhóm',scores:['Không phối hợp hoặc gây mâu thuẫn. Chỉ làm khi được yêu cầu, ít chủ động','Phối hợp được, đôi khi cần nhắc nhở','Chủ động phối hợp tốt, không cần nhắc. Cầu nối tích cực, luôn sẵn sàng hỗ trợ']},
+  {id:'c5',name:'Giao tiếp nội bộ & phản hồi thông tin',scores:['Để thông tin rớt thường xuyên, gây ách tắc. Phản hồi chậm, hay mất thông tin quan trọng','Phản hồi đủ nhưng đôi khi chậm hoặc chưa rõ','Đúng lúc, rõ ràng, cập nhật đầy đủ. Xuất sắc, chủ động báo cáo, không bao giờ rớt']},
+  {id:'c6',name:'Thái độ & trách nhiệm với công việc',scores:['Đùn đẩy, thiếu trách nhiệm, thiếu tôn trọng. Thỉnh thoảng thiếu trách nhiệm, cần giám sát','Có trách nhiệm cơ bản, tuân thủ quy trình','Trách nhiệm cao, xử lý chủ động, không cần nhắc. Gương mẫu, truyền cảm hứng cho đồng nghiệp']},
 ];
 
 const DEPT_DATA={
   project:{label:'Project / Operations',hint:'Tiêu chí chuyên môn cho Project/Operations — theo JD BSC 2026 (quản lý dự án, vận hành field, khách hàng)',criteria:[
-    {id:'d1',name:'Lập kế hoạch & quản lý tiến độ dự án',levelHint:{exec:'Kỳ vọng: Hỗ trợ vận hành — hồ sơ, packing list, báo cáo, theo dõi tiến độ',senior:'Kỳ vọng: Tự lập kế hoạch vận hành từ brief, không cần PM cầm tay',asst:'Kỳ vọng: Lập plan vận hành độc lập, giám sát tiến độ toàn dự án',junior:'Kỳ vọng: Điều phối nhiều dự án song song, chủ động cảnh báo rủi ro',mgr:'Kỳ vọng: Lập kế hoạch tổng thể, kiểm soát ngân sách & rủi ro từ đầu đến cuối',dir:'Kỳ vọng: Định hướng vận hành toàn bộ phận cùng BOD'},scores:['Không theo dõi được tiến độ, để dự án trễ nghiêm trọng — cần giám sát sát','Theo dõi được nhưng phản ứng chậm, hay bị bất ngờ khi có vấn đề','Theo dõi cơ bản đúng quy trình, hoàn thành phần được giao đúng hạn','Tự lập kế hoạch vận hành tốt, ít cần PM nhắc, chủ động báo rủi ro','Kiểm soát toàn diện từ kế hoạch đến ngân sách — không để phát sinh ảnh hưởng dự án']},
-    {id:'d2',name:'Quan hệ khách hàng & xử lý phát sinh',levelHint:{exec:'Kỳ vọng: Hỗ trợ theo dõi, chưa cần làm việc trực tiếp với khách hàng',senior:'Kỳ vọng: Làm việc trực tiếp với khách hàng ở bước vận hành',asst:'Kỳ vọng: Tự xử lý phát sinh cơ bản, báo cáo rõ ràng',junior:'Kỳ vọng: Đàm phán được với khách hàng/NCC ở phạm vi được giao',mgr:'Kỳ vọng: Chịu trách nhiệm doanh số & quan hệ khách hàng, đàm phán với mọi đối tượng',dir:'Kỳ vọng: Duy trì quan hệ khách hàng/đối tác cấp cao, mở rộng network'},scores:['Giao tiếp kém, làm khách hàng mất niềm tin — ảnh hưởng hình ảnh công ty','Giao tiếp được nhưng xử lý phát sinh chậm, hay phải đẩy lên cấp trên','Xử lý được phát sinh thông thường, không leo thang mọi thứ','Đàm phán tốt với khách hàng và NCC, xử lý linh hoạt, ít escalate','Xuất sắc — khách hàng tin tưởng, chủ động đàm phán win-win cho công ty']},
-    {id:'d3',name:'Điều phối nhân sự & vận hành on-site',levelHint:{exec:'Kỳ vọng: Theo dõi hàng hóa, POSM, hỗ trợ tuyển/training Part-time khi được giao',senior:'Kỳ vọng: Tự tuyển dụng, training và quản lý PT/PG/PB tại hiện trường',asst:'Kỳ vọng: Điều phối field độc lập, xử lý phát sinh không cần escalate ngay',junior:'Kỳ vọng: Quản lý nhiều điểm field song song, đào tạo Executive',mgr:'Kỳ vọng: Điều phối toàn bộ liên phòng ban liên quan đến dự án',dir:'Kỳ vọng: Xây hệ thống vận hành chuẩn cho toàn bộ phận'},scores:['Không điều phối được, hiện trường hỗn loạn hoặc thiếu nhân sự','Điều phối yếu, hay thiếu sót, cần nhắc nhở thường xuyên','Điều phối cơ bản ổn, xử lý được tình huống thông thường với hỗ trợ','Điều phối tốt, xử lý linh hoạt phát sinh ngoài kế hoạch, ít escalate','Xuất sắc — vận hành trơn tru ở quy mô lớn, là chỗ dựa của team']},
-    {id:'d4',name:'Quản lý ngân sách, hợp đồng & công nợ',levelHint:{exec:'Kỳ vọng: Excel tốt — số liệu không sai, format rõ ràng, đúng deadline',senior:'Kỳ vọng: Lên quotation, quản lý dự trù, làm nghiệm thu đúng quy trình',asst:'Kỳ vọng: Đọc hiểu P&L cơ bản dự án, không để phát sinh "ngấm" chi phí',junior:'Kỳ vọng: Kiểm soát ngân sách nhiều dự án, phát hiện rủi ro chi phí sớm',mgr:'Kỳ vọng: Đọc P&L thành thạo, quản lý hợp đồng/công nợ, đào tạo đội kế cận',dir:'Kỳ vọng: Kiểm soát ngân sách & rủi ro tài chính toàn bộ phận'},scores:['Số liệu hay sai, không kiểm soát được ngân sách — gây rủi ro tài chính','Làm được nhưng chậm, hay cần kiểm tra lại, chưa hiểu rõ P&L','Số liệu đúng cơ bản, đúng deadline, hiểu P&L ở mức cơ bản','Kiểm soát ngân sách tốt, đọc hiểu P&L rõ, phát hiện chi phí phát sinh sớm','Xuất sắc — tối ưu ngân sách liên tục, không để "ngấm" chi phí bao giờ']},
-    {id:'d5',name:'Phối hợp liên phòng ban',levelHint:{exec:'Kỳ vọng: Phối hợp đúng quy trình khi được hướng dẫn cụ thể',senior:'Kỳ vọng: Phối hợp nội bộ chủ động để không phòng nào "quên" deadline',asst:'Kỳ vọng: Là đầu mối phối hợp ổn định giữa các phòng cho dự án mình phụ trách',junior:'Kỳ vọng: Cải tiến quy trình phối hợp, giảm thiểu sai sót liên phòng',mgr:'Kỳ vọng: Điều phối toàn bộ liên phòng ban liên quan công việc của mình',dir:'Kỳ vọng: Thiết lập hệ thống phối hợp chuẩn cho toàn công ty'},scores:['Không phối hợp được, gây tắc nghẽn hoặc hiểu lầm nghiêm trọng giữa các phòng','Phối hợp yếu, hay quên deadline của phòng khác, thiếu thông tin','Phối hợp cơ bản đúng quy trình, đôi khi cần nhắc — ít ảnh hưởng lớn','Phối hợp tốt, chủ động đảm bảo không phòng nào bị "quên" deadline','Xuất sắc — là cầu nối tin cậy giữa tất cả các phòng ban liên quan']},
+    {id:'d1',name:'Lập kế hoạch & quản lý tiến độ dự án',levelHint:{exec:'Kỳ vọng: Hỗ trợ vận hành — hồ sơ, packing list, báo cáo, theo dõi tiến độ',senior:'Kỳ vọng: Tự lập kế hoạch vận hành từ brief, không cần PM cầm tay',asst:'Kỳ vọng: Lập plan vận hành độc lập, giám sát tiến độ toàn dự án',junior:'Kỳ vọng: Điều phối nhiều dự án song song, chủ động cảnh báo rủi ro',mgr:'Kỳ vọng: Lập kế hoạch tổng thể, kiểm soát ngân sách & rủi ro từ đầu đến cuối',dir:'Kỳ vọng: Định hướng vận hành toàn bộ phận cùng BOD'},scores:['Không theo dõi được tiến độ, để dự án trễ nghiêm trọng — cần giám sát sát. Theo dõi được nhưng phản ứng chậm, hay bị bất ngờ khi có vấn đề','Theo dõi cơ bản đúng quy trình, hoàn thành phần được giao đúng hạn','Tự lập kế hoạch vận hành tốt, ít cần PM nhắc, chủ động báo rủi ro. Kiểm soát toàn diện từ kế hoạch đến ngân sách — không để phát sinh ảnh hưởng dự án']},
+    {id:'d2',name:'Quan hệ khách hàng & xử lý phát sinh',levelHint:{exec:'Kỳ vọng: Hỗ trợ theo dõi, chưa cần làm việc trực tiếp với khách hàng',senior:'Kỳ vọng: Làm việc trực tiếp với khách hàng ở bước vận hành',asst:'Kỳ vọng: Tự xử lý phát sinh cơ bản, báo cáo rõ ràng',junior:'Kỳ vọng: Đàm phán được với khách hàng/NCC ở phạm vi được giao',mgr:'Kỳ vọng: Chịu trách nhiệm doanh số & quan hệ khách hàng, đàm phán với mọi đối tượng',dir:'Kỳ vọng: Duy trì quan hệ khách hàng/đối tác cấp cao, mở rộng network'},scores:['Giao tiếp kém, làm khách hàng mất niềm tin — ảnh hưởng hình ảnh công ty. Giao tiếp được nhưng xử lý phát sinh chậm, hay phải đẩy lên cấp trên','Xử lý được phát sinh thông thường, không leo thang mọi thứ','Đàm phán tốt với khách hàng và NCC, xử lý linh hoạt, ít escalate. Xuất sắc — khách hàng tin tưởng, chủ động đàm phán win-win cho công ty']},
+    {id:'d3',name:'Điều phối nhân sự & vận hành on-site',levelHint:{exec:'Kỳ vọng: Theo dõi hàng hóa, POSM, hỗ trợ tuyển/training Part-time khi được giao',senior:'Kỳ vọng: Tự tuyển dụng, training và quản lý PT/PG/PB tại hiện trường',asst:'Kỳ vọng: Điều phối field độc lập, xử lý phát sinh không cần escalate ngay',junior:'Kỳ vọng: Quản lý nhiều điểm field song song, đào tạo Executive',mgr:'Kỳ vọng: Điều phối toàn bộ liên phòng ban liên quan đến dự án',dir:'Kỳ vọng: Xây hệ thống vận hành chuẩn cho toàn bộ phận'},scores:['Không điều phối được, hiện trường hỗn loạn hoặc thiếu nhân sự. Điều phối yếu, hay thiếu sót, cần nhắc nhở thường xuyên','Điều phối cơ bản ổn, xử lý được tình huống thông thường với hỗ trợ','Điều phối tốt, xử lý linh hoạt phát sinh ngoài kế hoạch, ít escalate. Xuất sắc — vận hành trơn tru ở quy mô lớn, là chỗ dựa của team']},
+    {id:'d4',name:'Quản lý ngân sách, hợp đồng & công nợ',levelHint:{exec:'Kỳ vọng: Excel tốt — số liệu không sai, format rõ ràng, đúng deadline',senior:'Kỳ vọng: Lên quotation, quản lý dự trù, làm nghiệm thu đúng quy trình',asst:'Kỳ vọng: Đọc hiểu P&L cơ bản dự án, không để phát sinh "ngấm" chi phí',junior:'Kỳ vọng: Kiểm soát ngân sách nhiều dự án, phát hiện rủi ro chi phí sớm',mgr:'Kỳ vọng: Đọc P&L thành thạo, quản lý hợp đồng/công nợ, đào tạo đội kế cận',dir:'Kỳ vọng: Kiểm soát ngân sách & rủi ro tài chính toàn bộ phận'},scores:['Số liệu hay sai, không kiểm soát được ngân sách — gây rủi ro tài chính. Làm được nhưng chậm, hay cần kiểm tra lại, chưa hiểu rõ P&L','Số liệu đúng cơ bản, đúng deadline, hiểu P&L ở mức cơ bản','Kiểm soát ngân sách tốt, đọc hiểu P&L rõ, phát hiện chi phí phát sinh sớm. Xuất sắc — tối ưu ngân sách liên tục, không để "ngấm" chi phí bao giờ']},
+    {id:'d5',name:'Phối hợp liên phòng ban',levelHint:{exec:'Kỳ vọng: Phối hợp đúng quy trình khi được hướng dẫn cụ thể',senior:'Kỳ vọng: Phối hợp nội bộ chủ động để không phòng nào "quên" deadline',asst:'Kỳ vọng: Là đầu mối phối hợp ổn định giữa các phòng cho dự án mình phụ trách',junior:'Kỳ vọng: Cải tiến quy trình phối hợp, giảm thiểu sai sót liên phòng',mgr:'Kỳ vọng: Điều phối toàn bộ liên phòng ban liên quan công việc của mình',dir:'Kỳ vọng: Thiết lập hệ thống phối hợp chuẩn cho toàn công ty'},scores:['Không phối hợp được, gây tắc nghẽn hoặc hiểu lầm nghiêm trọng giữa các phòng. Phối hợp yếu, hay quên deadline của phòng khác, thiếu thông tin','Phối hợp cơ bản đúng quy trình, đôi khi cần nhắc — ít ảnh hưởng lớn','Phối hợp tốt, chủ động đảm bảo không phòng nào bị "quên" deadline. Xuất sắc — là cầu nối tin cậy giữa tất cả các phòng ban liên quan']},
   ]},
   planning:{label:'Planning',hint:'Tiêu chí chuyên môn Planning — theo JD BSC 2026 (insight, proposal, pitch, brief Design)',criteria:[
-    {id:'d1',name:'Research & tìm insight thị trường',levelHint:{exec:'Kỳ vọng: Research thị trường, tìm insight, đưa vào concept có thể thực thi',senior:'Kỳ vọng: Đọc brief sâu, tự tìm insight thật trước khi mở PowerPoint/Canva',asst:'Kỳ vọng: Insight có chiều sâu, định hướng được Big Idea cho dự án nhỏ',junior:'Kỳ vọng: Dẫn dắt research cho nhiều dự án song song',mgr:'Kỳ vọng: Đọc brief → tìm insight thật → định hướng Big Idea → brief Design',dir:'Kỳ vọng: Insight tầm chiến lược thương hiệu, định hướng toàn phòng'},scores:['Không xác định được insight, research sơ sài hoặc lạc đề so với brief','Insight còn bề mặt, research có nhưng chưa đủ sức nặng để thuyết phục','Insight cơ bản đúng hướng, đưa vào concept thực thi được','Insight sắc bén, tự định hướng Big Idea trước khi bắt tay làm slide','Insight đắt giá, vượt ngoài brief — tạo wow moment thật sự cho dự án']},
-    {id:'d2',name:'Brainstorm & đóng góp ý tưởng',levelHint:{exec:'Kỳ vọng: Brainstorm cùng team — mang góc nhìn riêng, không chỉ ghi chép',senior:'Kỳ vọng: Chủ động đề xuất ý tưởng, không chờ được hỏi mới nói',asst:'Kỳ vọng: Dẫn dắt brainstorm cho dự án nhỏ, tổng hợp ý tưởng team',junior:'Kỳ vọng: Dẫn dắt brainstorm nhiều dự án, phản biện ý tưởng yếu',mgr:'Kỳ vọng: Xây dựng và kiểm soát chất lượng proposal của toàn team',dir:'Kỳ vọng: Định hướng sáng tạo chiến lược cho toàn bộ phận'},scores:['Chỉ có mặt và ghi chép, không đóng góp được ý tưởng riêng nào','Đóng góp được khi được hỏi trực tiếp, ý tưởng còn rời rạc','Chủ động đóng góp góc nhìn riêng, ý tưởng khả thi và liên quan brief','Dẫn dắt brainstorm tốt, ý tưởng có chiều sâu và logic chặt chẽ','Xuất sắc — ý tưởng tạo bước ngoặt cho dự án, được cả team công nhận']},
-    {id:'d3',name:'Viết & trình bày Proposal',levelHint:{exec:'Kỳ vọng: Tự viết proposal và tự đứng trình bày trước khách',senior:'Kỳ vọng: Viết proposal mạch lạc, cấu trúc rõ, câu chuyện chạy không vòng vo',asst:'Kỳ vọng: Proposal chất lượng cao, tự tin trình bày không cần backup',junior:'Kỳ vọng: Kiểm soát chất lượng proposal cho nhiều dự án cùng lúc',mgr:'Kỳ vọng: Đứng trước khách hàng, pitch và thuyết phục — không phải đọc slide',dir:'Kỳ vọng: Proposal tầm chiến lược, là chuẩn mực pitch của cả phòng'},scores:['Proposal thiếu cấu trúc, trình bày yếu — không thuyết phục được khách hàng','Proposal có nội dung nhưng còn vòng vo, trình bày thiếu tự tin','Proposal mạch lạc, câu chuyện rõ ràng, trình bày được không cần backup','Proposal thuyết phục, pitch tự tin và xử lý được câu hỏi khó, không run','Xuất sắc — pitch như "đọc vị" khách hàng, chốt deal tỉ lệ cao']},
-    {id:'d4',name:'Brief Design & kiểm soát chất lượng output',levelHint:{exec:'Kỳ vọng: Hiểu được yêu cầu cơ bản khi brief Design qua hướng dẫn',senior:'Kỳ vọng: Brief Design được — truyền đạt đúng, không cần giải thích lại nhiều lần',asst:'Kỳ vọng: Brief rõ ràng cho nhiều hạng mục, ít phải sửa lại do hiểu sai',junior:'Kỳ vọng: Kiểm soát chất lượng output của cả nhóm nhỏ',mgr:'Kỳ vọng: Kiểm soát chất lượng proposal & visual của toàn team Planning',dir:'Kỳ vọng: Đặt chuẩn chất lượng creative-output cho toàn bộ phận'},scores:['Brief không rõ, Design phải hỏi lại nhiều lần hoặc làm sai liên tục','Brief tạm hiểu được nhưng còn thiếu chi tiết, Design cần hỏi lại','Brief đủ rõ, Design hiểu đúng phần lớn, ít cần giải thích lại','Brief rõ ràng và đầy đủ — truyền đạt đúng, Design làm đúng ngay lần đầu','Xuất sắc — brief là chuẩn tham khảo, kiểm soát chất lượng output xuất sắc']},
-    {id:'d5',name:'Ứng dụng AI & công cụ làm việc',levelHint:{exec:'Kỳ vọng: PowerPoint/Canva ở mức làm ra slide đẹp và logic — không chỉ "biết dùng"',senior:'Kỳ vọng: Biết AI thuần thục và ứng dụng được trong công việc hàng ngày',asst:'Kỳ vọng: Dùng AI tối ưu tốc độ research & làm proposal rõ rệt',junior:'Kỳ vọng: Hướng dẫn Executive ứng dụng AI vào công việc',mgr:'Kỳ vọng: Đảm bảo cả team Planning ứng dụng AI hiệu quả trong workflow',dir:'Kỳ vọng: Định hướng công cụ & quy trình làm việc hiện đại cho cả phòng'},scores:['Không dùng được công cụ cơ bản, output thiếu chuyên nghiệp, chậm','Dùng được PowerPoint/Canva cơ bản nhưng AI thì gần như chưa biết áp dụng','Thành thạo công cụ làm slide, AI dùng được ở mức cơ bản trong công việc','Thành thạo cao, dùng AI thuần thục và ứng dụng rõ rệt vào tốc độ công việc','Xuất sắc — là người dẫn dắt cả team ứng dụng AI vào workflow Planning']},
+    {id:'d1',name:'Research & tìm insight thị trường',levelHint:{exec:'Kỳ vọng: Research thị trường, tìm insight, đưa vào concept có thể thực thi',senior:'Kỳ vọng: Đọc brief sâu, tự tìm insight thật trước khi mở PowerPoint/Canva',asst:'Kỳ vọng: Insight có chiều sâu, định hướng được Big Idea cho dự án nhỏ',junior:'Kỳ vọng: Dẫn dắt research cho nhiều dự án song song',mgr:'Kỳ vọng: Đọc brief → tìm insight thật → định hướng Big Idea → brief Design',dir:'Kỳ vọng: Insight tầm chiến lược thương hiệu, định hướng toàn phòng'},scores:['Không xác định được insight, research sơ sài hoặc lạc đề so với brief. Insight còn bề mặt, research có nhưng chưa đủ sức nặng để thuyết phục','Insight cơ bản đúng hướng, đưa vào concept thực thi được','Insight sắc bén, tự định hướng Big Idea trước khi bắt tay làm slide. Insight đắt giá, vượt ngoài brief — tạo wow moment thật sự cho dự án']},
+    {id:'d2',name:'Brainstorm & đóng góp ý tưởng',levelHint:{exec:'Kỳ vọng: Brainstorm cùng team — mang góc nhìn riêng, không chỉ ghi chép',senior:'Kỳ vọng: Chủ động đề xuất ý tưởng, không chờ được hỏi mới nói',asst:'Kỳ vọng: Dẫn dắt brainstorm cho dự án nhỏ, tổng hợp ý tưởng team',junior:'Kỳ vọng: Dẫn dắt brainstorm nhiều dự án, phản biện ý tưởng yếu',mgr:'Kỳ vọng: Xây dựng và kiểm soát chất lượng proposal của toàn team',dir:'Kỳ vọng: Định hướng sáng tạo chiến lược cho toàn bộ phận'},scores:['Chỉ có mặt và ghi chép, không đóng góp được ý tưởng riêng nào. Đóng góp được khi được hỏi trực tiếp, ý tưởng còn rời rạc','Chủ động đóng góp góc nhìn riêng, ý tưởng khả thi và liên quan brief','Dẫn dắt brainstorm tốt, ý tưởng có chiều sâu và logic chặt chẽ. Xuất sắc — ý tưởng tạo bước ngoặt cho dự án, được cả team công nhận']},
+    {id:'d3',name:'Viết & trình bày Proposal',levelHint:{exec:'Kỳ vọng: Tự viết proposal và tự đứng trình bày trước khách',senior:'Kỳ vọng: Viết proposal mạch lạc, cấu trúc rõ, câu chuyện chạy không vòng vo',asst:'Kỳ vọng: Proposal chất lượng cao, tự tin trình bày không cần backup',junior:'Kỳ vọng: Kiểm soát chất lượng proposal cho nhiều dự án cùng lúc',mgr:'Kỳ vọng: Đứng trước khách hàng, pitch và thuyết phục — không phải đọc slide',dir:'Kỳ vọng: Proposal tầm chiến lược, là chuẩn mực pitch của cả phòng'},scores:['Proposal thiếu cấu trúc, trình bày yếu — không thuyết phục được khách hàng. Proposal có nội dung nhưng còn vòng vo, trình bày thiếu tự tin','Proposal mạch lạc, câu chuyện rõ ràng, trình bày được không cần backup','Proposal thuyết phục, pitch tự tin và xử lý được câu hỏi khó, không run. Xuất sắc — pitch như "đọc vị" khách hàng, chốt deal tỉ lệ cao']},
+    {id:'d4',name:'Brief Design & kiểm soát chất lượng output',levelHint:{exec:'Kỳ vọng: Hiểu được yêu cầu cơ bản khi brief Design qua hướng dẫn',senior:'Kỳ vọng: Brief Design được — truyền đạt đúng, không cần giải thích lại nhiều lần',asst:'Kỳ vọng: Brief rõ ràng cho nhiều hạng mục, ít phải sửa lại do hiểu sai',junior:'Kỳ vọng: Kiểm soát chất lượng output của cả nhóm nhỏ',mgr:'Kỳ vọng: Kiểm soát chất lượng proposal & visual của toàn team Planning',dir:'Kỳ vọng: Đặt chuẩn chất lượng creative-output cho toàn bộ phận'},scores:['Brief không rõ, Design phải hỏi lại nhiều lần hoặc làm sai liên tục. Brief tạm hiểu được nhưng còn thiếu chi tiết, Design cần hỏi lại','Brief đủ rõ, Design hiểu đúng phần lớn, ít cần giải thích lại','Brief rõ ràng và đầy đủ — truyền đạt đúng, Design làm đúng ngay lần đầu. Xuất sắc — brief là chuẩn tham khảo, kiểm soát chất lượng output xuất sắc']},
+    {id:'d5',name:'Ứng dụng AI & công cụ làm việc',levelHint:{exec:'Kỳ vọng: PowerPoint/Canva ở mức làm ra slide đẹp và logic — không chỉ "biết dùng"',senior:'Kỳ vọng: Biết AI thuần thục và ứng dụng được trong công việc hàng ngày',asst:'Kỳ vọng: Dùng AI tối ưu tốc độ research & làm proposal rõ rệt',junior:'Kỳ vọng: Hướng dẫn Executive ứng dụng AI vào công việc',mgr:'Kỳ vọng: Đảm bảo cả team Planning ứng dụng AI hiệu quả trong workflow',dir:'Kỳ vọng: Định hướng công cụ & quy trình làm việc hiện đại cho cả phòng'},scores:['Không dùng được công cụ cơ bản, output thiếu chuyên nghiệp, chậm. Dùng được PowerPoint/Canva cơ bản nhưng AI thì gần như chưa biết áp dụng','Thành thạo công cụ làm slide, AI dùng được ở mức cơ bản trong công việc','Thành thạo cao, dùng AI thuần thục và ứng dụng rõ rệt vào tốc độ công việc. Xuất sắc — là người dẫn dắt cả team ứng dụng AI vào workflow Planning']},
   ]},
   design:{label:'Design / Creative',hint:'Tiêu chí chuyên môn Design/Creative — theo JD BSC 2026 (Art Director, Designer, 3D Visualizer)',criteria:[
-    {id:'d1',name:'Hiểu & diễn giải brief thành concept visual',levelHint:{exec:'Kỳ vọng: Hiểu đủ brief, thực hiện thiết kế cơ bản đúng yêu cầu',senior:'Kỳ vọng: Hiểu sâu brief, thiết kế đúng tone và mục tiêu không cần hỏi lại',asst:'Kỳ vọng: Diễn giải brief sáng tạo, thêm giá trị ngoài yêu cầu cơ bản',junior:'Kỳ vọng: Hướng dẫn Designer khác diễn giải brief đúng hướng',mgr:'Kỳ vọng: Nhìn brief và đã thấy ngay màu sắc, layout, cảm xúc — định hướng concept toàn dự án',dir:'Kỳ vọng: Định hướng concept chiến lược cho toàn bộ phận'},scores:['Không hiểu brief, sản phẩm sai yêu cầu hoặc lệch hướng hoàn toàn','Hiểu cơ bản nhưng hay miss điểm quan trọng, cần làm lại nhiều lần','Hiểu đủ brief, đáp ứng yêu cầu cơ bản, ít cần chỉnh sửa lớn','Hiểu sâu, diễn giải sáng tạo — concept rõ từ KV đến hệ thống POSM','Xuất sắc — nhìn brief thấy ngay màu sắc/layout/cảm xúc, vượt kỳ vọng client']},
-    {id:'d2',name:'Chất lượng & kỹ thuật thực hiện (in ấn / 3D)',levelHint:{exec:'Kỳ vọng: Thành thạo Illustrator/Photoshop (hoặc 3ds Max/SketchUp tùy vị trí) ở mức cơ bản',senior:'Kỳ vọng: Hiểu kỹ thuật in ấn (bleed, CMYK, resolution) hoặc render tỉ lệ thực tế đúng chuẩn',asst:'Kỳ vọng: Output chuẩn kỹ thuật, không cần kiểm tra lại trước khi gửi production',junior:'Kỳ vọng: Kiểm soát chất lượng kỹ thuật cho nhiều hạng mục cùng lúc',mgr:'Kỳ vọng: Đảm bảo output on-brand, on-brief, on-quality cho toàn dự án; hiểu kỹ thuật sản xuất POSM/booth',dir:'Kỳ vọng: Đặt chuẩn chất lượng kỹ thuật cho toàn bộ phận Design'},scores:['Sai kỹ thuật cơ bản (bleed/CMYK/tỉ lệ không gian) — không thi công/in ấn được','Chất lượng còn yếu, cắt file/render sai kỹ thuật, cần sửa nhiều','Đạt yêu cầu kỹ thuật cơ bản, đôi khi cần tinh chỉnh nhỏ trước khi gửi đi','Chuẩn kỹ thuật tốt, thiết kế/render đều thi công được, không chỉ đẹp trên màn hình','Xuất sắc — chuẩn kỹ thuật hoàn hảo, là tham chiếu chất lượng của phòng Design']},
-    {id:'d3',name:'Tốc độ xử lý & tuân thủ deadline',levelHint:{exec:'Kỳ vọng: Làm nhanh, sửa nhanh — hiểu rằng Agency không có "cần thêm 2 ngày"',senior:'Kỳ vọng: Hoàn thành đa hạng mục (KV, backdrop, standee, banner...) đúng hạn',asst:'Kỳ vọng: Quản lý deadline nhiều hạng mục song song, không để trễ dây chuyền',junior:'Kỳ vọng: Cải tiến tốc độ xử lý cho cả nhóm nhỏ',mgr:'Kỳ vọng: Đảm bảo deadline toàn dự án từ KV đến hệ thống POSM hoàn chỉnh',dir:'Kỳ vọng: Không để dự án nào trễ do nguyên nhân từ phòng Design'},scores:['Thường xuyên trễ, ảnh hưởng nghiêm trọng đến tiến độ chung của dự án','Hay trễ, cần nhắc nhiều lần mới hoàn thành đúng deadline','Đôi khi trễ nhỏ, nhìn chung hoàn thành đúng hạn phần lớn','Hầu hết đúng hạn, tốc độ làm nhanh sửa nhanh đúng văn hóa Agency','Luôn đúng/trước hạn, tốc độ nhanh và chất lượng cao đồng thời']},
-    {id:'d4',name:'Tiếp thu phản hồi & chỉnh sửa',levelHint:{exec:'Kỳ vọng: Biết bám brief — không phải mọi dự án đều là portfolio cá nhân',senior:'Kỳ vọng: Tiếp thu phản hồi nhanh, chỉnh sửa đúng ý ngay lần đầu',asst:'Kỳ vọng: Hỏi rõ trước khi làm để giảm số vòng chỉnh sửa',junior:'Kỳ vọng: Hướng dẫn người khác tiếp thu phản hồi hiệu quả hơn',mgr:'Kỳ vọng: Review Design/3D team, đảm bảo phản hồi được xử lý đúng và nhanh',dir:'Kỳ vọng: Xây quy trình review chuẩn để giảm vòng lặp chỉnh sửa toàn phòng'},scores:['Không tiếp thu, tranh cãi khi nhận feedback, ảnh hưởng tiến độ dự án','Tiếp thu chậm, chỉnh sửa không đúng ý — phải làm lại nhiều vòng','Tiếp thu cơ bản, đôi khi cần hướng dẫn thêm để hiểu đúng ý','Tiếp thu tốt, chỉnh sửa nhanh và đúng ý ngay từ lần đầu','Xuất sắc — hỏi rõ trước khi làm, không cần sửa lại lần hai']},
-    {id:'d5',name:'Quản lý file & quy trình giao nhận sản xuất',levelHint:{exec:'Kỳ vọng: File ngăn nắp, đặt tên chuẩn, đúng format khi giao nhận',senior:'Kỳ vọng: Cắt file sản xuất đúng kỹ thuật — không để "in ra khác"',asst:'Kỳ vọng: Quản lý file cho nhiều hạng mục, không nhầm version',junior:'Kỳ vọng: Chuẩn hóa cách đặt tên & lưu trữ file cho nhóm nhỏ',mgr:'Kỳ vọng: Đảm bảo toàn bộ file dự án được giao đúng, đủ, đúng kỹ thuật production',dir:'Kỳ vọng: Xây hệ thống quản lý file chuẩn cho toàn phòng Design'},scores:['File lộn xộn, hay mất file quan trọng hoặc giao sai phiên bản','Hay giao sai phiên bản, đặt tên tùy tiện gây nhầm lẫn khi sản xuất','Quản lý cơ bản, đôi khi sai nhỏ nhưng không ảnh hưởng lớn','File ngăn nắp, đặt tên chuẩn, đúng format — sản xuất nhận và làm được ngay','Hệ thống chuyên nghiệp, không bao giờ mất file hay sai phiên bản']},
+    {id:'d1',name:'Hiểu & diễn giải brief thành concept visual',levelHint:{exec:'Kỳ vọng: Hiểu đủ brief, thực hiện thiết kế cơ bản đúng yêu cầu',senior:'Kỳ vọng: Hiểu sâu brief, thiết kế đúng tone và mục tiêu không cần hỏi lại',asst:'Kỳ vọng: Diễn giải brief sáng tạo, thêm giá trị ngoài yêu cầu cơ bản',junior:'Kỳ vọng: Hướng dẫn Designer khác diễn giải brief đúng hướng',mgr:'Kỳ vọng: Nhìn brief và đã thấy ngay màu sắc, layout, cảm xúc — định hướng concept toàn dự án',dir:'Kỳ vọng: Định hướng concept chiến lược cho toàn bộ phận'},scores:['Không hiểu brief, sản phẩm sai yêu cầu hoặc lệch hướng hoàn toàn. Hiểu cơ bản nhưng hay miss điểm quan trọng, cần làm lại nhiều lần','Hiểu đủ brief, đáp ứng yêu cầu cơ bản, ít cần chỉnh sửa lớn','Hiểu sâu, diễn giải sáng tạo — concept rõ từ KV đến hệ thống POSM. Xuất sắc — nhìn brief thấy ngay màu sắc/layout/cảm xúc, vượt kỳ vọng client']},
+    {id:'d2',name:'Chất lượng & kỹ thuật thực hiện (in ấn / 3D)',levelHint:{exec:'Kỳ vọng: Thành thạo Illustrator/Photoshop (hoặc 3ds Max/SketchUp tùy vị trí) ở mức cơ bản',senior:'Kỳ vọng: Hiểu kỹ thuật in ấn (bleed, CMYK, resolution) hoặc render tỉ lệ thực tế đúng chuẩn',asst:'Kỳ vọng: Output chuẩn kỹ thuật, không cần kiểm tra lại trước khi gửi production',junior:'Kỳ vọng: Kiểm soát chất lượng kỹ thuật cho nhiều hạng mục cùng lúc',mgr:'Kỳ vọng: Đảm bảo output on-brand, on-brief, on-quality cho toàn dự án; hiểu kỹ thuật sản xuất POSM/booth',dir:'Kỳ vọng: Đặt chuẩn chất lượng kỹ thuật cho toàn bộ phận Design'},scores:['Sai kỹ thuật cơ bản (bleed/CMYK/tỉ lệ không gian) — không thi công/in ấn được. Chất lượng còn yếu, cắt file/render sai kỹ thuật, cần sửa nhiều','Đạt yêu cầu kỹ thuật cơ bản, đôi khi cần tinh chỉnh nhỏ trước khi gửi đi','Chuẩn kỹ thuật tốt, thiết kế/render đều thi công được, không chỉ đẹp trên màn hình. Xuất sắc — chuẩn kỹ thuật hoàn hảo, là tham chiếu chất lượng của phòng Design']},
+    {id:'d3',name:'Tốc độ xử lý & tuân thủ deadline',levelHint:{exec:'Kỳ vọng: Làm nhanh, sửa nhanh — hiểu rằng Agency không có "cần thêm 2 ngày"',senior:'Kỳ vọng: Hoàn thành đa hạng mục (KV, backdrop, standee, banner...) đúng hạn',asst:'Kỳ vọng: Quản lý deadline nhiều hạng mục song song, không để trễ dây chuyền',junior:'Kỳ vọng: Cải tiến tốc độ xử lý cho cả nhóm nhỏ',mgr:'Kỳ vọng: Đảm bảo deadline toàn dự án từ KV đến hệ thống POSM hoàn chỉnh',dir:'Kỳ vọng: Không để dự án nào trễ do nguyên nhân từ phòng Design'},scores:['Thường xuyên trễ, ảnh hưởng nghiêm trọng đến tiến độ chung của dự án. Hay trễ, cần nhắc nhiều lần mới hoàn thành đúng deadline','Đôi khi trễ nhỏ, nhìn chung hoàn thành đúng hạn phần lớn','Hầu hết đúng hạn, tốc độ làm nhanh sửa nhanh đúng văn hóa Agency. Luôn đúng/trước hạn, tốc độ nhanh và chất lượng cao đồng thời']},
+    {id:'d4',name:'Tiếp thu phản hồi & chỉnh sửa',levelHint:{exec:'Kỳ vọng: Biết bám brief — không phải mọi dự án đều là portfolio cá nhân',senior:'Kỳ vọng: Tiếp thu phản hồi nhanh, chỉnh sửa đúng ý ngay lần đầu',asst:'Kỳ vọng: Hỏi rõ trước khi làm để giảm số vòng chỉnh sửa',junior:'Kỳ vọng: Hướng dẫn người khác tiếp thu phản hồi hiệu quả hơn',mgr:'Kỳ vọng: Review Design/3D team, đảm bảo phản hồi được xử lý đúng và nhanh',dir:'Kỳ vọng: Xây quy trình review chuẩn để giảm vòng lặp chỉnh sửa toàn phòng'},scores:['Không tiếp thu, tranh cãi khi nhận feedback, ảnh hưởng tiến độ dự án. Tiếp thu chậm, chỉnh sửa không đúng ý — phải làm lại nhiều vòng','Tiếp thu cơ bản, đôi khi cần hướng dẫn thêm để hiểu đúng ý','Tiếp thu tốt, chỉnh sửa nhanh và đúng ý ngay từ lần đầu. Xuất sắc — hỏi rõ trước khi làm, không cần sửa lại lần hai']},
+    {id:'d5',name:'Quản lý file & quy trình giao nhận sản xuất',levelHint:{exec:'Kỳ vọng: File ngăn nắp, đặt tên chuẩn, đúng format khi giao nhận',senior:'Kỳ vọng: Cắt file sản xuất đúng kỹ thuật — không để "in ra khác"',asst:'Kỳ vọng: Quản lý file cho nhiều hạng mục, không nhầm version',junior:'Kỳ vọng: Chuẩn hóa cách đặt tên & lưu trữ file cho nhóm nhỏ',mgr:'Kỳ vọng: Đảm bảo toàn bộ file dự án được giao đúng, đủ, đúng kỹ thuật production',dir:'Kỳ vọng: Xây hệ thống quản lý file chuẩn cho toàn phòng Design'},scores:['File lộn xộn, hay mất file quan trọng hoặc giao sai phiên bản. Hay giao sai phiên bản, đặt tên tùy tiện gây nhầm lẫn khi sản xuất','Quản lý cơ bản, đôi khi sai nhỏ nhưng không ảnh hưởng lớn','File ngăn nắp, đặt tên chuẩn, đúng format — sản xuất nhận và làm được ngay. Hệ thống chuyên nghiệp, không bao giờ mất file hay sai phiên bản']},
   ]},
   procurement:{label:'Procurement',hint:'Tiêu chí chuyên môn Procurement — theo JD BSC 2026 (thu mua, NCC, vật liệu, đàm phán)',criteria:[
-    {id:'d1',name:'Hiểu biết vật liệu & ngành quảng cáo (in ấn, POSM, booth)',levelHint:{exec:'Kỳ vọng: Hiểu biết thực tế về vật liệu quảng cáo, in ấn, sản xuất',senior:'Kỳ vọng: Hiểu sâu hơn về vật liệu, không chỉ qua lý thuyết/sách',asst:'Kỳ vọng: Tư vấn được vật liệu phù hợp cho từng loại dự án',junior:'Kỳ vọng: Đào tạo Executive về kiến thức vật liệu thực tế',mgr:'Kỳ vọng: Hiểu sâu về vật liệu — in ấn, POSM, booth, thi công — không học qua sách',dir:'Kỳ vọng: Định hướng chiến lược nguồn vật liệu cho toàn bộ phận'},scores:['Không hiểu biết thực tế về vật liệu, dễ bị NCC "dắt mũi"','Hiểu cơ bản qua lý thuyết, chưa va thực tế nhiều','Hiểu đủ để làm việc với NCC mà không bị thiệt, cần hỗ trợ khi phức tạp','Hiểu sâu thực tế, biết chính xác vật liệu nào phù hợp với từng nhu cầu','Xuất sắc — không bao giờ bị "dắt mũi", luôn biết thứ gì phù hợp thứ gì không']},
-    {id:'d2',name:'Sourcing & quản lý mạng lưới nhà cung cấp',levelHint:{exec:'Kỳ vọng: Lấy báo giá, so sánh, theo dõi đặt hàng đúng deadline',senior:'Kỳ vọng: Cập nhật Rate Card, phối hợp Project để hàng ra đúng lúc đúng chỗ',asst:'Kỳ vọng: Mở rộng mạng lưới NCC, đa dạng hóa nguồn cung cho từng hạng mục',junior:'Kỳ vọng: Đánh giá & sàng lọc NCC, loại bỏ NCC không đạt chuẩn',mgr:'Kỳ vọng: Xây dựng và duy trì mạng lưới NCC, quản lý Rate Card, đa dạng hoá nguồn cung',dir:'Kỳ vọng: Định hướng chiến lược nguồn cung toàn bộ phận'},scores:['Không tìm được NCC phù hợp, không biết so sánh báo giá','Tìm được NCC nhưng theo dõi đặt hàng còn lỏng, hay trễ','Sourcing cơ bản đủ dùng, Rate Card cập nhật nhưng chưa đầy đủ','Mạng lưới NCC tốt, Rate Card luôn cập nhật, hàng ra đúng lúc đúng chỗ','Xuất sắc — mạng lưới NCC đa dạng, tối ưu chi phí và chất lượng liên tục']},
-    {id:'d3',name:'Đàm phán giá & tối ưu lợi nhuận',levelHint:{exec:'Kỳ vọng: Theo dõi timeline chặt, biết "push" NCC mà không làm mất quan hệ',senior:'Kỳ vọng: Đàm phán cơ bản để giữ đúng deadline, không để lỡ vì "quên nhắc"',asst:'Kỳ vọng: Đàm phán độc lập cho hạng mục được giao, tối ưu chi phí rõ rệt',junior:'Kỳ vọng: Đàm phán phức tạp hơn, biết khi nào giữ giá khi nào nhượng',mgr:'Kỳ vọng: Đàm phán để tối ưu lợi nhuận — không phải mua rẻ mà mua đúng',dir:'Kỳ vọng: Chiến lược đàm phán & quan hệ NCC cấp cao cho toàn công ty'},scores:['Không đàm phán được, chấp nhận giá niêm yết hoặc làm mất quan hệ NCC','Đàm phán cơ bản, kết quả chưa tối ưu, đôi khi làm căng quan hệ không cần thiết','Đàm phán được giá hợp lý, giữ được quan hệ tốt với NCC','Đàm phán sắc — biết khi nào nhượng, khi nào giữ, khi nào tìm NCC khác','Xuất sắc — tối ưu lợi nhuận liên tục, mua đúng chứ không chỉ mua rẻ']},
-    {id:'d4',name:'Theo dõi tiến độ & bàn giao đúng hạn',levelHint:{exec:'Kỳ vọng: Theo dõi đặt hàng và nhận hàng đúng deadline, không để "quên nhắc"',senior:'Kỳ vọng: Phối hợp Project chặt để hàng ra đúng lúc đúng chỗ',asst:'Kỳ vọng: Theo dõi nhiều đơn hàng song song không sai sót',junior:'Kỳ vọng: Cảnh báo sớm rủi ro trễ hàng cho nhiều dự án',mgr:'Kỳ vọng: Kiểm soát tiến độ Thu mua – Sản xuất – Vận chuyển toàn bộ phận',dir:'Kỳ vọng: Đảm bảo không có rủi ro chuỗi cung ứng ảnh hưởng công ty'},scores:['Hay để đơn hàng trễ hoặc giao sai quy cách — ảnh hưởng nghiêm trọng dự án','Theo dõi được nhưng phản ứng chậm khi có vấn đề phát sinh','Theo dõi cơ bản, phát hiện vấn đề kịp thời khi được hỗ trợ','Chủ động theo dõi, bàn giao đúng hạn và đúng spec hầu hết các trường hợp','Hệ thống theo dõi chặt chẽ, không để phát sinh ảnh hưởng dự án bao giờ']},
-    {id:'d5',name:'Kiểm soát ngân sách Thu mua & Rate Card',levelHint:{exec:'Kỳ vọng: Cập nhật Rate Card chính xác theo thực tế thị trường',senior:'Kỳ vọng: So sánh giá kỹ trước khi đặt hàng, tránh chi vượt ngân sách',asst:'Kỳ vọng: Kiểm soát ngân sách cho nhiều hạng mục, phát hiện bất thường sớm',junior:'Kỳ vọng: Đề xuất tối ưu ngân sách cho các dự án lớn',mgr:'Kỳ vọng: Điều hành Thu mua – Sản xuất – Vận chuyển; kiểm soát tiến độ và ngân sách',dir:'Kỳ vọng: Tư duy quản lý chi phí chiến lược cho toàn bộ phận'},scores:['Không theo dõi được ngân sách, chi vượt thường xuyên không kiểm soát được','Theo dõi được nhưng Rate Card chưa cập nhật đầy đủ, dễ sai lệch','Kiểm soát cơ bản, Rate Card có nhưng đôi khi chưa đúng thực tế thị trường','Kiểm soát tốt, Rate Card luôn cập nhật đúng, ngân sách ít sai lệch','Tối ưu ngân sách liên tục, Rate Card là chuẩn tham chiếu cho toàn phòng']},
+    {id:'d1',name:'Hiểu biết vật liệu & ngành quảng cáo (in ấn, POSM, booth)',levelHint:{exec:'Kỳ vọng: Hiểu biết thực tế về vật liệu quảng cáo, in ấn, sản xuất',senior:'Kỳ vọng: Hiểu sâu hơn về vật liệu, không chỉ qua lý thuyết/sách',asst:'Kỳ vọng: Tư vấn được vật liệu phù hợp cho từng loại dự án',junior:'Kỳ vọng: Đào tạo Executive về kiến thức vật liệu thực tế',mgr:'Kỳ vọng: Hiểu sâu về vật liệu — in ấn, POSM, booth, thi công — không học qua sách',dir:'Kỳ vọng: Định hướng chiến lược nguồn vật liệu cho toàn bộ phận'},scores:['Không hiểu biết thực tế về vật liệu, dễ bị NCC "dắt mũi". Hiểu cơ bản qua lý thuyết, chưa va thực tế nhiều','Hiểu đủ để làm việc với NCC mà không bị thiệt, cần hỗ trợ khi phức tạp','Hiểu sâu thực tế, biết chính xác vật liệu nào phù hợp với từng nhu cầu. Xuất sắc — không bao giờ bị "dắt mũi", luôn biết thứ gì phù hợp thứ gì không']},
+    {id:'d2',name:'Sourcing & quản lý mạng lưới nhà cung cấp',levelHint:{exec:'Kỳ vọng: Lấy báo giá, so sánh, theo dõi đặt hàng đúng deadline',senior:'Kỳ vọng: Cập nhật Rate Card, phối hợp Project để hàng ra đúng lúc đúng chỗ',asst:'Kỳ vọng: Mở rộng mạng lưới NCC, đa dạng hóa nguồn cung cho từng hạng mục',junior:'Kỳ vọng: Đánh giá & sàng lọc NCC, loại bỏ NCC không đạt chuẩn',mgr:'Kỳ vọng: Xây dựng và duy trì mạng lưới NCC, quản lý Rate Card, đa dạng hoá nguồn cung',dir:'Kỳ vọng: Định hướng chiến lược nguồn cung toàn bộ phận'},scores:['Không tìm được NCC phù hợp, không biết so sánh báo giá. Tìm được NCC nhưng theo dõi đặt hàng còn lỏng, hay trễ','Sourcing cơ bản đủ dùng, Rate Card cập nhật nhưng chưa đầy đủ','Mạng lưới NCC tốt, Rate Card luôn cập nhật, hàng ra đúng lúc đúng chỗ. Xuất sắc — mạng lưới NCC đa dạng, tối ưu chi phí và chất lượng liên tục']},
+    {id:'d3',name:'Đàm phán giá & tối ưu lợi nhuận',levelHint:{exec:'Kỳ vọng: Theo dõi timeline chặt, biết "push" NCC mà không làm mất quan hệ',senior:'Kỳ vọng: Đàm phán cơ bản để giữ đúng deadline, không để lỡ vì "quên nhắc"',asst:'Kỳ vọng: Đàm phán độc lập cho hạng mục được giao, tối ưu chi phí rõ rệt',junior:'Kỳ vọng: Đàm phán phức tạp hơn, biết khi nào giữ giá khi nào nhượng',mgr:'Kỳ vọng: Đàm phán để tối ưu lợi nhuận — không phải mua rẻ mà mua đúng',dir:'Kỳ vọng: Chiến lược đàm phán & quan hệ NCC cấp cao cho toàn công ty'},scores:['Không đàm phán được, chấp nhận giá niêm yết hoặc làm mất quan hệ NCC. Đàm phán cơ bản, kết quả chưa tối ưu, đôi khi làm căng quan hệ không cần thiết','Đàm phán được giá hợp lý, giữ được quan hệ tốt với NCC','Đàm phán sắc — biết khi nào nhượng, khi nào giữ, khi nào tìm NCC khác. Xuất sắc — tối ưu lợi nhuận liên tục, mua đúng chứ không chỉ mua rẻ']},
+    {id:'d4',name:'Theo dõi tiến độ & bàn giao đúng hạn',levelHint:{exec:'Kỳ vọng: Theo dõi đặt hàng và nhận hàng đúng deadline, không để "quên nhắc"',senior:'Kỳ vọng: Phối hợp Project chặt để hàng ra đúng lúc đúng chỗ',asst:'Kỳ vọng: Theo dõi nhiều đơn hàng song song không sai sót',junior:'Kỳ vọng: Cảnh báo sớm rủi ro trễ hàng cho nhiều dự án',mgr:'Kỳ vọng: Kiểm soát tiến độ Thu mua – Sản xuất – Vận chuyển toàn bộ phận',dir:'Kỳ vọng: Đảm bảo không có rủi ro chuỗi cung ứng ảnh hưởng công ty'},scores:['Hay để đơn hàng trễ hoặc giao sai quy cách — ảnh hưởng nghiêm trọng dự án. Theo dõi được nhưng phản ứng chậm khi có vấn đề phát sinh','Theo dõi cơ bản, phát hiện vấn đề kịp thời khi được hỗ trợ','Chủ động theo dõi, bàn giao đúng hạn và đúng spec hầu hết các trường hợp. Hệ thống theo dõi chặt chẽ, không để phát sinh ảnh hưởng dự án bao giờ']},
+    {id:'d5',name:'Kiểm soát ngân sách Thu mua & Rate Card',levelHint:{exec:'Kỳ vọng: Cập nhật Rate Card chính xác theo thực tế thị trường',senior:'Kỳ vọng: So sánh giá kỹ trước khi đặt hàng, tránh chi vượt ngân sách',asst:'Kỳ vọng: Kiểm soát ngân sách cho nhiều hạng mục, phát hiện bất thường sớm',junior:'Kỳ vọng: Đề xuất tối ưu ngân sách cho các dự án lớn',mgr:'Kỳ vọng: Điều hành Thu mua – Sản xuất – Vận chuyển; kiểm soát tiến độ và ngân sách',dir:'Kỳ vọng: Tư duy quản lý chi phí chiến lược cho toàn bộ phận'},scores:['Không theo dõi được ngân sách, chi vượt thường xuyên không kiểm soát được. Theo dõi được nhưng Rate Card chưa cập nhật đầy đủ, dễ sai lệch','Kiểm soát cơ bản, Rate Card có nhưng đôi khi chưa đúng thực tế thị trường','Kiểm soát tốt, Rate Card luôn cập nhật đúng, ngân sách ít sai lệch. Tối ưu ngân sách liên tục, Rate Card là chuẩn tham chiếu cho toàn phòng']},
   ]},
   finance:{label:'Finance / Accounting',hint:'Tiêu chí chuyên môn Finance/Accounting — theo JD BSC 2026 (kế toán, dòng tiền, thuế, BHXH)',criteria:[
-    {id:'d1',name:'Nhập liệu & theo dõi thu chi hàng ngày',levelHint:{exec:'Kỳ vọng: Nhập liệu, theo dõi thu chi hàng ngày; làm chứng từ thanh toán/tạm ứng/quyết toán',senior:'Kỳ vọng: Số liệu làm ra đúng đến mức không ai cần kiểm tra lại',asst:'Kỳ vọng: Kiểm soát dòng tiền theo từng dự án độc lập',junior:'Kỳ vọng: Tổng hợp dòng tiền nhiều dự án, phát hiện bất thường sớm',mgr:'Kỳ vọng: Kiểm soát dòng tiền theo từng dự án và toàn công ty',dir:'Kỳ vọng: Biết BSC đang lãi hay lỗ trước khi Giám đốc hỏi'},scores:['Số liệu hay sai, chứng từ thiếu hoặc sai sót thường xuyên','Làm được nhưng chậm, cần kiểm tra lại nhiều lần trước khi submit','Số liệu đúng cơ bản, đúng hạn, ít sai sót lớn','Số liệu chính xác, đúng đến mức ít cần kiểm tra lại — đáng tin cậy','Xuất sắc — không sai sót, hệ thống rõ ràng, là chuẩn tham chiếu của phòng']},
-    {id:'d2',name:'Quản lý công nợ & phối hợp thu hồi',levelHint:{exec:'Kỳ vọng: Theo dõi công nợ, hỗ trợ báo cáo thuế và BHXH',senior:'Kỳ vọng: Tỉ mỉ — hiểu rằng một dấu phẩy sai là một buổi chiều đi tìm lỗi',asst:'Kỳ vọng: Phối hợp Project theo dõi công nợ khách hàng độc lập',junior:'Kỳ vọng: Đề xuất kế hoạch thu hồi công nợ cho nhiều dự án',mgr:'Kỳ vọng: Phối hợp với Project theo dõi công nợ khách hàng và nhà cung cấp',dir:'Kỳ vọng: Kiểm soát rủi ro công nợ tổng thể cho toàn công ty'},scores:['Không theo dõi được công nợ, để trễ hạn hoặc thất thoát','Theo dõi được nhưng hay trễ, thiếu phối hợp với Project','Theo dõi cơ bản đúng quy trình, đôi khi cần nhắc khi gần đến hạn','Phối hợp tốt với Project, công nợ được kiểm soát chặt chẽ','Xuất sắc — hệ thống hóa công nợ, không để xảy ra rủi ro thu hồi']},
-    {id:'d3',name:'Hiểu luật thuế, BHXH & quy định lao động thực tế',levelHint:{exec:'Kỳ vọng: Thành thạo MISA hoặc phần mềm kế toán tương đương',senior:'Kỳ vọng: Hiểu cơ bản luật thuế & BHXH, áp dụng đúng khi xử lý chứng từ',asst:'Kỳ vọng: Xử lý độc lập các vấn đề thuế/BHXH thông thường',junior:'Kỳ vọng: Tư vấn được các trường hợp thuế/BHXH phức tạp hơn',mgr:'Kỳ vọng: Hiểu luật thuế, BHXH, quy định lao động thực tế — không phải lý thuyết',dir:'Kỳ vọng: Định hướng tuân thủ pháp lý tài chính cho toàn công ty'},scores:['Không hiểu quy định cơ bản, hay sai hoặc trễ hạn nộp thuế/BHXH','Biết cơ bản nhưng còn nhầm lẫn, cần tra cứu hoặc hỏi lại thường xuyên','Xử lý được các trường hợp thường gặp, hiểu đủ quy định cơ bản','Hiểu sâu thực tế, xử lý đúng và đúng hạn, ít rủi ro sai sót','Xuất sắc — tư vấn được giải pháp tối ưu thuế/BHXH cho công ty']},
-    {id:'d4',name:'Lập báo cáo tài chính & xây quy trình nội bộ',levelHint:{exec:'Kỳ vọng: Excel tốt — số liệu không sai, không bao giờ',senior:'Kỳ vọng: Hỗ trợ tổng hợp báo cáo định kỳ chính xác và đúng hạn',asst:'Kỳ vọng: Tự lập báo cáo tài chính cơ bản cho từng dự án',junior:'Kỳ vọng: Đề xuất cải tiến quy trình tài chính nội bộ',mgr:'Kỳ vọng: Báo cáo tài chính định kỳ cho BGĐ; xây dựng quy trình tài chính nội bộ',dir:'Kỳ vọng: Chiến lược tài chính tổng thể, tư vấn trực tiếp cho BOD'},scores:['Không lập được báo cáo, số liệu sai hoặc không hiểu ý nghĩa con số','Lập được báo cáo cơ bản nhưng phân tích còn nông, hay nhầm số liệu','Lập đủ báo cáo theo template, đúng hạn, phân tích cơ bản đúng','Báo cáo sạch, đúng hạn, có phân tích sâu hữu ích cho BGĐ','Xuất sắc — phân tích sắc bén, chủ động tư vấn định hướng tài chính']},
-    {id:'d5',name:'Bảo mật & kỷ luật tài chính',levelHint:{exec:'Kỳ vọng: Cẩn thận, kỷ luật trong từng giao dịch nhỏ',senior:'Kỳ vọng: Hiểu mức độ bảo mật cần thiết với số liệu tài chính',asst:'Kỳ vọng: Tự ý thức bảo mật khi làm việc với dữ liệu nhạy cảm',junior:'Kỳ vọng: Đảm bảo team tuân thủ kỷ luật bảo mật tài chính',mgr:'Kỳ vọng: Cẩn thận, kỷ luật, bảo mật tuyệt đối với toàn bộ số liệu công ty',dir:'Kỳ vọng: Thiết lập chính sách bảo mật tài chính cho toàn công ty'},scores:['Không có ý thức bảo mật, để lộ thông tin tài chính nhạy cảm','Có ý thức nhưng chưa nhất quán, đôi khi sơ suất','Tuân thủ bảo mật cơ bản đúng quy định công ty','Kỷ luật cao, bảo mật tốt, không để xảy ra sơ suất','Xuất sắc — bảo mật tuyệt đối, là chuẩn mực kỷ luật của phòng Finance']},
+    {id:'d1',name:'Nhập liệu & theo dõi thu chi hàng ngày',levelHint:{exec:'Kỳ vọng: Nhập liệu, theo dõi thu chi hàng ngày; làm chứng từ thanh toán/tạm ứng/quyết toán',senior:'Kỳ vọng: Số liệu làm ra đúng đến mức không ai cần kiểm tra lại',asst:'Kỳ vọng: Kiểm soát dòng tiền theo từng dự án độc lập',junior:'Kỳ vọng: Tổng hợp dòng tiền nhiều dự án, phát hiện bất thường sớm',mgr:'Kỳ vọng: Kiểm soát dòng tiền theo từng dự án và toàn công ty',dir:'Kỳ vọng: Biết BSC đang lãi hay lỗ trước khi Giám đốc hỏi'},scores:['Số liệu hay sai, chứng từ thiếu hoặc sai sót thường xuyên. Làm được nhưng chậm, cần kiểm tra lại nhiều lần trước khi submit','Số liệu đúng cơ bản, đúng hạn, ít sai sót lớn','Số liệu chính xác, đúng đến mức ít cần kiểm tra lại — đáng tin cậy. Xuất sắc — không sai sót, hệ thống rõ ràng, là chuẩn tham chiếu của phòng']},
+    {id:'d2',name:'Quản lý công nợ & phối hợp thu hồi',levelHint:{exec:'Kỳ vọng: Theo dõi công nợ, hỗ trợ báo cáo thuế và BHXH',senior:'Kỳ vọng: Tỉ mỉ — hiểu rằng một dấu phẩy sai là một buổi chiều đi tìm lỗi',asst:'Kỳ vọng: Phối hợp Project theo dõi công nợ khách hàng độc lập',junior:'Kỳ vọng: Đề xuất kế hoạch thu hồi công nợ cho nhiều dự án',mgr:'Kỳ vọng: Phối hợp với Project theo dõi công nợ khách hàng và nhà cung cấp',dir:'Kỳ vọng: Kiểm soát rủi ro công nợ tổng thể cho toàn công ty'},scores:['Không theo dõi được công nợ, để trễ hạn hoặc thất thoát. Theo dõi được nhưng hay trễ, thiếu phối hợp với Project','Theo dõi cơ bản đúng quy trình, đôi khi cần nhắc khi gần đến hạn','Phối hợp tốt với Project, công nợ được kiểm soát chặt chẽ. Xuất sắc — hệ thống hóa công nợ, không để xảy ra rủi ro thu hồi']},
+    {id:'d3',name:'Hiểu luật thuế, BHXH & quy định lao động thực tế',levelHint:{exec:'Kỳ vọng: Thành thạo MISA hoặc phần mềm kế toán tương đương',senior:'Kỳ vọng: Hiểu cơ bản luật thuế & BHXH, áp dụng đúng khi xử lý chứng từ',asst:'Kỳ vọng: Xử lý độc lập các vấn đề thuế/BHXH thông thường',junior:'Kỳ vọng: Tư vấn được các trường hợp thuế/BHXH phức tạp hơn',mgr:'Kỳ vọng: Hiểu luật thuế, BHXH, quy định lao động thực tế — không phải lý thuyết',dir:'Kỳ vọng: Định hướng tuân thủ pháp lý tài chính cho toàn công ty'},scores:['Không hiểu quy định cơ bản, hay sai hoặc trễ hạn nộp thuế/BHXH. Biết cơ bản nhưng còn nhầm lẫn, cần tra cứu hoặc hỏi lại thường xuyên','Xử lý được các trường hợp thường gặp, hiểu đủ quy định cơ bản','Hiểu sâu thực tế, xử lý đúng và đúng hạn, ít rủi ro sai sót. Xuất sắc — tư vấn được giải pháp tối ưu thuế/BHXH cho công ty']},
+    {id:'d4',name:'Lập báo cáo tài chính & xây quy trình nội bộ',levelHint:{exec:'Kỳ vọng: Excel tốt — số liệu không sai, không bao giờ',senior:'Kỳ vọng: Hỗ trợ tổng hợp báo cáo định kỳ chính xác và đúng hạn',asst:'Kỳ vọng: Tự lập báo cáo tài chính cơ bản cho từng dự án',junior:'Kỳ vọng: Đề xuất cải tiến quy trình tài chính nội bộ',mgr:'Kỳ vọng: Báo cáo tài chính định kỳ cho BGĐ; xây dựng quy trình tài chính nội bộ',dir:'Kỳ vọng: Chiến lược tài chính tổng thể, tư vấn trực tiếp cho BOD'},scores:['Không lập được báo cáo, số liệu sai hoặc không hiểu ý nghĩa con số. Lập được báo cáo cơ bản nhưng phân tích còn nông, hay nhầm số liệu','Lập đủ báo cáo theo template, đúng hạn, phân tích cơ bản đúng','Báo cáo sạch, đúng hạn, có phân tích sâu hữu ích cho BGĐ. Xuất sắc — phân tích sắc bén, chủ động tư vấn định hướng tài chính']},
+    {id:'d5',name:'Bảo mật & kỷ luật tài chính',levelHint:{exec:'Kỳ vọng: Cẩn thận, kỷ luật trong từng giao dịch nhỏ',senior:'Kỳ vọng: Hiểu mức độ bảo mật cần thiết với số liệu tài chính',asst:'Kỳ vọng: Tự ý thức bảo mật khi làm việc với dữ liệu nhạy cảm',junior:'Kỳ vọng: Đảm bảo team tuân thủ kỷ luật bảo mật tài chính',mgr:'Kỳ vọng: Cẩn thận, kỷ luật, bảo mật tuyệt đối với toàn bộ số liệu công ty',dir:'Kỳ vọng: Thiết lập chính sách bảo mật tài chính cho toàn công ty'},scores:['Không có ý thức bảo mật, để lộ thông tin tài chính nhạy cảm. Có ý thức nhưng chưa nhất quán, đôi khi sơ suất','Tuân thủ bảo mật cơ bản đúng quy định công ty','Kỷ luật cao, bảo mật tốt, không để xảy ra sơ suất. Xuất sắc — bảo mật tuyệt đối, là chuẩn mực kỷ luật của phòng Finance']},
   ]},
   hr:{label:'HR & Admin',hint:'Tiêu chí chuyên môn HR/Admin — theo JD BSC 2026 (tuyển dụng, văn hóa, chính sách, hành chính)',criteria:[
-    {id:'d1',name:'Tuyển dụng đúng người, đúng thời điểm',levelHint:{exec:'Kỳ vọng: Đăng tin, lọc CV, phỏng vấn vòng đầu, onboarding cơ bản',senior:'Kỳ vọng: Giao tiếp tốt, đáng tin và biết giữ bí mật trong quá trình tuyển dụng',asst:'Kỳ vọng: Tự phỏng vấn sâu, không bị CV đẹp đánh lừa',junior:'Kỳ vọng: Tham gia tuyển các vị trí khó hơn, đào tạo Executive phỏng vấn',mgr:'Kỳ vọng: Tuyển dụng đúng người, đúng thời điểm, đúng ngân sách',dir:'Kỳ vọng: Chiến lược nhân sự dài hạn cùng BOD'},scores:['Tuyển sai người hoặc quy trình chậm, ảnh hưởng vận hành công ty','Tuyển được nhưng hay bị CV đẹp đánh lừa, chất lượng chưa ổn định','Tuyển đúng cơ bản, đúng thời điểm phần lớn các trường hợp','Phỏng vấn sắc, không bị đánh lừa bởi CV đẹp, tuyển đúng người đúng ngân sách','Xuất sắc — biết ai đang muốn nghỉ trước khi họ nói, luôn có sẵn phương án']},
-    {id:'d2',name:'Xây dựng quy trình onboarding & đánh giá năng lực',levelHint:{exec:'Kỳ vọng: Theo dõi hợp đồng, ngày nghỉ, chấm công toàn công ty đúng quy trình',senior:'Kỳ vọng: Excel tốt để quản lý dữ liệu nhân sự không sai sót',asst:'Kỳ vọng: Tự vận hành onboarding cho nhân sự mới độc lập',junior:'Kỳ vọng: Đề xuất cải tiến quy trình đánh giá năng lực',mgr:'Kỳ vọng: Xây dựng quy trình onboarding, đánh giá năng lực, lộ trình thăng tiến',dir:'Kỳ vọng: Chiến lược phát triển tổ chức tổng thể'},scores:['Không có quy trình rõ ràng, nhân sự mới bối rối, dữ liệu sai sót','Có quy trình cơ bản nhưng thực hiện chưa nhất quán','Onboarding & dữ liệu nhân sự đúng quy trình, đúng hạn phần lớn','Quy trình rõ ràng, nhân sự mới hài lòng, dữ liệu chính xác đáng tin cậy','Xuất sắc — nhân viên mới nhớ mình đầu tiên, và nhớ mặt tốt']},
-    {id:'d3',name:'Quản lý lương thưởng, BHXH & hợp đồng lao động',levelHint:{exec:'Kỳ vọng: Thủ tục BHXH, thuế TNCN, hành chính văn phòng cơ bản',senior:'Kỳ vọng: Biết phần mềm chấm công/BHXH — đây là điểm cộng lớn',asst:'Kỳ vọng: Xử lý độc lập các vấn đề lương/BHXH thông thường',junior:'Kỳ vọng: Tư vấn các trường hợp lương/hợp đồng phức tạp hơn',mgr:'Kỳ vọng: Quản lý chế độ lương thưởng, BHXH, hợp đồng lao động toàn công ty',dir:'Kỳ vọng: Chính sách đãi ngộ chiến lược cho toàn công ty'},scores:['Sai lương/BHXH thường xuyên, gây khiếu nại từ nhân viên','Xử lý được nhưng hay sai nhỏ, cần kiểm tra lại nhiều lần','Đúng cơ bản, đúng hạn, ít sai sót lớn','Chính xác, đúng hạn, nhân viên tin tưởng vào hệ thống lương/BHXH','Xuất sắc — không sai sót, biết phần mềm chấm công/BHXH thành thạo']},
-    {id:'d4',name:'Xây dựng văn hóa công ty thực chất',levelHint:{exec:'Kỳ vọng: Tham gia tích cực vào các hoạt động văn hóa nội bộ',senior:'Kỳ vọng: Chủ động đề xuất hoạt động gắn kết phù hợp với team',asst:'Kỳ vọng: Tự tổ chức được hoạt động văn hóa quy mô nhỏ',junior:'Kỳ vọng: Đánh giá hiệu quả hoạt động văn hóa, cải tiến liên tục',mgr:'Kỳ vọng: Xây dựng văn hóa công ty — không phải treo poster, mà thật sự làm được',dir:'Kỳ vọng: Định hình văn hóa doanh nghiệp dài hạn cùng BOD'},scores:['Không tổ chức được hoạt động gắn kết, văn hóa công ty mờ nhạt','Tổ chức được nhưng hình thức, ít người tham gia thực chất','Hoạt động diễn ra đúng kế hoạch, nhân viên tham gia ở mức ổn','Nhân viên tích cực tham gia, văn hóa công ty rõ nét và thực chất','Xuất sắc — văn hóa mạnh thật sự, không chỉ "treo poster" mà thấy rõ trong vận hành']},
-    {id:'d5',name:'Hiểu luật lao động & ứng xử linh hoạt',levelHint:{exec:'Kỳ vọng: Giao tiếp tốt, đáng tin và biết giữ bí mật thông tin nhân sự',senior:'Kỳ vọng: Hiểu cơ bản luật lao động khi xử lý hợp đồng/nghỉ việc',asst:'Kỳ vọng: Tư vấn cơ bản đúng luật cho các tình huống nhân sự thường gặp',junior:'Kỳ vọng: Xử lý độc lập tình huống nhân sự nhạy cảm theo đúng luật',mgr:'Kỳ vọng: Hiểu luật lao động đủ để biết khi nào cần thẳng thắn, khi nào cần linh hoạt',dir:'Kỳ vọng: Cố vấn pháp lý lao động chiến lược cho BOD'},scores:['Không hiểu luật lao động cơ bản, xử lý sai quy trình gây rủi ro pháp lý','Hiểu sơ sài, hay cần hỏi lại hoặc xử lý chưa đúng chuẩn','Hiểu đủ cơ bản, xử lý đúng quy trình các trường hợp thông thường','Hiểu sâu, biết khi nào cần thẳng thắn khi nào cần linh hoạt phù hợp tình huống','Xuất sắc — tư vấn chuẩn xác, bảo vệ cả công ty và quyền lợi nhân viên hợp lý']},
+    {id:'d1',name:'Tuyển dụng đúng người, đúng thời điểm',levelHint:{exec:'Kỳ vọng: Đăng tin, lọc CV, phỏng vấn vòng đầu, onboarding cơ bản',senior:'Kỳ vọng: Giao tiếp tốt, đáng tin và biết giữ bí mật trong quá trình tuyển dụng',asst:'Kỳ vọng: Tự phỏng vấn sâu, không bị CV đẹp đánh lừa',junior:'Kỳ vọng: Tham gia tuyển các vị trí khó hơn, đào tạo Executive phỏng vấn',mgr:'Kỳ vọng: Tuyển dụng đúng người, đúng thời điểm, đúng ngân sách',dir:'Kỳ vọng: Chiến lược nhân sự dài hạn cùng BOD'},scores:['Tuyển sai người hoặc quy trình chậm, ảnh hưởng vận hành công ty. Tuyển được nhưng hay bị CV đẹp đánh lừa, chất lượng chưa ổn định','Tuyển đúng cơ bản, đúng thời điểm phần lớn các trường hợp','Phỏng vấn sắc, không bị đánh lừa bởi CV đẹp, tuyển đúng người đúng ngân sách. Xuất sắc — biết ai đang muốn nghỉ trước khi họ nói, luôn có sẵn phương án']},
+    {id:'d2',name:'Xây dựng quy trình onboarding & đánh giá năng lực',levelHint:{exec:'Kỳ vọng: Theo dõi hợp đồng, ngày nghỉ, chấm công toàn công ty đúng quy trình',senior:'Kỳ vọng: Excel tốt để quản lý dữ liệu nhân sự không sai sót',asst:'Kỳ vọng: Tự vận hành onboarding cho nhân sự mới độc lập',junior:'Kỳ vọng: Đề xuất cải tiến quy trình đánh giá năng lực',mgr:'Kỳ vọng: Xây dựng quy trình onboarding, đánh giá năng lực, lộ trình thăng tiến',dir:'Kỳ vọng: Chiến lược phát triển tổ chức tổng thể'},scores:['Không có quy trình rõ ràng, nhân sự mới bối rối, dữ liệu sai sót. Có quy trình cơ bản nhưng thực hiện chưa nhất quán','Onboarding & dữ liệu nhân sự đúng quy trình, đúng hạn phần lớn','Quy trình rõ ràng, nhân sự mới hài lòng, dữ liệu chính xác đáng tin cậy. Xuất sắc — nhân viên mới nhớ mình đầu tiên, và nhớ mặt tốt']},
+    {id:'d3',name:'Quản lý lương thưởng, BHXH & hợp đồng lao động',levelHint:{exec:'Kỳ vọng: Thủ tục BHXH, thuế TNCN, hành chính văn phòng cơ bản',senior:'Kỳ vọng: Biết phần mềm chấm công/BHXH — đây là điểm cộng lớn',asst:'Kỳ vọng: Xử lý độc lập các vấn đề lương/BHXH thông thường',junior:'Kỳ vọng: Tư vấn các trường hợp lương/hợp đồng phức tạp hơn',mgr:'Kỳ vọng: Quản lý chế độ lương thưởng, BHXH, hợp đồng lao động toàn công ty',dir:'Kỳ vọng: Chính sách đãi ngộ chiến lược cho toàn công ty'},scores:['Sai lương/BHXH thường xuyên, gây khiếu nại từ nhân viên. Xử lý được nhưng hay sai nhỏ, cần kiểm tra lại nhiều lần','Đúng cơ bản, đúng hạn, ít sai sót lớn','Chính xác, đúng hạn, nhân viên tin tưởng vào hệ thống lương/BHXH. Xuất sắc — không sai sót, biết phần mềm chấm công/BHXH thành thạo']},
+    {id:'d4',name:'Xây dựng văn hóa công ty thực chất',levelHint:{exec:'Kỳ vọng: Tham gia tích cực vào các hoạt động văn hóa nội bộ',senior:'Kỳ vọng: Chủ động đề xuất hoạt động gắn kết phù hợp với team',asst:'Kỳ vọng: Tự tổ chức được hoạt động văn hóa quy mô nhỏ',junior:'Kỳ vọng: Đánh giá hiệu quả hoạt động văn hóa, cải tiến liên tục',mgr:'Kỳ vọng: Xây dựng văn hóa công ty — không phải treo poster, mà thật sự làm được',dir:'Kỳ vọng: Định hình văn hóa doanh nghiệp dài hạn cùng BOD'},scores:['Không tổ chức được hoạt động gắn kết, văn hóa công ty mờ nhạt. Tổ chức được nhưng hình thức, ít người tham gia thực chất','Hoạt động diễn ra đúng kế hoạch, nhân viên tham gia ở mức ổn','Nhân viên tích cực tham gia, văn hóa công ty rõ nét và thực chất. Xuất sắc — văn hóa mạnh thật sự, không chỉ "treo poster" mà thấy rõ trong vận hành']},
+    {id:'d5',name:'Hiểu luật lao động & ứng xử linh hoạt',levelHint:{exec:'Kỳ vọng: Giao tiếp tốt, đáng tin và biết giữ bí mật thông tin nhân sự',senior:'Kỳ vọng: Hiểu cơ bản luật lao động khi xử lý hợp đồng/nghỉ việc',asst:'Kỳ vọng: Tư vấn cơ bản đúng luật cho các tình huống nhân sự thường gặp',junior:'Kỳ vọng: Xử lý độc lập tình huống nhân sự nhạy cảm theo đúng luật',mgr:'Kỳ vọng: Hiểu luật lao động đủ để biết khi nào cần thẳng thắn, khi nào cần linh hoạt',dir:'Kỳ vọng: Cố vấn pháp lý lao động chiến lược cho BOD'},scores:['Không hiểu luật lao động cơ bản, xử lý sai quy trình gây rủi ro pháp lý. Hiểu sơ sài, hay cần hỏi lại hoặc xử lý chưa đúng chuẩn','Hiểu đủ cơ bản, xử lý đúng quy trình các trường hợp thông thường','Hiểu sâu, biết khi nào cần thẳng thắn khi nào cần linh hoạt phù hợp tình huống. Xuất sắc — tư vấn chuẩn xác, bảo vệ cả công ty và quyền lợi nhân viên hợp lý']},
   ]},
   hr_letan:{label:'HR & Admin — Admin/Lễ tân',hint:'Tiêu chí Admin/Lễ tân — theo Bảng KPI Phòng HCNS 2026',criteria:[
-    {id:'d1',name:'Đón tiếp & hướng dẫn khách',scores:['Thái độ không lịch sự, hướng dẫn sai hoặc để khách tự xử lý, không kiểm soát ra vào','Đón tiếp được nhưng thiếu chuyên nghiệp, đôi khi bỏ sót quy định ra vào','Đón tiếp lịch sự, hướng dẫn rõ ràng, kiểm soát ra vào đúng quy định phần lớn trường hợp','Chuyên nghiệp, rõ ràng, kiểm soát ra vào chặt chẽ, khách hài lòng','Xuất sắc — luôn chủ động, khách và nội bộ đều đánh giá cao sự chuyên nghiệp']},
-    {id:'d2',name:'Đặt VPP, photo, book vé & thanh toán',scores:['Thường trễ hạn >24h, sai quy trình, thanh toán chậm quá ngày 20','Đôi khi trễ hạn hoặc sai sót nhỏ trong quy trình/thanh toán','Đúng quy trình, hoàn thành <24h, thanh toán đúng hạn trước ngày 20 phần lớn','Luôn đúng hạn <24h, thanh toán trước ngày 20 tháng kế tiếp, không sai sót','Xuất sắc — chủ động dự trù trước, không bao giờ trễ hạn hoặc sai quy trình']},
-    {id:'d3',name:'Hỗ trợ tuyển dụng',scores:['Chậm >3 ngày, đăng tuyển ít kênh, không hỗ trợ hiệu quả cho tuyển dụng','Hỗ trợ được nhưng chậm hoặc chỉ dùng 1-2 kênh đăng tuyển','Hỗ trợ đúng hạn <3 ngày, đăng tối thiểu 3 kênh theo yêu cầu','Hỗ trợ nhanh, đa kênh, chủ động phối hợp với HR để tuyển hiệu quả hơn','Xuất sắc — luôn vượt yêu cầu, ứng viên chất lượng tốt nhờ hỗ trợ chủ động']},
-    {id:'d4',name:'Quản lý hồ sơ & chấm công',scores:['Hồ sơ/chấm công thường sai hoặc thiếu, khó tra soát khi cần','Quản lý được nhưng đôi khi sai sót hoặc thiếu sót nhỏ','Hồ sơ & chấm công đúng, đủ, dễ tra soát phần lớn thời điểm','Hồ sơ & chấm công luôn đúng, đủ, hệ thống hóa rõ ràng, dễ tra soát','Xuất sắc — không sai sót, là chuẩn tham khảo cho việc quản lý hồ sơ']},
-    {id:'d5',name:'Hỗ trợ sự kiện nội bộ',scores:['Chuẩn bị sai yêu cầu hoặc trễ >3 ngày, ảnh hưởng tới sự kiện','Chuẩn bị được nhưng đôi khi thiếu hoặc trễ hạn nhẹ','Chuẩn bị đúng yêu cầu, đúng hạn <3 ngày trước sự kiện','Chuẩn bị kỹ, chủ động kiểm tra lại trước sự kiện, không sai sót','Xuất sắc — sự kiện luôn suôn sẻ nhờ sự chuẩn bị chu đáo, chủ động']},
+    {id:'d1',name:'Đón tiếp & hướng dẫn khách',scores:['Thái độ không lịch sự, hướng dẫn sai hoặc để khách tự xử lý, không kiểm soát ra vào. Đón tiếp được nhưng thiếu chuyên nghiệp, đôi khi bỏ sót quy định ra vào','Đón tiếp lịch sự, hướng dẫn rõ ràng, kiểm soát ra vào đúng quy định phần lớn trường hợp','Chuyên nghiệp, rõ ràng, kiểm soát ra vào chặt chẽ, khách hài lòng. Xuất sắc — luôn chủ động, khách và nội bộ đều đánh giá cao sự chuyên nghiệp']},
+    {id:'d2',name:'Đặt VPP, photo, book vé & thanh toán',scores:['Thường trễ hạn >24h, sai quy trình, thanh toán chậm quá ngày 20. Đôi khi trễ hạn hoặc sai sót nhỏ trong quy trình/thanh toán','Đúng quy trình, hoàn thành <24h, thanh toán đúng hạn trước ngày 20 phần lớn','Luôn đúng hạn <24h, thanh toán trước ngày 20 tháng kế tiếp, không sai sót. Xuất sắc — chủ động dự trù trước, không bao giờ trễ hạn hoặc sai quy trình']},
+    {id:'d3',name:'Hỗ trợ tuyển dụng',scores:['Chậm >3 ngày, đăng tuyển ít kênh, không hỗ trợ hiệu quả cho tuyển dụng. Hỗ trợ được nhưng chậm hoặc chỉ dùng 1-2 kênh đăng tuyển','Hỗ trợ đúng hạn <3 ngày, đăng tối thiểu 3 kênh theo yêu cầu','Hỗ trợ nhanh, đa kênh, chủ động phối hợp với HR để tuyển hiệu quả hơn. Xuất sắc — luôn vượt yêu cầu, ứng viên chất lượng tốt nhờ hỗ trợ chủ động']},
+    {id:'d4',name:'Quản lý hồ sơ & chấm công',scores:['Hồ sơ/chấm công thường sai hoặc thiếu, khó tra soát khi cần. Quản lý được nhưng đôi khi sai sót hoặc thiếu sót nhỏ','Hồ sơ & chấm công đúng, đủ, dễ tra soát phần lớn thời điểm','Hồ sơ & chấm công luôn đúng, đủ, hệ thống hóa rõ ràng, dễ tra soát. Xuất sắc — không sai sót, là chuẩn tham khảo cho việc quản lý hồ sơ']},
+    {id:'d5',name:'Hỗ trợ sự kiện nội bộ',scores:['Chuẩn bị sai yêu cầu hoặc trễ >3 ngày, ảnh hưởng tới sự kiện. Chuẩn bị được nhưng đôi khi thiếu hoặc trễ hạn nhẹ','Chuẩn bị đúng yêu cầu, đúng hạn <3 ngày trước sự kiện','Chuẩn bị kỹ, chủ động kiểm tra lại trước sự kiện, không sai sót. Xuất sắc — sự kiện luôn suôn sẻ nhờ sự chuẩn bị chu đáo, chủ động']},
   ]},
   hr_tuyendungbtg:{label:'HR & Admin — Tuyển dụng BTG',hint:'Tiêu chí Tuyển dụng BTG — theo Bảng KPI Phòng HCNS 2026',criteria:[
-    {id:'d1',name:'Tuyển đủ nhân sự BTG',scores:['Thường không đạt, dưới 70% đúng hạn hoặc chất lượng thấp','Đạt được một phần, khoảng 70-90% đúng hạn/chất lượng','Đạt ≥90% đúng hạn, đúng chất lượng phần lớn các đợt tuyển','Đạt ổn định ≥90%, ít khi thiếu hụt nhân sự BTG khi cần','Xuất sắc — luôn đủ và đúng chất lượng, kể cả các đợt tuyển gấp']},
-    {id:'d2',name:'Quản lý hồ sơ BTG',scores:['Hồ sơ thường thiếu, không có file tổng hợp rõ ràng','Hồ sơ tương đối đầy đủ nhưng file tổng hợp chưa nhất quán','Hồ sơ đầy đủ, có file tổng hợp rõ ràng phần lớn trường hợp','Hồ sơ 100% đầy đủ, file tổng hợp cập nhật liên tục','Xuất sắc — hệ thống hồ sơ BTG là chuẩn tham khảo cho phòng']},
-    {id:'d3',name:'Chấm công & thanh toán BTG/CTV',scores:['Sai số liệu thường xuyên hoặc trễ hạn >7 ngày','Đôi khi sai số liệu hoặc trễ hạn nhẹ','Đúng số liệu, đúng hạn <7 ngày phần lớn các lần thanh toán','Đúng số liệu, đúng hạn ổn định, BTG/CTV không phàn nàn','Xuất sắc — không sai sót, luôn đúng hạn dù số lượng BTG lớn']},
-    {id:'d4',name:'Phối hợp & phản hồi thông tin',scores:['Phản hồi chậm >12h thường xuyên, ảnh hưởng công việc các bộ phận khác','Phản hồi được nhưng đôi khi chậm hơn 12h','Phản hồi đúng hạn <12h phần lớn các yêu cầu phối hợp','Phản hồi nhanh, chủ động cập nhật tình trạng cho các bên liên quan','Xuất sắc — luôn phản hồi nhanh, phối hợp trơn tru với mọi bộ phận']},
+    {id:'d1',name:'Tuyển đủ nhân sự BTG',scores:['Thường không đạt, dưới 70% đúng hạn hoặc chất lượng thấp. Đạt được một phần, khoảng 70-90% đúng hạn/chất lượng','Đạt ≥90% đúng hạn, đúng chất lượng phần lớn các đợt tuyển','Đạt ổn định ≥90%, ít khi thiếu hụt nhân sự BTG khi cần. Xuất sắc — luôn đủ và đúng chất lượng, kể cả các đợt tuyển gấp']},
+    {id:'d2',name:'Quản lý hồ sơ BTG',scores:['Hồ sơ thường thiếu, không có file tổng hợp rõ ràng. Hồ sơ tương đối đầy đủ nhưng file tổng hợp chưa nhất quán','Hồ sơ đầy đủ, có file tổng hợp rõ ràng phần lớn trường hợp','Hồ sơ 100% đầy đủ, file tổng hợp cập nhật liên tục. Xuất sắc — hệ thống hồ sơ BTG là chuẩn tham khảo cho phòng']},
+    {id:'d3',name:'Chấm công & thanh toán BTG/CTV',scores:['Sai số liệu thường xuyên hoặc trễ hạn >7 ngày. Đôi khi sai số liệu hoặc trễ hạn nhẹ','Đúng số liệu, đúng hạn <7 ngày phần lớn các lần thanh toán','Đúng số liệu, đúng hạn ổn định, BTG/CTV không phàn nàn. Xuất sắc — không sai sót, luôn đúng hạn dù số lượng BTG lớn']},
+    {id:'d4',name:'Phối hợp & phản hồi thông tin',scores:['Phản hồi chậm >12h thường xuyên, ảnh hưởng công việc các bộ phận khác. Phản hồi được nhưng đôi khi chậm hơn 12h','Phản hồi đúng hạn <12h phần lớn các yêu cầu phối hợp','Phản hồi nhanh, chủ động cập nhật tình trạng cho các bên liên quan. Xuất sắc — luôn phản hồi nhanh, phối hợp trơn tru với mọi bộ phận']},
   ]},
   hr_baove:{label:'HR & Admin — Bảo vệ',hint:'Tiêu chí Bảo vệ — theo Bảng KPI Phòng HCNS 2026',criteria:[
-    {id:'d1',name:'Đảm bảo an ninh & tài sản',scores:['Có thất thoát/mất mát, không ghi nhận vi phạm đầy đủ','Cơ bản an toàn nhưng đôi khi bỏ sót ghi nhận vi phạm','Không mất mát, ghi nhận vi phạm đầy đủ mỗi ngày phần lớn thời điểm','Kiểm soát chặt chẽ, không mất mát, ghi nhận vi phạm đầy đủ, kịp thời','Xuất sắc — an ninh tuyệt đối, chủ động phát hiện rủi ro trước khi xảy ra']},
-    {id:'d2',name:'Thái độ & kỷ luật',scores:['Thường đi trễ, sai đồng phục hoặc thiếu lịch sự với khách/nhân viên','Đôi khi vi phạm giờ giấc/đồng phục nhưng không thường xuyên','Đúng giờ, đúng đồng phục, lịch sự phần lớn thời điểm','Luôn đúng giờ, đúng đồng phục, lịch sự, là gương mẫu trong team','Xuất sắc — kỷ luật tuyệt đối, được đánh giá cao từ nội bộ và khách']},
-    {id:'d3',name:'Ghi sổ nhật ký & giám sát khách',scores:['Ghi thiếu hoặc sai mẫu thường xuyên, khó tra soát khi cần','Ghi được nhưng đôi khi thiếu thông tin hoặc sai mẫu nhẹ','Ghi đủ, đúng mẫu phần lớn các ca làm việc','Ghi đầy đủ, đúng mẫu, chi tiết, dễ tra soát mọi lúc','Xuất sắc — nhật ký chuẩn mực, hỗ trợ tốt cho điều tra khi có sự cố']},
-    {id:'d4',name:'Hỗ trợ vận chuyển hàng hóa',scores:['Phối hợp sai vai trò hoặc không báo cáo hàng tuần','Phối hợp được nhưng báo cáo không đều hoặc thiếu chi tiết','Phối hợp đúng vai trò, báo cáo hàng tuần đầy đủ phần lớn thời điểm','Phối hợp tốt, báo cáo đầy đủ, kịp thời, hỗ trợ hiệu quả cho vận chuyển','Xuất sắc — luôn chủ động hỗ trợ, không để chậm trễ vận chuyển']},
-    {id:'d5',name:'Xử lý sự cố PCCC',scores:['Không kiểm tra thiết bị đúng hạn, không có phương án xử lý sự cố','Kiểm tra được nhưng đôi khi trễ hạn (sau ngày 5 tháng kế tiếp)','Kiểm tra thiết bị đúng hạn trước ngày 5 tháng kế tiếp phần lớn các lần','Kiểm tra đầy đủ, đúng hạn, chủ động báo cáo thiết bị hư hỏng','Xuất sắc — luôn sẵn sàng ứng phó, thiết bị PCCC luôn trong trạng thái tốt']},
+    {id:'d1',name:'Đảm bảo an ninh & tài sản',scores:['Có thất thoát/mất mát, không ghi nhận vi phạm đầy đủ. Cơ bản an toàn nhưng đôi khi bỏ sót ghi nhận vi phạm','Không mất mát, ghi nhận vi phạm đầy đủ mỗi ngày phần lớn thời điểm','Kiểm soát chặt chẽ, không mất mát, ghi nhận vi phạm đầy đủ, kịp thời. Xuất sắc — an ninh tuyệt đối, chủ động phát hiện rủi ro trước khi xảy ra']},
+    {id:'d2',name:'Thái độ & kỷ luật',scores:['Thường đi trễ, sai đồng phục hoặc thiếu lịch sự với khách/nhân viên. Đôi khi vi phạm giờ giấc/đồng phục nhưng không thường xuyên','Đúng giờ, đúng đồng phục, lịch sự phần lớn thời điểm','Luôn đúng giờ, đúng đồng phục, lịch sự, là gương mẫu trong team. Xuất sắc — kỷ luật tuyệt đối, được đánh giá cao từ nội bộ và khách']},
+    {id:'d3',name:'Ghi sổ nhật ký & giám sát khách',scores:['Ghi thiếu hoặc sai mẫu thường xuyên, khó tra soát khi cần. Ghi được nhưng đôi khi thiếu thông tin hoặc sai mẫu nhẹ','Ghi đủ, đúng mẫu phần lớn các ca làm việc','Ghi đầy đủ, đúng mẫu, chi tiết, dễ tra soát mọi lúc. Xuất sắc — nhật ký chuẩn mực, hỗ trợ tốt cho điều tra khi có sự cố']},
+    {id:'d4',name:'Hỗ trợ vận chuyển hàng hóa',scores:['Phối hợp sai vai trò hoặc không báo cáo hàng tuần. Phối hợp được nhưng báo cáo không đều hoặc thiếu chi tiết','Phối hợp đúng vai trò, báo cáo hàng tuần đầy đủ phần lớn thời điểm','Phối hợp tốt, báo cáo đầy đủ, kịp thời, hỗ trợ hiệu quả cho vận chuyển. Xuất sắc — luôn chủ động hỗ trợ, không để chậm trễ vận chuyển']},
+    {id:'d5',name:'Xử lý sự cố PCCC',scores:['Không kiểm tra thiết bị đúng hạn, không có phương án xử lý sự cố. Kiểm tra được nhưng đôi khi trễ hạn (sau ngày 5 tháng kế tiếp)','Kiểm tra thiết bị đúng hạn trước ngày 5 tháng kế tiếp phần lớn các lần','Kiểm tra đầy đủ, đúng hạn, chủ động báo cáo thiết bị hư hỏng. Xuất sắc — luôn sẵn sàng ứng phó, thiết bị PCCC luôn trong trạng thái tốt']},
   ]},
   hr_tapvu:{label:'HR & Admin — Tạp vụ',hint:'Tiêu chí Tạp vụ — theo Bảng KPI Phòng HCNS 2026',criteria:[
-    {id:'d1',name:'Làm sạch khu vực',scores:['Dưới 80% đạt checklist, không đúng tần suất 2 lần/ngày','Đạt khoảng 80-95% checklist, đôi khi thiếu 1 lần/ngày','Đạt ≥95%, đúng checklist, đúng tần suất 2 lần/ngày phần lớn thời điểm','Đạt ổn định ≥95%, sạch sẽ đồng đều mọi khu vực, đúng tần suất','Xuất sắc — luôn sạch sẽ vượt mong đợi, không cần nhắc nhở']},
-    {id:'d2',name:'Quản lý dụng cụ thiết bị',scores:['Không có báo cáo hàng tháng hoặc để thất thoát dụng cụ','Có báo cáo nhưng không đều hoặc có thất thoát nhỏ','Báo cáo hàng tháng đầy đủ, không thất thoát phần lớn thời điểm','Báo cáo đầy đủ, đúng hạn, không thất thoát, quản lý dụng cụ gọn gàng','Xuất sắc — quản lý dụng cụ là chuẩn mực, không bao giờ thất thoát']},
-    {id:'d3',name:'Tiết kiệm & bảo quản',scores:['Chi phí dụng cụ vượt quá 5%/tháng thường xuyên','Chi phí dao động quanh mức 5%/tháng, chưa ổn định','Chi phí dụng cụ dưới 5%/tháng phần lớn các tháng','Chi phí ổn định dưới 5%/tháng, biết tiết kiệm hợp lý','Xuất sắc — luôn tối ưu chi phí, bảo quản dụng cụ rất tốt']},
-    {id:'d4',name:'Dọn phòng họp/sự kiện',scores:['Thường mất hơn 10 phút sau khi kết thúc mới dọn xong','Dọn xong trong khoảng 10-15 phút, đôi khi chậm hơn','Dọn xong <10 phút sau khi kết thúc phần lớn các lần','Dọn nhanh, gọn, <10 phút, sẵn sàng cho lượt sử dụng tiếp theo','Xuất sắc — luôn nhanh chóng, phòng họp/sự kiện luôn sẵn sàng ngay']},
-    {id:'d5',name:'Tuân thủ quy định vệ sinh & giờ giấc',scores:['Thường vi phạm giờ giấc hoặc tiêu chuẩn vệ sinh','Đôi khi vi phạm nhẹ giờ giấc hoặc tiêu chuẩn','Tuân thủ đúng tiêu chuẩn, đúng giờ phần lớn thời điểm','Luôn tuân thủ đúng giờ, đúng tiêu chuẩn, không vi phạm','Xuất sắc — gương mẫu về kỷ luật giờ giấc và vệ sinh']},
+    {id:'d1',name:'Làm sạch khu vực',scores:['Dưới 80% đạt checklist, không đúng tần suất 2 lần/ngày. Đạt khoảng 80-95% checklist, đôi khi thiếu 1 lần/ngày','Đạt ≥95%, đúng checklist, đúng tần suất 2 lần/ngày phần lớn thời điểm','Đạt ổn định ≥95%, sạch sẽ đồng đều mọi khu vực, đúng tần suất. Xuất sắc — luôn sạch sẽ vượt mong đợi, không cần nhắc nhở']},
+    {id:'d2',name:'Quản lý dụng cụ thiết bị',scores:['Không có báo cáo hàng tháng hoặc để thất thoát dụng cụ. Có báo cáo nhưng không đều hoặc có thất thoát nhỏ','Báo cáo hàng tháng đầy đủ, không thất thoát phần lớn thời điểm','Báo cáo đầy đủ, đúng hạn, không thất thoát, quản lý dụng cụ gọn gàng. Xuất sắc — quản lý dụng cụ là chuẩn mực, không bao giờ thất thoát']},
+    {id:'d3',name:'Tiết kiệm & bảo quản',scores:['Chi phí dụng cụ vượt quá 5%/tháng thường xuyên. Chi phí dao động quanh mức 5%/tháng, chưa ổn định','Chi phí dụng cụ dưới 5%/tháng phần lớn các tháng','Chi phí ổn định dưới 5%/tháng, biết tiết kiệm hợp lý. Xuất sắc — luôn tối ưu chi phí, bảo quản dụng cụ rất tốt']},
+    {id:'d4',name:'Dọn phòng họp/sự kiện',scores:['Thường mất hơn 10 phút sau khi kết thúc mới dọn xong. Dọn xong trong khoảng 10-15 phút, đôi khi chậm hơn','Dọn xong <10 phút sau khi kết thúc phần lớn các lần','Dọn nhanh, gọn, <10 phút, sẵn sàng cho lượt sử dụng tiếp theo. Xuất sắc — luôn nhanh chóng, phòng họp/sự kiện luôn sẵn sàng ngay']},
+    {id:'d5',name:'Tuân thủ quy định vệ sinh & giờ giấc',scores:['Thường vi phạm giờ giấc hoặc tiêu chuẩn vệ sinh. Đôi khi vi phạm nhẹ giờ giấc hoặc tiêu chuẩn','Tuân thủ đúng tiêu chuẩn, đúng giờ phần lớn thời điểm','Luôn tuân thủ đúng giờ, đúng tiêu chuẩn, không vi phạm. Xuất sắc — gương mẫu về kỷ luật giờ giấc và vệ sinh']},
   ]},
   hr_taixe:{label:'HR & Admin — Tài xế',hint:'Tiêu chí Tài xế — theo Bảng KPI Phòng HCNS 2026',criteria:[
-    {id:'d1',name:'Đúng giờ & đúng tuyến',scores:['Thường trễ ≥2 lần/tháng hoặc đi sai tuyến','Đôi khi trễ nhưng dưới 2 lần/tháng','Đúng giờ (trước 10 phút), đúng tuyến phần lớn các chuyến','Luôn đến trước 10 phút, đúng tuyến, không trễ','Xuất sắc — luôn chủ động đến sớm, linh hoạt xử lý tình huống giao thông']},
-    {id:'d2',name:'An toàn & tuân thủ giao thông',scores:['Có vi phạm giao thông hoặc từng xảy ra tai nạn','Không vi phạm nghiêm trọng nhưng còn vài lỗi nhỏ','Không vi phạm, không tai nạn trong phần lớn thời gian đánh giá','Luôn tuân thủ giao thông nghiêm túc, lái xe an toàn tuyệt đối','Xuất sắc — gương mẫu về an toàn, không một lần vi phạm hay sự cố']},
-    {id:'d3',name:'Bảo quản vật dụng & xe',scores:['Xe/vật dụng thường hư hỏng hoặc rơi vỡ do bất cẩn','Bảo quản được nhưng đôi khi có hư hỏng/rơi vỡ nhẹ','Xe và vật dụng không hư, không rơi vỡ phần lớn thời điểm','Bảo quản tốt, xe luôn sạch sẽ, không hư hỏng, không rơi vỡ','Xuất sắc — xe và vật dụng luôn trong trạng thái tốt nhất']},
-    {id:'d4',name:'Bảo dưỡng xe định kỳ',scores:['Không chủ động báo trước, hay trễ lịch bảo dưỡng','Có báo trước nhưng đôi khi trễ lịch bảo dưỡng','Chủ động báo trước, đúng lịch bảo dưỡng phần lớn thời điểm','Luôn chủ động báo trước, đúng lịch, xe vận hành ổn định','Xuất sắc — chủ động theo dõi và đề xuất bảo dưỡng kịp thời']},
-    {id:'d5',name:'Nhật ký hành trình & hỗ trợ',scores:['Ghi nhật ký thiếu hoặc trễ, không linh hoạt khi cần điều phối','Ghi nhật ký được nhưng đôi khi trễ hoặc thiếu chi tiết','Ghi nhật ký trong ngày, linh hoạt điều phối phần lớn các trường hợp','Ghi nhật ký đầy đủ, kịp thời, luôn linh hoạt hỗ trợ khi cần','Xuất sắc — chủ động hỗ trợ, nhật ký rõ ràng, luôn sẵn sàng điều phối']},
+    {id:'d1',name:'Đúng giờ & đúng tuyến',scores:['Thường trễ ≥2 lần/tháng hoặc đi sai tuyến. Đôi khi trễ nhưng dưới 2 lần/tháng','Đúng giờ (trước 10 phút), đúng tuyến phần lớn các chuyến','Luôn đến trước 10 phút, đúng tuyến, không trễ. Xuất sắc — luôn chủ động đến sớm, linh hoạt xử lý tình huống giao thông']},
+    {id:'d2',name:'An toàn & tuân thủ giao thông',scores:['Có vi phạm giao thông hoặc từng xảy ra tai nạn. Không vi phạm nghiêm trọng nhưng còn vài lỗi nhỏ','Không vi phạm, không tai nạn trong phần lớn thời gian đánh giá','Luôn tuân thủ giao thông nghiêm túc, lái xe an toàn tuyệt đối. Xuất sắc — gương mẫu về an toàn, không một lần vi phạm hay sự cố']},
+    {id:'d3',name:'Bảo quản vật dụng & xe',scores:['Xe/vật dụng thường hư hỏng hoặc rơi vỡ do bất cẩn. Bảo quản được nhưng đôi khi có hư hỏng/rơi vỡ nhẹ','Xe và vật dụng không hư, không rơi vỡ phần lớn thời điểm','Bảo quản tốt, xe luôn sạch sẽ, không hư hỏng, không rơi vỡ. Xuất sắc — xe và vật dụng luôn trong trạng thái tốt nhất']},
+    {id:'d4',name:'Bảo dưỡng xe định kỳ',scores:['Không chủ động báo trước, hay trễ lịch bảo dưỡng. Có báo trước nhưng đôi khi trễ lịch bảo dưỡng','Chủ động báo trước, đúng lịch bảo dưỡng phần lớn thời điểm','Luôn chủ động báo trước, đúng lịch, xe vận hành ổn định. Xuất sắc — chủ động theo dõi và đề xuất bảo dưỡng kịp thời']},
+    {id:'d5',name:'Nhật ký hành trình & hỗ trợ',scores:['Ghi nhật ký thiếu hoặc trễ, không linh hoạt khi cần điều phối. Ghi nhật ký được nhưng đôi khi trễ hoặc thiếu chi tiết','Ghi nhật ký trong ngày, linh hoạt điều phối phần lớn các trường hợp','Ghi nhật ký đầy đủ, kịp thời, luôn linh hoạt hỗ trợ khi cần. Xuất sắc — chủ động hỗ trợ, nhật ký rõ ràng, luôn sẵn sàng điều phối']},
   ]},
   warehouse:{label:'Warehouse / Kho',hint:'Tiêu chí chuyên môn Warehouse — theo JD BSC 2026 (xuất nhập kho, tồn kho, trách nhiệm tài sản)',criteria:[
-    {id:'d1',name:'Nhập/xuất kho theo lệnh dự án',scores:['Không quản lý được, hay thất thoát hoặc sai lệch số liệu nghiêm trọng','Quản lý được nhưng hay sai chứng từ hoặc nhầm hàng giữa các dự án','Xuất nhập đúng quy trình, chứng từ cơ bản đầy đủ, ít sai sót','Chứng từ chính xác, xuất nhập logic và đúng hạn theo lệnh dự án','Hệ thống hóa xuất nhập hoàn toàn, không sai sót, là chuẩn của kho']},
-    {id:'d2',name:'Biết chính xác vị trí & số lượng hàng tồn — không cần tra file',scores:['Không nắm được hàng nằm đâu, phải tra file mất thời gian dài','Nắm được một phần, vẫn cần tra file thường xuyên cho phần còn lại','Nắm được phần lớn vị trí hàng hóa quan trọng, tra file cho phần ít dùng','Nắm chắc vị trí & số lượng hầu hết hàng hóa, tra file rất ít','Biết chính xác cái gì nằm kệ nào, còn bao nhiêu, giao dự án nào — không cần tra file']},
-    {id:'d3',name:'Kiểm tra chất lượng hàng khi nhập kho',scores:['Không kiểm tra, để hàng lỗi/thiếu vào kho mà không phát hiện','Kiểm tra sơ sài, hay bỏ sót lỗi chất lượng rõ ràng','Kiểm tra cơ bản đúng quy trình, phát hiện được lỗi rõ ràng','Kiểm tra kỹ, phát hiện sớm cả lỗi nhỏ trước khi nhập kho chính thức','Xuất sắc — không để lọt bất kỳ lỗi chất lượng nào vào kho']},
-    {id:'d4',name:'Phối hợp vận chuyển xuất/nhận đúng giờ',scores:['Thường xuyên trễ giờ xuất/nhận, ảnh hưởng tiến độ dự án','Hay trễ, cần nhắc nhở thường xuyên từ Project/Procurement','Đúng giờ phần lớn, đôi khi cần phối hợp thêm khi có thay đổi','Phối hợp tốt, chủ động báo trước nếu có rủi ro trễ giờ','Xuất sắc — luôn đúng giờ, là điểm tin cậy của chuỗi vận hành']},
-    {id:'d5',name:'Trách nhiệm & trung thực với tài sản công ty',scores:['Thiếu trách nhiệm rõ rệt với tài sản, để thất thoát mà không báo cáo','Có trách nhiệm nhưng chưa cao, cần nhắc nhở về việc bảo quản','Trách nhiệm cơ bản đúng kỳ vọng, trung thực trong báo cáo tồn kho','Trách nhiệm cao, trung thực tuyệt đối, không cần giải thích thêm','Gương mẫu — trách nhiệm và trung thực là chuẩn mực, công ty hoàn toàn tin tưởng']},
+    {id:'d1',name:'Nhập/xuất kho theo lệnh dự án',scores:['Không quản lý được, hay thất thoát hoặc sai lệch số liệu nghiêm trọng. Quản lý được nhưng hay sai chứng từ hoặc nhầm hàng giữa các dự án','Xuất nhập đúng quy trình, chứng từ cơ bản đầy đủ, ít sai sót','Chứng từ chính xác, xuất nhập logic và đúng hạn theo lệnh dự án. Hệ thống hóa xuất nhập hoàn toàn, không sai sót, là chuẩn của kho']},
+    {id:'d2',name:'Biết chính xác vị trí & số lượng hàng tồn — không cần tra file',scores:['Không nắm được hàng nằm đâu, phải tra file mất thời gian dài. Nắm được một phần, vẫn cần tra file thường xuyên cho phần còn lại','Nắm được phần lớn vị trí hàng hóa quan trọng, tra file cho phần ít dùng','Nắm chắc vị trí & số lượng hầu hết hàng hóa, tra file rất ít. Biết chính xác cái gì nằm kệ nào, còn bao nhiêu, giao dự án nào — không cần tra file']},
+    {id:'d3',name:'Kiểm tra chất lượng hàng khi nhập kho',scores:['Không kiểm tra, để hàng lỗi/thiếu vào kho mà không phát hiện. Kiểm tra sơ sài, hay bỏ sót lỗi chất lượng rõ ràng','Kiểm tra cơ bản đúng quy trình, phát hiện được lỗi rõ ràng','Kiểm tra kỹ, phát hiện sớm cả lỗi nhỏ trước khi nhập kho chính thức. Xuất sắc — không để lọt bất kỳ lỗi chất lượng nào vào kho']},
+    {id:'d4',name:'Phối hợp vận chuyển xuất/nhận đúng giờ',scores:['Thường xuyên trễ giờ xuất/nhận, ảnh hưởng tiến độ dự án. Hay trễ, cần nhắc nhở thường xuyên từ Project/Procurement','Đúng giờ phần lớn, đôi khi cần phối hợp thêm khi có thay đổi','Phối hợp tốt, chủ động báo trước nếu có rủi ro trễ giờ. Xuất sắc — luôn đúng giờ, là điểm tin cậy của chuỗi vận hành']},
+    {id:'d5',name:'Trách nhiệm & trung thực với tài sản công ty',scores:['Thiếu trách nhiệm rõ rệt với tài sản, để thất thoát mà không báo cáo. Có trách nhiệm nhưng chưa cao, cần nhắc nhở về việc bảo quản','Trách nhiệm cơ bản đúng kỳ vọng, trung thực trong báo cáo tồn kho','Trách nhiệm cao, trung thực tuyệt đối, không cần giải thích thêm. Gương mẫu — trách nhiệm và trung thực là chuẩn mực, công ty hoàn toàn tin tưởng']},
   ]},
   bd:{label:'Business Development',hint:'Tiêu chí chuyên môn Business Development — theo JD BSC 2026 (phát triển khách hàng mới, B2B, chốt deal)',criteria:[
-    {id:'d1',name:'Tìm kiếm & tiếp cận khách hàng mới',levelHint:{exec:'Kỳ vọng: Tìm kiếm và tiếp cận khách hàng mới theo kế hoạch được giao',senior:'Kỳ vọng: Không ngại gọi lần thứ 5 vì biết rõ giá trị mình mang lại',asst:'Kỳ vọng: Tự xây danh sách khách hàng mục tiêu, tiếp cận độc lập',junior:'Kỳ vọng: Mở rộng tiếp cận đa ngành: FMCG, Pharma, Real Estate, Tech, Logistics',mgr:'Kỳ vọng: Xây dựng chiến lược phát triển khách hàng mới cho BSC',dir:'Kỳ vọng: Định hướng thị trường mục tiêu chiến lược dài hạn'},scores:['Không chủ động tìm kiếm khách hàng, chỉ làm khi được giao cụ thể','Tiếp cận được nhưng dễ bỏ cuộc, ngại cold call hoặc gặp khách trực tiếp','Tiếp cận đúng kế hoạch, kiên trì theo đuổi cơ hội đến cùng','Chủ động mở rộng đa ngành, không ngại theo đuổi khách hàng khó tiếp cận','Xuất sắc — nhìn danh sách doanh nghiệp thấy cơ hội, không chỉ là danh sách']},
-    {id:'d2',name:'Hiểu quy trình mua hàng B2B & xử lý các bên liên quan',levelHint:{exec:'Kỳ vọng: Hiểu cơ bản về dịch vụ BTL/Event để nói chuyện được với khách hàng',senior:'Kỳ vọng: Hiểu được ai ký, ai dùng, ai block trong quy trình mua hàng đơn giản',asst:'Kỳ vọng: Tự xử lý được từng loại stakeholder trong deal vừa và nhỏ',junior:'Kỳ vọng: Dẫn dắt deal phức tạp có nhiều bên liên quan',mgr:'Kỳ vọng: Hiểu quy trình mua hàng B2B — ai ký, ai dùng, ai block — và xử lý được từng loại',dir:'Kỳ vọng: Chiến lược tiếp cận tổ chức lớn, nhiều cấp quyết định'},scores:['Không hiểu quy trình mua hàng B2B, mất deal vì tiếp cận sai người','Hiểu sơ sài, hay nhầm giữa người ký/người dùng/người block deal','Hiểu đủ cơ bản, xử lý được tình huống thông thường','Hiểu sâu, xử lý linh hoạt từng loại stakeholder trong deal','Xuất sắc — luôn biết chính xác ai ký ai dùng ai block, xử lý gọn từng loại']},
-    {id:'d3',name:'Pitch & đàm phán chốt deal',levelHint:{exec:'Kỳ vọng: Giao tiếp và thuyết phục tốt; không ngại cold call, không ngại đi gặp khách',senior:'Kỳ vọng: Duy trì quan hệ khách hàng hiện tại, xử lý vấn đề phát sinh cùng team',asst:'Kỳ vọng: Tự pitch và đàm phán deal vừa, không cần backup',junior:'Kỳ vọng: Dẫn dắt pitch cho deal lớn, phối hợp Planning làm pitch material',mgr:'Kỳ vọng: Pitch và đàm phán thực chiến — không phải lý thuyết sales',dir:'Kỳ vọng: Đàm phán cấp cao, chốt deal chiến lược cho công ty'},scores:['Không tự tin pitch, ngại cold call và gặp khách trực tiếp','Pitch được nhưng đàm phán còn yếu, tỉ lệ chốt deal thấp','Pitch và đàm phán đạt mức cơ bản, chốt được deal vừa và nhỏ','Pitch thuyết phục, đàm phán thực chiến, tỉ lệ chốt deal khá tốt','Xuất sắc — pitch và đàm phán sắc bén, chốt deal tỉ lệ cao kể cả deal khó']},
-    {id:'d4',name:'Phối hợp Planning & bàn giao Project',levelHint:{exec:'Kỳ vọng: Phối hợp team xử lý vấn đề phát sinh khi được hướng dẫn',senior:'Kỳ vọng: Chủ động phối hợp với Planning khi cần pitch material',asst:'Kỳ vọng: Tự làm việc với Planning để hoàn thiện pitch material',junior:'Kỳ vọng: Đảm bảo bàn giao Project mượt mà, không thiếu thông tin',mgr:'Kỳ vọng: Làm việc cùng Planning để tạo pitch material thuyết phục; chốt deal, bàn giao cho Project',dir:'Kỳ vọng: Chuẩn hóa quy trình phối hợp BD-Planning-Project toàn công ty'},scores:['Không phối hợp được với Planning/Project, deal bị gãy khi bàn giao','Phối hợp yếu, hay thiếu thông tin khi bàn giao cho Project','Phối hợp cơ bản đúng quy trình, bàn giao đủ thông tin cần thiết','Phối hợp tốt với Planning để có pitch material thuyết phục, bàn giao mượt mà','Xuất sắc — là cầu nối hoàn hảo giữa BD, Planning và Project']},
-    {id:'d5',name:'Xây dựng kế hoạch & báo cáo kinh doanh',levelHint:{exec:'Kỳ vọng: Chủ động — không phải chờ được giao mới làm báo cáo cơ bản',senior:'Kỳ vọng: Chịu được áp lực doanh số; thích thử thách hơn thích ổn định',asst:'Kỳ vọng: Tự lập kế hoạch kinh doanh cá nhân theo target được giao',junior:'Kỳ vọng: Phân tích báo cáo kinh doanh, đề xuất điều chỉnh chiến lược',mgr:'Kỳ vọng: Xây dựng kế hoạch và báo cáo kinh doanh định kỳ',dir:'Kỳ vọng: Chiến lược kinh doanh tổng thể, báo cáo trực tiếp BOD'},scores:['Không lập được kế hoạch/báo cáo, làm theo cảm tính không có số liệu','Có báo cáo nhưng sơ sài, thiếu phân tích, ngại áp lực doanh số','Lập kế hoạch & báo cáo cơ bản đúng định kỳ, chịu được áp lực doanh số ở mức ổn','Kế hoạch rõ ràng, báo cáo có phân tích, chủ động tìm thử thách hơn ổn định','Xuất sắc — kế hoạch kinh doanh sắc bén, luôn vượt target được giao']},
+    {id:'d1',name:'Tìm kiếm & tiếp cận khách hàng mới',levelHint:{exec:'Kỳ vọng: Tìm kiếm và tiếp cận khách hàng mới theo kế hoạch được giao',senior:'Kỳ vọng: Không ngại gọi lần thứ 5 vì biết rõ giá trị mình mang lại',asst:'Kỳ vọng: Tự xây danh sách khách hàng mục tiêu, tiếp cận độc lập',junior:'Kỳ vọng: Mở rộng tiếp cận đa ngành: FMCG, Pharma, Real Estate, Tech, Logistics',mgr:'Kỳ vọng: Xây dựng chiến lược phát triển khách hàng mới cho BSC',dir:'Kỳ vọng: Định hướng thị trường mục tiêu chiến lược dài hạn'},scores:['Không chủ động tìm kiếm khách hàng, chỉ làm khi được giao cụ thể. Tiếp cận được nhưng dễ bỏ cuộc, ngại cold call hoặc gặp khách trực tiếp','Tiếp cận đúng kế hoạch, kiên trì theo đuổi cơ hội đến cùng','Chủ động mở rộng đa ngành, không ngại theo đuổi khách hàng khó tiếp cận. Xuất sắc — nhìn danh sách doanh nghiệp thấy cơ hội, không chỉ là danh sách']},
+    {id:'d2',name:'Hiểu quy trình mua hàng B2B & xử lý các bên liên quan',levelHint:{exec:'Kỳ vọng: Hiểu cơ bản về dịch vụ BTL/Event để nói chuyện được với khách hàng',senior:'Kỳ vọng: Hiểu được ai ký, ai dùng, ai block trong quy trình mua hàng đơn giản',asst:'Kỳ vọng: Tự xử lý được từng loại stakeholder trong deal vừa và nhỏ',junior:'Kỳ vọng: Dẫn dắt deal phức tạp có nhiều bên liên quan',mgr:'Kỳ vọng: Hiểu quy trình mua hàng B2B — ai ký, ai dùng, ai block — và xử lý được từng loại',dir:'Kỳ vọng: Chiến lược tiếp cận tổ chức lớn, nhiều cấp quyết định'},scores:['Không hiểu quy trình mua hàng B2B, mất deal vì tiếp cận sai người. Hiểu sơ sài, hay nhầm giữa người ký/người dùng/người block deal','Hiểu đủ cơ bản, xử lý được tình huống thông thường','Hiểu sâu, xử lý linh hoạt từng loại stakeholder trong deal. Xuất sắc — luôn biết chính xác ai ký ai dùng ai block, xử lý gọn từng loại']},
+    {id:'d3',name:'Pitch & đàm phán chốt deal',levelHint:{exec:'Kỳ vọng: Giao tiếp và thuyết phục tốt; không ngại cold call, không ngại đi gặp khách',senior:'Kỳ vọng: Duy trì quan hệ khách hàng hiện tại, xử lý vấn đề phát sinh cùng team',asst:'Kỳ vọng: Tự pitch và đàm phán deal vừa, không cần backup',junior:'Kỳ vọng: Dẫn dắt pitch cho deal lớn, phối hợp Planning làm pitch material',mgr:'Kỳ vọng: Pitch và đàm phán thực chiến — không phải lý thuyết sales',dir:'Kỳ vọng: Đàm phán cấp cao, chốt deal chiến lược cho công ty'},scores:['Không tự tin pitch, ngại cold call và gặp khách trực tiếp. Pitch được nhưng đàm phán còn yếu, tỉ lệ chốt deal thấp','Pitch và đàm phán đạt mức cơ bản, chốt được deal vừa và nhỏ','Pitch thuyết phục, đàm phán thực chiến, tỉ lệ chốt deal khá tốt. Xuất sắc — pitch và đàm phán sắc bén, chốt deal tỉ lệ cao kể cả deal khó']},
+    {id:'d4',name:'Phối hợp Planning & bàn giao Project',levelHint:{exec:'Kỳ vọng: Phối hợp team xử lý vấn đề phát sinh khi được hướng dẫn',senior:'Kỳ vọng: Chủ động phối hợp với Planning khi cần pitch material',asst:'Kỳ vọng: Tự làm việc với Planning để hoàn thiện pitch material',junior:'Kỳ vọng: Đảm bảo bàn giao Project mượt mà, không thiếu thông tin',mgr:'Kỳ vọng: Làm việc cùng Planning để tạo pitch material thuyết phục; chốt deal, bàn giao cho Project',dir:'Kỳ vọng: Chuẩn hóa quy trình phối hợp BD-Planning-Project toàn công ty'},scores:['Không phối hợp được với Planning/Project, deal bị gãy khi bàn giao. Phối hợp yếu, hay thiếu thông tin khi bàn giao cho Project','Phối hợp cơ bản đúng quy trình, bàn giao đủ thông tin cần thiết','Phối hợp tốt với Planning để có pitch material thuyết phục, bàn giao mượt mà. Xuất sắc — là cầu nối hoàn hảo giữa BD, Planning và Project']},
+    {id:'d5',name:'Xây dựng kế hoạch & báo cáo kinh doanh',levelHint:{exec:'Kỳ vọng: Chủ động — không phải chờ được giao mới làm báo cáo cơ bản',senior:'Kỳ vọng: Chịu được áp lực doanh số; thích thử thách hơn thích ổn định',asst:'Kỳ vọng: Tự lập kế hoạch kinh doanh cá nhân theo target được giao',junior:'Kỳ vọng: Phân tích báo cáo kinh doanh, đề xuất điều chỉnh chiến lược',mgr:'Kỳ vọng: Xây dựng kế hoạch và báo cáo kinh doanh định kỳ',dir:'Kỳ vọng: Chiến lược kinh doanh tổng thể, báo cáo trực tiếp BOD'},scores:['Không lập được kế hoạch/báo cáo, làm theo cảm tính không có số liệu. Có báo cáo nhưng sơ sài, thiếu phân tích, ngại áp lực doanh số','Lập kế hoạch & báo cáo cơ bản đúng định kỳ, chịu được áp lực doanh số ở mức ổn','Kế hoạch rõ ràng, báo cáo có phân tích, chủ động tìm thử thách hơn ổn định. Xuất sắc — kế hoạch kinh doanh sắc bén, luôn vượt target được giao']},
   ]},
   ai:{label:'AI Specialist',hint:'Tiêu chí chuyên môn AI Specialist — theo JD BSC 2026 (ứng dụng AI, tự động hóa, đào tạo nội bộ)',criteria:[
-    {id:'d1',name:'Hiểu sâu & ứng dụng thực tế AI tools (không chỉ "biết tên")',levelHint:{exec:'Kỳ vọng: Hiểu thật sự về các AI tool đang dùng trong công việc hàng ngày',senior:'Kỳ vọng: Ứng dụng AI image generation vào workflow thiết kế thực tế',asst:'Kỳ vọng: Xây dựng prompt library chuẩn hóa cho từng hạng mục BTL',junior:'Kỳ vọng: Đánh giá & cập nhật liên tục các AI tool mới phù hợp BSC',mgr:'Kỳ vọng: Định hướng chiến lược ứng dụng AI cho toàn công ty',dir:'Kỳ vọng: Tầm nhìn công nghệ AI dài hạn cùng BOD'},scores:['Chỉ biết tên công cụ AI, không ứng dụng được vào công việc thực tế','Dùng được cơ bản nhưng chưa hiểu sâu, kết quả chưa tối ưu','Hiểu và ứng dụng đúng AI tool cho công việc cụ thể, hiệu quả ổn','Hiểu sâu, ứng dụng AI image generation vào workflow thiết kế hiệu quả rõ rệt','Xuất sắc — hiểu thật sự (không chỉ biết tên), tối ưu hóa workflow toàn diện']},
-    {id:'d2',name:'Tự động hóa quy trình nội bộ (báo cáo, template, tracking)',levelHint:{exec:'Kỳ vọng: Hỗ trợ tự động hóa các quy trình đơn giản khi được giao',senior:'Kỳ vọng: Tự động hóa được báo cáo/template cơ bản cho 1 phòng ban',asst:'Kỳ vọng: Mở rộng tự động hóa cho nhiều phòng ban',junior:'Kỳ vọng: Xây dựng workflow tự động hóa phức tạp hơn (tracking đa nguồn)',mgr:'Kỳ vọng: Tự động hóa quy trình nội bộ: báo cáo, template, tracking, workflow toàn công ty',dir:'Kỳ vọng: Chiến lược chuyển đổi số toàn diện cho BSC'},scores:['Không tự động hóa được gì, mọi quy trình vẫn làm thủ công','Tự động hóa được phần nhỏ, đơn giản, hiệu quả chưa rõ rệt','Tự động hóa được báo cáo/template cơ bản, tiết kiệm thời gian rõ','Tự động hóa nhiều quy trình, tracking hiệu quả, được nhiều phòng ban dùng','Xuất sắc — hệ thống tự động hóa toàn diện, thay đổi rõ cách công ty vận hành']},
-    {id:'d3',name:'Đào tạo nội bộ — đơn giản hóa AI cho người không chuyên',levelHint:{exec:'Kỳ vọng: Hỗ trợ đồng nghiệp dùng AI cơ bản khi được hỏi',senior:'Kỳ vọng: Kiên nhẫn, biết đơn giản hóa, không làm người khác cảm thấy "ngu"',asst:'Kỳ vọng: Tự thiết kế buổi training AI cho 1 phòng ban cụ thể',junior:'Kỳ vọng: Đào tạo nhiều phòng ban, đo lường được hiệu quả áp dụng',mgr:'Kỳ vọng: Đào tạo từng bộ phận dùng AI tools phù hợp với công việc của họ — không dạy chung chung',dir:'Kỳ vọng: Xây văn hóa ứng dụng AI toàn công ty'},scores:['Không đào tạo được người khác, giải thích khó hiểu hoặc thiếu kiên nhẫn','Đào tạo được cơ bản nhưng còn chung chung, người học khó áp dụng vào việc cụ thể','Đào tạo đúng nhu cầu phòng ban, người học áp dụng được sau buổi training','Đào tạo hiệu quả rõ rệt, kiên nhẫn, không làm người học cảm thấy "ngu"','Xuất sắc — cả team dùng AI tự tin và hiệu quả, không sợ/ngại nữa']},
-    {id:'d4',name:'Phối hợp đa phòng ban triển khai giải pháp AI',scores:['Không phối hợp được, giải pháp AI không phù hợp với nhu cầu thực tế phòng ban','Phối hợp yếu, hiểu sai nhu cầu nên giải pháp chưa đúng chỗ','Phối hợp cơ bản đúng quy trình, giải pháp đáp ứng đủ nhu cầu cơ bản','Phối hợp tốt, hiểu đúng đặc thù từng phòng ban để đưa giải pháp phù hợp','Xuất sắc — là cầu nối hiệu quả giữa công nghệ AI và nhu cầu thực tế từng phòng']},
-    {id:'d5',name:'Cập nhật xu hướng & đánh giá công cụ AI mới',scores:['Không cập nhật xu hướng AI mới, dùng công cụ cũ dù không còn hiệu quả','Cập nhật được nhưng chậm, ít đánh giá tính ứng dụng thực tế cho BSC','Cập nhật đều đặn, đánh giá cơ bản trước khi đề xuất áp dụng','Cập nhật nhanh, đánh giá kỹ tính phù hợp trước khi triển khai cho công ty','Xuất sắc — luôn đi trước xu hướng, chọn đúng công cụ mang lại giá trị thực sự']},
+    {id:'d1',name:'Hiểu sâu & ứng dụng thực tế AI tools (không chỉ "biết tên")',levelHint:{exec:'Kỳ vọng: Hiểu thật sự về các AI tool đang dùng trong công việc hàng ngày',senior:'Kỳ vọng: Ứng dụng AI image generation vào workflow thiết kế thực tế',asst:'Kỳ vọng: Xây dựng prompt library chuẩn hóa cho từng hạng mục BTL',junior:'Kỳ vọng: Đánh giá & cập nhật liên tục các AI tool mới phù hợp BSC',mgr:'Kỳ vọng: Định hướng chiến lược ứng dụng AI cho toàn công ty',dir:'Kỳ vọng: Tầm nhìn công nghệ AI dài hạn cùng BOD'},scores:['Chỉ biết tên công cụ AI, không ứng dụng được vào công việc thực tế. Dùng được cơ bản nhưng chưa hiểu sâu, kết quả chưa tối ưu','Hiểu và ứng dụng đúng AI tool cho công việc cụ thể, hiệu quả ổn','Hiểu sâu, ứng dụng AI image generation vào workflow thiết kế hiệu quả rõ rệt. Xuất sắc — hiểu thật sự (không chỉ biết tên), tối ưu hóa workflow toàn diện']},
+    {id:'d2',name:'Tự động hóa quy trình nội bộ (báo cáo, template, tracking)',levelHint:{exec:'Kỳ vọng: Hỗ trợ tự động hóa các quy trình đơn giản khi được giao',senior:'Kỳ vọng: Tự động hóa được báo cáo/template cơ bản cho 1 phòng ban',asst:'Kỳ vọng: Mở rộng tự động hóa cho nhiều phòng ban',junior:'Kỳ vọng: Xây dựng workflow tự động hóa phức tạp hơn (tracking đa nguồn)',mgr:'Kỳ vọng: Tự động hóa quy trình nội bộ: báo cáo, template, tracking, workflow toàn công ty',dir:'Kỳ vọng: Chiến lược chuyển đổi số toàn diện cho BSC'},scores:['Không tự động hóa được gì, mọi quy trình vẫn làm thủ công. Tự động hóa được phần nhỏ, đơn giản, hiệu quả chưa rõ rệt','Tự động hóa được báo cáo/template cơ bản, tiết kiệm thời gian rõ','Tự động hóa nhiều quy trình, tracking hiệu quả, được nhiều phòng ban dùng. Xuất sắc — hệ thống tự động hóa toàn diện, thay đổi rõ cách công ty vận hành']},
+    {id:'d3',name:'Đào tạo nội bộ — đơn giản hóa AI cho người không chuyên',levelHint:{exec:'Kỳ vọng: Hỗ trợ đồng nghiệp dùng AI cơ bản khi được hỏi',senior:'Kỳ vọng: Kiên nhẫn, biết đơn giản hóa, không làm người khác cảm thấy "ngu"',asst:'Kỳ vọng: Tự thiết kế buổi training AI cho 1 phòng ban cụ thể',junior:'Kỳ vọng: Đào tạo nhiều phòng ban, đo lường được hiệu quả áp dụng',mgr:'Kỳ vọng: Đào tạo từng bộ phận dùng AI tools phù hợp với công việc của họ — không dạy chung chung',dir:'Kỳ vọng: Xây văn hóa ứng dụng AI toàn công ty'},scores:['Không đào tạo được người khác, giải thích khó hiểu hoặc thiếu kiên nhẫn. Đào tạo được cơ bản nhưng còn chung chung, người học khó áp dụng vào việc cụ thể','Đào tạo đúng nhu cầu phòng ban, người học áp dụng được sau buổi training','Đào tạo hiệu quả rõ rệt, kiên nhẫn, không làm người học cảm thấy "ngu". Xuất sắc — cả team dùng AI tự tin và hiệu quả, không sợ/ngại nữa']},
+    {id:'d4',name:'Phối hợp đa phòng ban triển khai giải pháp AI',scores:['Không phối hợp được, giải pháp AI không phù hợp với nhu cầu thực tế phòng ban. Phối hợp yếu, hiểu sai nhu cầu nên giải pháp chưa đúng chỗ','Phối hợp cơ bản đúng quy trình, giải pháp đáp ứng đủ nhu cầu cơ bản','Phối hợp tốt, hiểu đúng đặc thù từng phòng ban để đưa giải pháp phù hợp. Xuất sắc — là cầu nối hiệu quả giữa công nghệ AI và nhu cầu thực tế từng phòng']},
+    {id:'d5',name:'Cập nhật xu hướng & đánh giá công cụ AI mới',scores:['Không cập nhật xu hướng AI mới, dùng công cụ cũ dù không còn hiệu quả. Cập nhật được nhưng chậm, ít đánh giá tính ứng dụng thực tế cho BSC','Cập nhật đều đặn, đánh giá cơ bản trước khi đề xuất áp dụng','Cập nhật nhanh, đánh giá kỹ tính phù hợp trước khi triển khai cho công ty. Xuất sắc — luôn đi trước xu hướng, chọn đúng công cụ mang lại giá trị thực sự']},
   ]},
 };
 
@@ -676,7 +675,7 @@ const CULTURE=[
 ];
 
 // STATE
-let naState={}, currentDept='', sectionDone={1:false,2:false,3:false,4:false,5:false,6:false}, activeWeeks=12, currentDeptCriteria=null;
+let naState={}, khacState={}, currentDept='', sectionDone={1:false,2:false,3:false,4:false,5:false,6:false}, activeWeeks=12, currentDeptCriteria=null;
 // effectiveDeptKey: bộ phận "thực dùng" để lấy tiêu chí Mục IV — thường = currentDept,
 // nhưng có thể đổi sang key khác (vd hr_letan, hr_baove...) khi TBP chọn 1 vị trí đặc thù
 // trong số nhiều lựa chọn cùng 1 cấp bậc (xem TITLE_MAP.hr.executive/senior dạng array).
@@ -730,21 +729,20 @@ function calcDur(){
       return;
     }
     const days=Math.round((e-s)/86400000);
-    const months=Math.round(days/30.44);
-    // Tối đa đánh giá 3 tháng — nếu khoảng thời gian dài hơn, báo rõ và không cho tính tiếp
-    // (xem MAX_EVAL_MONTHS ở phần khai báo cấu hình chung của form).
-    if(months>MAX_EVAL_MONTHS){
-      durEl.value=`Vượt quá ${MAX_EVAL_MONTHS} tháng — hãy sửa lại "Ngày kết thúc" để không quá ${MAX_EVAL_MONTHS} tháng kể từ ngày bắt đầu`;
+    // Tự động tính số tuần = làm tròn(số ngày / 7) — vd 30 ngày = 4 tuần, 44/45 ngày = 6 tuần,
+    // 47 ngày = 7 tuần. Giới hạn hợp lệ: 4-12 tuần (≈1-3 tháng thử việc) — ngoài khoảng
+    // này báo lỗi rõ ràng, không tự ý làm tròn ép về biên.
+    const weeks=Math.round(days/7);
+    if(weeks<4||weeks>12){
+      durEl.value=`${days} ngày (~${weeks} tuần) — không hợp lệ, số tuần phải trong khoảng 4-12 tuần. Hãy kiểm tra lại "Ngày bắt đầu" / "Ngày kết thúc".`;
       durEl.style.color='#c0392b';
       endEl.style.borderColor='#e74c3c';
       endEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
       activeWeeks=0; renderWeeks(0);
       return;
     }
-    durEl.value=`${months} tháng (${days} ngày)`;
+    durEl.value=`${days} ngày (${weeks} tuần)`;
     if(!document.getElementById('f_evaldate').value) document.getElementById('f_evaldate').value=ev;
-    // 1 tháng = 4 tuần cố định: tối đa 3 tháng = 12 tuần
-    const weeks=Math.min(MAX_EVAL_MONTHS*4, Math.max(4, months*4));
     activeWeeks=weeks;
     renderWeeks(weeks);
   }
@@ -841,8 +839,8 @@ function renderWeeks(count){
           <span id="mselSummary${i}" class="msel-summary">— Chọn hạng mục —</span>
           <span class="msel-arrow">▾</span>
         </div>
-      </td>
-      <td><textarea id="wn${i}" placeholder="Mô tả cụ thể, định lượng được: số liệu, kết quả, phạm vi công việc đã thực hiện trong tuần (cho tất cả hạng mục đã chọn)..." rows="3" style="width:100%;resize:vertical;min-height:64px;padding:6px 8px;border:1.5px solid #c8d8f0;border-radius:6px;font-size:13px;font-family:inherit;line-height:1.5;box-sizing:border-box" oninput="checkS2()" onblur="checkS2()"></textarea></td></tr>`;
+        <div id="weekSelectedList${i}" class="week-selected-list"></div>
+      </td></tr>`;
   }
   document.getElementById('weekTbody').innerHTML=h;
   // Tạo SẴN toàn bộ panel cho mọi tuần, gắn 1 LẦN vào document.body (ngoài bảng hoàn toàn) —
@@ -916,11 +914,15 @@ function onWeekJdToggle(i){
   const names=getWeekJDNames(i,dCrit);
   const summaryEl=document.getElementById('mselSummary'+i);
   if(summaryEl){
-    const summaryText=names.length?names.join(', '):'';
-    summaryEl.textContent=summaryText||'— Chọn hạng mục —';
-    summaryEl.title=summaryText;
+    // Không hiển thị số lượng đã chọn (vd "Đã chọn 3 hạng mục") — danh sách đã chọn được
+    // xổ thẳng thành từng dòng riêng bên dưới rồi, ô dropdown chỉ cần hiện gợi ý khi trống.
+    summaryEl.textContent=names.length?'Chọn thêm / bỏ chọn hạng mục':'— Chọn hạng mục —';
     summaryEl.style.color=names.length?'#005AAB':'#aab';
-    summaryEl.style.fontWeight=names.length?'800':'400';
+    summaryEl.style.fontWeight=names.length?'700':'400';
+  }
+  const listEl=document.getElementById('weekSelectedList'+i);
+  if(listEl){
+    listEl.innerHTML=names.map(n=>`<div class="week-item-row">✓ ${n}</div>`).join('');
   }
   checkS2();
 }
@@ -934,7 +936,7 @@ document.addEventListener('click',function(e){
 // RENDER BARS
 function renderBARSGroup(containerId,criteria,prefix){
   const wrap=document.createElement('div');wrap.className='bars-wrap';
-  const sl=['Kém','Yếu','Đạt','Tốt','Xuất sắc'];
+  const sl=['Chưa đạt','Đạt','Tốt'];
   const lvl=document.getElementById('f_level')?.value||'';
   const lvKey=lvl==='executive'?'exec':lvl; // map 'executive' value to 'exec' key used in data
   criteria.forEach(crit=>{
@@ -957,12 +959,23 @@ function renderBARSGroup(containerId,criteria,prefix){
         ${crit.scores.map((s,i)=>`<div class="bopt" id="bopt_${prefix}_${crit.id}_${i+1}" data-s="${i+1}" onclick="selBOpt('${prefix}','${crit.id}',${i+1},'${encodeURIComponent(s)}')">
           <span class="bopt-score">${i+1}</span><span class="bopt-label">${sl[i]}</span></div>`).join('')}
       </div>
+      <label class="khac-toggle" id="khacToggle_${prefix}_${crit.id}">
+        <input type="checkbox" id="khacChk_${prefix}_${crit.id}" onchange="toggleKhac('${prefix}','${crit.id}')">
+        <span>Khác <em>(không thuộc 3 mức trên — không tính điểm)</em></span>
+      </label>
       <div class="bi-detail" id="det_${prefix}_${crit.id}"></div>
       <div class="ev-box" id="ev_${prefix}_${crit.id}">
-        <label>✏️ Nhận xét & dẫn chứng <span style="color:#c0392b;font-weight:900">*bắt buộc</span> — cần điền để mở phần tiếp theo</label>
-        <textarea id="evt_${prefix}_${crit.id}" rows="3" style="min-height:64px;resize:vertical" placeholder="Bắt buộc — Nêu tình huống thực tế đã quan sát để minh chứng cho mức điểm này..." oninput="checkSects()" onblur="checkSects()" onpaste="setTimeout(checkSects,0)"></textarea>
+        <label id="evLabel_${prefix}_${crit.id}">✏️ Nhận xét & dẫn chứng <span style="color:#c0392b;font-weight:900">*bắt buộc</span> — cần điền để mở phần tiếp theo</label>
+        <textarea id="evt_${prefix}_${crit.id}" rows="3" style="min-height:64px;resize:vertical" placeholder="BẰNG CHỨNG CHỨNG MINH CỤ THỂ VẤN ĐỀ (Ví dụ: Số liệu kết quả công việc, link báo cáo, tiến độ dự án, hoặc hành vi thực tế đã quan sát được...)" oninput="checkSects()" onblur="checkSects()" onpaste="setTimeout(checkSects,0)"></textarea>
       </div>`;
     wrap.appendChild(div);
+    // Gán title (tooltip) cho từng nút mức bằng thuộc tính DOM (an toàn với dấu ngoặc kép
+    // trong nội dung) — giúp TBP xem trước nội dung hành vi từng mức khi rê chuột, đúng
+    // yêu cầu hiển thị rõ cấu trúc Chưa đạt/Đạt/Tốt/Khác cho mỗi tiêu chí.
+    crit.scores.forEach((s,i)=>{
+      const btn=div.querySelector(`#bopt_${prefix}_${crit.id}_${i+1}`);
+      if(btn) btn.title=`${sl[i]}: ${s}`;
+    });
   });
   const c=document.getElementById(containerId);c.innerHTML='';c.appendChild(wrap);
 }
@@ -975,18 +988,58 @@ function setApply(prefix,critId,apply){
   if(apply){bi.classList.remove('na-mode');aB.classList.add('active');nB.classList.remove('active');aB.querySelector('.ck').textContent='✓';nB.querySelector('.ck').textContent='';}
   else{bi.classList.add('na-mode');nB.classList.add('active');aB.classList.remove('active');nB.querySelector('.ck').textContent='✓';aB.querySelector('.ck').textContent='';
     document.querySelectorAll(`[id^="bopt_${prefix}_${critId}_"]`).forEach(el=>el.className='bopt');
+    const khacChk=document.getElementById(`khacChk_${prefix}_${critId}`);
+    if(khacChk&&khacChk.checked){khacChk.checked=false;}
+    khacState[key]=false;
+    applyKhacUI(prefix,critId,false);
     const det=document.getElementById(`det_${prefix}_${critId}`);if(det)det.classList.remove('show');
     const ev=document.getElementById(`ev_${prefix}_${critId}`);if(ev)ev.classList.remove('show');}
   calcAndShow();checkSects();
 }
 
 function selBOpt(prefix,critId,val,enc){
+  // Chọn 1 trong 3 mức điểm sẽ tự huỷ trạng thái "Khác" (loại trừ lẫn nhau) — PHẢI cập nhật
+  // cả khacState (biến trạng thái dùng để tính điểm), không chỉ UI checkbox, nếu không tiêu
+  // chí vừa chấm điểm sẽ vẫn bị loại khỏi công thức tính % (sai điểm trung bình).
+  const key=`${prefix}_${critId}`;
+  const khacChk=document.getElementById(`khacChk_${prefix}_${critId}`);
+  if(khacChk&&khacChk.checked){khacChk.checked=false;}
+  if(khacState[key]){khacState[key]=false;applyKhacUI(prefix,critId,false);}
   document.querySelectorAll(`[id^="bopt_${prefix}_${critId}_"]`).forEach(el=>{el.className='bopt';});
   document.getElementById(`bopt_${prefix}_${critId}_${val}`).classList.add(`sel-${val}`);
   const det=document.getElementById(`det_${prefix}_${critId}`);
-  det.innerHTML=`<strong>Điểm ${val}:</strong> ${decodeURIComponent(enc)}`;det.classList.add('show');
+  const LEVEL_NAMES={1:'Chưa đạt',2:'Đạt',3:'Tốt'};
+  det.innerHTML=`<strong>${LEVEL_NAMES[val]||''}:</strong> ${decodeURIComponent(enc)}`;det.classList.add('show');
   const ev=document.getElementById(`ev_${prefix}_${critId}`);
   ev.classList.add('show'); // Always show evidence field
+  calcAndShow();checkSects();
+}
+
+// "Khác" — tách riêng khỏi thang điểm, không tính vào điểm trung bình (giống Không Áp Dụng),
+// dùng chung 1 ô "Nhận xét & dẫn chứng" sẵn có để ghi chú thêm khi tiêu chí không thuộc rõ
+// 1 trong 3 mức Chưa đạt/Đạt/Tốt — không tạo thêm ô text thứ 2 gây trùng lặp.
+function applyKhacUI(prefix,critId,checked){
+  const toggleEl=document.getElementById(`khacToggle_${prefix}_${critId}`);
+  const evEl=document.getElementById(`ev_${prefix}_${critId}`);
+  const evLabel=document.getElementById(`evLabel_${prefix}_${critId}`);
+  const det=document.getElementById(`det_${prefix}_${critId}`);
+  if(toggleEl) toggleEl.classList.toggle('checked',checked);
+  if(checked){
+    // Bỏ chọn mọi mức điểm đang chọn (loại trừ lẫn nhau với Khác)
+    document.querySelectorAll(`[id^="bopt_${prefix}_${critId}_"]`).forEach(el=>{el.className='bopt';});
+    if(det){det.innerHTML='';det.classList.remove('show');}
+    if(evEl) evEl.classList.add('show');
+    if(evLabel) evLabel.innerHTML='📝 Ghi chú thêm <span style="color:#c0392b;font-weight:900">*bắt buộc</span> — trường hợp "Khác", không tính điểm';
+  } else {
+    if(evLabel) evLabel.innerHTML='✏️ Nhận xét & dẫn chứng <span style="color:#c0392b;font-weight:900">*bắt buộc</span> — cần điền để mở phần tiếp theo';
+    if(evEl && !det?.classList.contains('show')) evEl.classList.remove('show');
+  }
+}
+function toggleKhac(prefix,critId){
+  const key=`${prefix}_${critId}`;
+  const chk=document.getElementById(`khacChk_${prefix}_${critId}`);
+  khacState[key]=!!chk?.checked;
+  applyKhacUI(prefix,critId,khacState[key]);
   calcAndShow();checkSects();
 }
 
@@ -1033,6 +1086,7 @@ function onDeptChange(){
   document.getElementById('f_level').innerHTML='<option value="">— Chọn cấp bậc —</option>';
   document.getElementById('f_title').innerHTML='<option value="">— Chọn cấp bậc trước —</option>';
   naState=Object.fromEntries(Object.entries(naState).filter(([k])=>!k.startsWith('dept_')));
+  khacState=Object.fromEntries(Object.entries(khacState).filter(([k])=>!k.startsWith('dept_')));
   // Placeholder ô "Chức vụ người đánh giá" tự đổi theo đúng bộ phận đã chọn,
   // tránh hiện cố định 1 bộ phận (vd Planning) gây hiểu lầm cho TBP bộ phận khác.
   const mgrTitleEl=document.getElementById('f_mgr_title');
@@ -1104,10 +1158,11 @@ function renderDeptCriteria(){
     mgmtArea.innerHTML='';
   }
   naState=Object.fromEntries(Object.entries(naState).filter(([k])=>!k.startsWith('dept_')&&!k.startsWith('mgmt_')));
+  khacState=Object.fromEntries(Object.entries(khacState).filter(([k])=>!k.startsWith('dept_')&&!k.startsWith('mgmt_')));
 }
 
 function selC(val){
-  ['hire','promote','fail'].forEach(v=>{
+  ['hire','fail'].forEach(v=>{
     document.getElementById(`co_${v}`).classList.toggle('sel',v===val);
     document.querySelector(`input[value="${v}"]`).checked=(v===val);
   });
@@ -1121,46 +1176,38 @@ function checkVerdictWarning(val){
   const total=parseInt(totalText);
   if(isNaN(total)) return;
   const warn=document.getElementById('verdict-warning');
-  const reasonTA=document.getElementById('conclusion_reason');
   let msg='';
 
-  if(val==='promote'&&total<65){
-    msg=`⚠️ Cảnh báo: Điểm ${total}/100 chưa đủ điều kiện tăng chức/lương (cần ≥65). Vui lòng ghi rõ lý do đặc biệt bên dưới.`;
-  } else if(val==='hire'&&total<50){
-    msg=`⚠️ Cảnh báo: Điểm ${total}/100 thấp hơn mức đạt yêu cầu (cần ≥50). Vui lòng ghi rõ lý do quyết định ký hợp đồng bên dưới.`;
+  if(val==='hire'&&total<50){
+    msg=`⚠️ Cảnh báo: Điểm ${total}/100 thấp hơn mức đạt yêu cầu (cần ≥50). Vui lòng ghi rõ lý do trong ô "Điểm cần cải thiện" bên dưới.`;
   } else if(val==='fail'&&total>=65){
-    msg=`ℹ️ Lưu ý: Điểm ${total}/100 đã đạt tốt. Nếu vẫn không tiếp tục, vui lòng ghi rõ lý do bên dưới.`;
+    msg=`ℹ️ Lưu ý: Điểm ${total}/100 đã đạt tốt. Nếu vẫn không tiếp tục hợp đồng, vui lòng ghi rõ lý do trong ô "Điểm cần cải thiện" bên dưới.`;
   }
 
   if(msg){
     warn.textContent=msg;
     warn.style.display='block';
-    // Highlight reason textarea as required
-    if(reasonTA){
-      reasonTA.style.border='1.5px solid #e74c3c';
-      reasonTA.placeholder='⚠️ Bắt buộc giải trình — lý do quyết định không khớp với điểm số...';
-      reasonTA.focus();
-    }
   } else {
     warn.style.display='none';
-    if(reasonTA){
-      reasonTA.style.border='';
-      reasonTA.placeholder='Mô tả rõ lý do: dự án đã tham gia, kết quả quan sát, điểm mạnh/yếu cụ thể, kỳ vọng nếu gia hạn...';
-    }
   }
 }
 
-// SCORING — convert 1-5 scale to 0-100%
+// SCORING — Chưa đạt=0%, Đạt=70%, Tốt=100%; "Khác" không tính điểm (giống Không Áp Dụng)
+const VAL_PCT={1:0,2:70,3:100};
 function getGroupScore(criteria,prefix){
   let vals=[],countable=0;
   for(const c of criteria){
-    const key=`${prefix}_${c.id}`;if(naState[key])continue;countable++;
+    const key=`${prefix}_${c.id}`;if(naState[key])continue;
+    if(khacState[key])continue; // "Khác" — tách riêng, không tính điểm, giống Không Áp Dụng
     const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
-    if(sel){const m=sel.className.match(/sel-(\d)/);if(m)vals.push(parseInt(m[1]));}
+    const m=sel?sel.className.match(/sel-(\d)/):null;
+    const sc=m?parseInt(m[1]):null;
+    countable++;
+    if(sc&&VAL_PCT[sc]!==undefined)vals.push(VAL_PCT[sc]);
   }
   if(countable===0)return 100;
   if(vals.length<countable)return null;
-  return Math.round(vals.reduce((a,b)=>a+b,0)/(countable*5)*100);
+  return Math.round(vals.reduce((a,b)=>a+b,0)/countable);
 }
 
 function getDeptScore(deptCriteria){
@@ -1197,7 +1244,7 @@ function calcAndShow(){
   const incomplete=[];
   if(pCore===null)incomplete.push('• Phần III: Chưa đánh giá đủ năng lực cốt lõi');
   if(pDept===null)incomplete.push('• Phần IV: Chưa đánh giá đủ năng lực chuyên môn');
-  if(pCult===null)incomplete.push('• Phần V: Chưa đánh giá đủ Culture Fit');
+  if(pCult===null)incomplete.push('• Phần V: Chưa đánh giá đủ Phù hợp văn hóa BSC');
 
   const statusBox=document.getElementById('vi_status_box');
   if(pCore!==null&&pDept!==null&&pCult!==null){
@@ -1233,7 +1280,7 @@ function setVerdict(total,pc,pd,pcu,incomplete=[]){
   } else {
     if(total>=80){t.textContent=`⭐ XUẤT SẮC — ${total}/100 điểm`;d.textContent='Ký hợp đồng + xem xét tăng chức / tăng lương. Nhân viên vượt kỳ vọng và có tiềm năng dài hạn tại BSC.';}
     else if(total>=65){t.textContent=`✅ ĐẠT TỐT — ${total}/100 điểm`;d.textContent='Ký hợp đồng chính thức. Nhân viên đáp ứng tốt yêu cầu và phù hợp văn hóa BSC.';}
-    else if(total>=50){t.textContent=`⚠ ĐẠT — CẦN CẢI THIỆN — ${total}/100 điểm`;d.textContent='Ký hợp đồng kèm PIP 30 ngày. Cần xác định điểm yếu và cam kết cải thiện cụ thể trong IDP.';}
+    else if(total>=50){t.textContent=`⚠ ĐẠT — CẦN CẢI THIỆN — ${total}/100 điểm`;d.textContent='Ký hợp đồng kèm PIP 30 ngày. Cần xác định điểm yếu và cam kết cải thiện cụ thể trong lộ trình phát triển.';}
     else if(total>=35){t.textContent=`❌ KHÔNG ĐẠT — ${total}/100 điểm`;d.textContent='Không ký tiếp hợp đồng. Nhân viên chưa đáp ứng yêu cầu tối thiểu sau thời gian thử việc.';}
     else{t.textContent=`❌ CHẤM DỨT — ${total}/100 điểm`;d.textContent='Chấm dứt hợp đồng thử việc. Xem xét nghĩa vụ bồi thường theo quy định hiện hành.';}
   }
@@ -1252,77 +1299,48 @@ function updateFinalSummary(){
   const vmap={v5:'⭐ XUẤT SẮC',v4:'✅ ĐẠT TỐT',v3:'⚠ ĐẠT — CẦN CẢI THIỆN',v2:'❌ KHÔNG ĐẠT',v1:'❌ CHẤM DỨT'};
   const cls=total===null?'pending':total>=80?'v5':total>=65?'v4':total>=50?'v3':total>=35?'v2':'v1';
   document.getElementById('fs_verdict').textContent=total!==null?(vmap[cls]||'—'):'—';
-  const dmap={hire:'✅ Ký hợp đồng chính thức',promote:'⭐ Ký HĐ & Xem xét tăng chức/lương',fail:'❌ Không tiếp tục hợp đồng'};
+  const dmap={hire:'✅ Ký hợp đồng chính thức',fail:'❌ Không tiếp tục hợp đồng'};
   const cv=document.querySelector('input[name="conclusion"]:checked')?.value||'';
   document.getElementById('fs_decision').textContent=cv?dmap[cv]:'— Chưa chọn —';
 
   // AUTO-GENERATE SUMMARY from all evaluation data — KHÔNG hiện số điểm/% (tránh bias ngược lên TBP)
-  let autoText='';
+  // Mỗi tiêu chí/hạng mục đã đánh giá = 1 DÒNG ĐỘC LẬP riêng biệt, KHÔNG gộp thành 1 đoạn dài —
+  // định dạng: "Tên tiêu chí — Mức: nội dung dẫn chứng". Dùng \n nối dòng, hiển thị qua
+  // CSS white-space:pre-line ở #fs_summary_text nên textContent giữ nguyên xuống dòng.
+  let lines=[];
 
-  // Work log (ghi nhận, không tính điểm)
+  // Work log (ghi nhận, không tính điểm) — vẫn là 1 dòng riêng đầu tiên
   let wkFilled=0;
   for(let i=1;i<=activeWeeks;i++){ if(getWeekJDNames(i,dCrit||[]).length>0) wkFilled++; }
-  if(wkFilled>0){
-    autoText+=`Đã ghi nhận công việc ${wkFilled} tuần. `;
-  }
+  if(wkFilled>0) lines.push(`Đã ghi nhận công việc ${wkFilled} tuần.`);
 
-  // Core strengths & weaknesses from evidence — chỉ tên tiêu chí + dẫn chứng, không kèm điểm số
-  const coreHighlights=[];
-  const coreWeaknesses=[];
-  for(const c of CORE){
-    if(naState[`core_${c.id}`]) continue;
-    const sel=document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);
-    const m=sel?sel.className.match(/sel-(\d)/):null;
-    const sc=m?parseInt(m[1]):null;
-    const ev=document.getElementById(`evt_core_${c.id}`)?.value?.trim()||'';
-    if(sc>=4) coreHighlights.push(`${c.name}${ev?' — '+ev.substring(0,80):''}`);;
-    if(sc<=2) coreWeaknesses.push(`${c.name}${ev?' — '+ev.substring(0,80):''}`);;
-  }
-  if(coreHighlights.length) autoText+=`Điểm mạnh nổi bật: ${coreHighlights.join('; ')}. `;
-  if(coreWeaknesses.length) autoText+=`Cần cải thiện: ${coreWeaknesses.join('; ')}. `;
-
-  // Dept specialty highlights
-  if(currentDept&&dCrit){
-    const deptHighlights=[];
-    const deptWeaknesses=[];
-    for(const c of dCrit){
-      if(naState[`dept_${c.id}`]) continue;
-      const sel=document.querySelector(`[id^="bopt_dept_${c.id}_"][class*="sel-"]`);
+  const LEVEL_TXT={1:'Chưa đạt',2:'Đạt',3:'Tốt'};
+  function pushCritLines(criteria,prefix){
+    for(const c of criteria){
+      const key=`${prefix}_${c.id}`;
+      if(naState[key]) continue; // Không Áp Dụng — bỏ qua, không hiện dòng
+      const ev=document.getElementById(`evt_${prefix}_${c.id}`)?.value?.trim()||'';
+      if(khacState[key]){
+        lines.push(`${c.name} — Khác: ${ev||'(chưa có ghi chú)'}`);
+        continue;
+      }
+      const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
       const m=sel?sel.className.match(/sel-(\d)/):null;
       const sc=m?parseInt(m[1]):null;
-      const ev=document.getElementById(`evt_dept_${c.id}`)?.value?.trim()||'';
-      if(sc>=4) deptHighlights.push(`${c.name}${ev?' — '+ev.substring(0,60):''}`);;
-      if(sc<=2) deptWeaknesses.push(c.name);;
+      if(!sc) continue; // chưa chọn mức — chưa đủ dữ liệu, không hiện dòng
+      lines.push(`${c.name} — ${LEVEL_TXT[sc]}: ${ev||'(chưa có dẫn chứng)'}`);
     }
-    if(deptHighlights.length) autoText+=`Chuyên môn nổi bật: ${deptHighlights.join('; ')}. `;
-    if(deptWeaknesses.length) autoText+=`Chuyên môn cần phát triển: ${deptWeaknesses.join(', ')}. `;
   }
-
-  // Management highlights (Assistant Manager trở lên)
+  pushCritLines(CORE,'core');
+  if(currentDept&&dCrit) pushCritLines(dCrit,'dept');
   const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
-  if(hasManagement){
-    const mgmtHighlights=[];
-    const mgmtWeaknesses=[];
-    for(const c of MANAGEMENT){
-      if(naState[`mgmt_${c.id}`]) continue;
-      const sel=document.querySelector(`[id^="bopt_mgmt_${c.id}_"][class*="sel-"]`);
-      const m=sel?sel.className.match(/sel-(\d)/):null;
-      const sc=m?parseInt(m[1]):null;
-      const ev=document.getElementById(`evt_mgmt_${c.id}`)?.value?.trim()||'';
-      if(sc>=4) mgmtHighlights.push(`${c.name}${ev?' — '+ev.substring(0,60):''}`);;
-      if(sc<=2) mgmtWeaknesses.push(c.name);;
-    }
-    if(mgmtHighlights.length) autoText+=`Năng lực quản lý nổi bật: ${mgmtHighlights.join('; ')}. `;
-    if(mgmtWeaknesses.length) autoText+=`Năng lực quản lý cần phát triển: ${mgmtWeaknesses.join(', ')}. `;
-  }
+  if(hasManagement) pushCritLines(MANAGEMENT,'mgmt');
 
-  // Update both auto summary and the textarea (if empty) — KHÔNG kèm điểm/% tổng
+  const autoText=lines.join('\n');
+
+  // Tự động điền duy nhất 1 ô hiển thị (không còn ô ghi tay riêng để tránh trùng/dư) — KHÔNG kèm điểm/% tổng
   const summaryEl=document.getElementById('fs_summary_text');
   if(summaryEl) summaryEl.textContent=autoText||'Hoàn thành đánh giá để xem tổng kết tự động.';
-
-  // Also fill the summary textarea in section VII if it's empty
-  const summaryTA=document.getElementById('final_summary_ta');
-  if(summaryTA&&autoText) summaryTA.value=autoText;
 }
 
 // SECTION CHECKS
@@ -1455,10 +1473,9 @@ function getWeekJDNames(weekIdx, dCrit){
   return names;
 }
 function checkS2(){
-  // Mỗi tuần: cần TICK ÍT NHẤT 1 hạng mục (checkbox JD hoặc "Khác" có ghi nội dung),
-  // và ô mô tả chung của tuần đó phải có thực chất — tránh trường hợp tick xong nhưng
-  // để trống hoặc ghi qua loa ở ô mô tả.
-  let hasOne=false, allFilledRowsValid=true;
+  // Mỗi tuần: cần TICK ÍT NHẤT 1 hạng mục (checkbox JD hoặc "Khác" có ghi rõ nội dung).
+  // Không còn yêu cầu mô tả riêng — đã bỏ theo yêu cầu (chỉ còn hạng mục + tick).
+  let hasOne=false;
   // Dùng TOÀN BỘ JD (không qua currentDeptCriteria đã bị cắt theo cấp bậc cho Mục IV) —
   // checkbox ở Phần II được render từ đầy đủ JD nên phải kiểm tra khớp với cùng nguồn đó,
   // nếu không các checkbox ở tiêu chí thứ 4-5 (bị cắt khỏi Mục IV với Executive/Senior)
@@ -1466,8 +1483,8 @@ function checkS2(){
   const dKey=effectiveDeptKey||currentDept;
   const dCrit=dKey?(DEPT_DATA[dKey]?.criteria||[]):[];
   for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
-    const noteEl=document.getElementById('wn'+i);
-    if(!noteEl) continue; // tuần chưa được render (vượt quá activeWeeks hiện tại)
+    const box=document.getElementById('mselBox'+i);
+    if(!box) continue; // tuần chưa được render (vượt quá activeWeeks hiện tại)
     const anyJdChecked=dCrit.some(c=>document.getElementById(`wjc${i}_${c.id}`)?.checked);
     const otherChecked=document.getElementById(`wjc${i}_other`)?.checked;
     const otherText=document.getElementById(`wother${i}`)?.value?.trim()||'';
@@ -1475,13 +1492,9 @@ function checkS2(){
     // trống ô ghi rõ thì coi như chưa chọn hạng mục nào (tránh tick qua loa không nội dung).
     const otherValid=otherChecked&&otherText.length>0;
     const weekHasSelection=anyJdChecked||otherValid;
-    if(weekHasSelection){
-      hasOne=true;
-      markFieldQuality(noteEl);
-      if(!isMeaningfulText(noteEl.value)) allFilledRowsValid=false;
-    }
+    if(weekHasSelection) hasOne=true;
   }
-  sectionDone[2]=hasOne&&allFilledRowsValid;updateLocks();
+  sectionDone[2]=hasOne;updateLocks();
 }
 function checkSects(){
   // QUAN TRỌNG: tách 2 việc riêng biệt —
@@ -1494,7 +1507,7 @@ function checkSects(){
   let c3=true;
   for(const c of CORE){
     if(naState[`core_${c.id}`]) continue; // N/A skipped
-    const scored=document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);
+    const scored=khacState[`core_${c.id}`]||document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);
     const evEl=document.getElementById(`evt_core_${c.id}`);
     if(evEl) markFieldQuality(evEl); // luôn đánh dấu, không phụ thuộc các tiêu chí khác
     if(!scored){c3=false;continue;} // thiếu điểm — vẫn tiếp tục quét các tiêu chí còn lại
@@ -1510,7 +1523,7 @@ function checkSects(){
       rendered.forEach(el=>{
         const cid=el.id.replace('bi_dept_','');
         if(naState[`dept_${cid}`]) return; // N/A skipped
-        const scored=document.querySelector(`[id^="bopt_dept_${cid}_"][class*="sel-"]`);
+        const scored=khacState[`dept_${cid}`]||document.querySelector(`[id^="bopt_dept_${cid}_"][class*="sel-"]`);
         const evEl=document.getElementById(`evt_dept_${cid}`);
         if(evEl) markFieldQuality(evEl); // luôn đánh dấu mọi ô, không phụ thuộc c4 hiện tại
         if(!scored){c4=false;return;}
@@ -1522,7 +1535,7 @@ function checkSects(){
       mgmtRendered.forEach(el=>{
         const cid=el.id.replace('bi_mgmt_','');
         if(naState[`mgmt_${cid}`]) return;
-        const scored=document.querySelector(`[id^="bopt_mgmt_${cid}_"][class*="sel-"]`);
+        const scored=khacState[`mgmt_${cid}`]||document.querySelector(`[id^="bopt_mgmt_${cid}_"][class*="sel-"]`);
         const evEl=document.getElementById(`evt_mgmt_${cid}`);
         if(evEl) markFieldQuality(evEl); // luôn đánh dấu mọi ô, không phụ thuộc c4 hiện tại
         if(!scored){c4=false;return;}
@@ -1602,10 +1615,8 @@ function validate(){
     [()=>!sectionDone[2],'Phần II: Cần đánh giá ít nhất 1 tuần',null,'card2','ntab2'],
     [()=>!sectionDone[3],'Phần III: Chưa hoàn thành đánh giá Tinh thần làm việc',null,'card3','ntab3'],
     [()=>!sectionDone[4],'Phần IV: Chưa hoàn thành đánh giá Năng lực chuyên môn',null,'card4','ntab4'],
-    [()=>!sectionDone[5],'Phần V: Chưa hoàn thành đánh giá Culture Fit',null,'card5','ntab5'],
+    [()=>!sectionDone[5],'Phần V: Chưa hoàn thành đánh giá Phù hợp văn hóa BSC',null,'card5','ntab5'],
     [()=>!document.querySelector('input[name="conclusion"]:checked'),'Phần VII: Chưa chọn quyết định sau thử việc',null,'card7','ntab7'],
-    [()=>!isMeaningfulText(document.getElementById('conclusion_reason').value),'Phần VII: Lý do quyết định cần mô tả rõ hơn (không chỉ điền qua loa)','conclusion_reason'],
-    [()=>!isMeaningfulText(document.getElementById('strength').value),'Phần VII: Điểm mạnh cần mô tả rõ hơn (không chỉ điền qua loa)','strength'],
     [()=>!isMeaningfulText(document.getElementById('weakness').value),'Phần VII: Điểm cần cải thiện cần mô tả rõ hơn (không chỉ điền qua loa)','weakness'],
     [()=>!document.getElementById('sig_manager').value.trim(),'Phần VII: Chưa điền họ tên người ký','sig_manager'],
     [()=>!document.getElementById('sig_title').value.trim(),'Phần VII: Chưa điền chức vụ người ký','sig_title'],
@@ -1649,7 +1660,7 @@ async function sendEmail(p, pdfBase64){
   // Luôn init lại để đảm bảo đúng Public Key (SDK v4 dùng object param)
   emailjs.init({publicKey: EMAILJS_KEY});
   const verdict=document.getElementById('vd_title')?.textContent||'';
-  const decision={'hire':'✅ Ký hợp đồng chính thức','promote':'⭐ Ký HĐ & Tăng chức/lương','fail':'❌ Không tiếp tục'}[p.conclusion]||p.conclusion;
+  const decision={'hire':'✅ Ký hợp đồng chính thức','fail':'❌ Không tiếp tục'}[p.conclusion]||p.conclusion;
   const messageBody=
 `NHÂN VIÊN: ${p.name}
 Bộ phận: ${p.dept_label} — ${p.title}
@@ -1661,14 +1672,11 @@ Ngày đánh giá: ${p.sig_date}
 KẾT QUẢ:
 - Tinh thần làm việc (38%): ${p.pct_core}%
 - Chuyên môn (38%): ${p.pct_dept}%
-- Culture Fit (24%): ${p.pct_culture}%
+- Phù hợp văn hóa BSC (24%): ${p.pct_culture}%
 - TỔNG ĐIỂM: ${p.total_score}/100 — ${verdict}
 
 QUYẾT ĐỊNH: ${decision}
-Lý do: ${p.conclusion_reason}
-
-Điểm mạnh: ${p.strength}
-Cần cải thiện: ${p.weakness}
+Điểm cần cải thiện: ${p.weakness}
 
 (File PDF đầy đủ đã được lưu vào Google Drive — xem link bên dưới hoặc trong Sheet log)`;
 
@@ -1712,8 +1720,6 @@ async function submitForm(){
     pct_core:pCore,pct_dept:pDept,pct_culture:pCult,
     total_score:total,
     conclusion:document.querySelector('input[name="conclusion"]:checked')?.value||'',
-    conclusion_reason:document.getElementById('conclusion_reason').value,
-    strength:document.getElementById('strength').value,
     weakness:document.getElementById('weakness').value,
     sig_manager:document.getElementById('sig_manager').value,
     sig_title:document.getElementById('sig_title').value,
@@ -1727,7 +1733,6 @@ async function submitForm(){
   // Phần II giờ ghi nhận: danh sách hạng mục JD đã tick (có thể nhiều, nối bằng "; ") +
   // mô tả cụ thể chung cho cả tuần — không còn trạng thái Trung bình/Đạt/Xuất sắc.
   for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
-    p[`w_note_${i}`]=document.getElementById('wn'+i)?.value||'';
     p[`w_jd_${i}`]=getWeekJDNames(i,dCritFull).join('; ');
   }
   CORE.forEach(c=>{const sel=document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);const m=sel?sel.className.match(/sel-(\d)/):null;p[`core_${c.id}`]=naState[`core_${c.id}`]?'N/A':(m?m[1]:'');p[`core_ev_${c.id}`]=document.getElementById(`evt_core_${c.id}`)?.value||'';});
@@ -1822,22 +1827,22 @@ function buildEvalHTML(){
 
   let weeksHTML='';
   for(let i=1;i<=activeWeeks;i++){
-    const note=document.getElementById('wn'+i)?.value;
     const jdNames=getWeekJDNames(i,dCritFull);
     const jdName=jdNames.join('; ');
-    if(note||jdName) weeksHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700;color:#005AAB">Tuần ${i}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700">${jdName||'—'}</td><td style="padding:4px 8px;border:1px solid #d0e4f7">${note||'—'}</td></tr>`;
+    if(jdName) weeksHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700;color:#005AAB">Tuần ${i}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-weight:700">${jdName||'—'}</td></tr>`;
   }
 
-  const scoreLabels=['','Kém','Yếu','Đạt','Tốt','Xuất sắc'];
+  const scoreLabels=['','Chưa đạt','Đạt','Tốt','Khác'];
   function buildRows(criteria,prefix){
     let h='';
     criteria.forEach(c=>{
       const key=prefix+'_'+c.id;
       if(naState[key]){h+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7">${c.name}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;text-align:center;color:#888">N/A</td><td style="padding:4px 8px;border:1px solid #d0e4f7"></td></tr>`;return;}
+      const ev=document.getElementById(`evt_${prefix}_${c.id}`)?.value||'';
+      if(khacState[key]){h+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7">${c.name}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;text-align:center;font-weight:900;color:#005AAB">Khác</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-size:11px;color:#557">${ev}</td></tr>`;return;}
       const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
       const m=sel?sel.className.match(/sel-(\d)/):null;
       const sc=m?parseInt(m[1]):null;
-      const ev=document.getElementById(`evt_${prefix}_${c.id}`)?.value||'';
       h+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7">${c.name}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;text-align:center;font-weight:900;color:#005AAB">${sc?sc+' — '+scoreLabels[sc]:'—'}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-size:11px;color:#557">${ev}</td></tr>`;
     });
     return h;
@@ -1855,11 +1860,9 @@ function buildEvalHTML(){
     cultHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7">${c.name}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;text-align:center;font-weight:900;color:#005AAB">${sc?(sc+' — '+(cultLabels[c.id]?cultLabels[c.id][sc-1]:'')):'—'}</td></tr>`;
   });
 
-  const conclusionMap={'hire':'✅ Ký hợp đồng chính thức','promote':'⭐ Ký hợp đồng & Tăng chức/lương','fail':'❌ Không tiếp tục'};
+  const conclusionMap={'hire':'✅ Ký hợp đồng chính thức','fail':'❌ Không tiếp tục'};
   const conclusionVal=document.querySelector('input[name="conclusion"]:checked')?.value||'';
   const conclusion=conclusionMap[conclusionVal]||'Chưa chọn';
-  const reason=document.getElementById('conclusion_reason')?.value||'';
-  const strength=document.getElementById('strength')?.value||'';
   const weakness=document.getElementById('weakness')?.value||'';
   const sigManager=document.getElementById('sig_manager')?.value||'';
   const sigTitle=document.getElementById('sig_title')?.value||'';
@@ -1912,7 +1915,7 @@ function buildEvalHTML(){
   </tbody></table>
 
   <div class="sec">II. Ghi nhận công việc theo tuần (không tính điểm)</div>
-  <table><thead><tr><th style="width:70px">Tuần</th><th style="width:200px">Hạng mục (theo JD)</th><th>Mô tả cụ thể</th></tr></thead><tbody>${weeksHTML||'<tr><td colspan="3" style="padding:6px 8px;border:1px solid #d0e4f7;color:#aaa;text-align:center">Chưa điền</td></tr>'}</tbody></table>
+  <table><thead><tr><th style="width:70px">Tuần</th><th>Hạng mục (theo JD)</th></tr></thead><tbody>${weeksHTML||'<tr><td colspan="2" style="padding:6px 8px;border:1px solid #d0e4f7;color:#aaa;text-align:center">Chưa điền</td></tr>'}</tbody></table>
 
   <div class="sec">III. Tinh thần làm việc (38%)</div>
   <table><thead><tr><th>Tiêu chí</th><th style="width:160px">Điểm</th><th>Dẫn chứng</th></tr></thead><tbody>${coreHTML}</tbody></table>
@@ -1921,7 +1924,7 @@ function buildEvalHTML(){
   <table><thead><tr><th>Tiêu chí</th><th style="width:160px">Điểm</th><th>Dẫn chứng</th></tr></thead><tbody>${deptHTML||'<tr><td colspan="3" style="padding:6px 8px;border:1px solid #d0e4f7;color:#aaa;text-align:center">Chưa điền</td></tr>'}</tbody></table>
   ${mgmtHTML?`<div style="font-size:11px;font-weight:900;color:#5c3fc5;margin:8px 0 4px">👤 Tiêu chí quản lý (áp dụng từ Assistant Manager trở lên)</div><table><thead><tr><th>Tiêu chí</th><th style="width:160px">Điểm</th><th>Dẫn chứng</th></tr></thead><tbody>${mgmtHTML}</tbody></table>`:''}
 
-  <div class="sec">V. Culture Fit (24%)</div>
+  <div class="sec">V. Phù hợp văn hóa BSC (24%)</div>
   <table><thead><tr><th>Tiêu chí</th><th style="width:200px">Đánh giá</th></tr></thead><tbody>${cultHTML}</tbody></table>
 
   <div class="sec">VI. Tổng điểm</div>
@@ -1935,12 +1938,10 @@ function buildEvalHTML(){
   <div class="sec">VII. Kết luận</div>
   <table><tbody>
     <tr><td class="lbl" style="padding:6px 8px;border:1px solid #d0e4f7">Quyết định</td><td style="padding:6px 8px;border:1px solid #d0e4f7;font-weight:900;font-size:13px">${conclusion}</td></tr>
-    <tr><td class="lbl" style="padding:6px 8px;border:1px solid #d0e4f7">Lý do & căn cứ</td><td style="padding:6px 8px;border:1px solid #d0e4f7">${reason}</td></tr>
-    <tr><td class="lbl" style="padding:6px 8px;border:1px solid #d0e4f7">Điểm mạnh</td><td style="padding:6px 8px;border:1px solid #d0e4f7">${strength}</td></tr>
     <tr><td class="lbl" style="padding:6px 8px;border:1px solid #d0e4f7">Điểm cần cải thiện</td><td style="padding:6px 8px;border:1px solid #d0e4f7">${weakness}</td></tr>
   </tbody></table>
 
-  ${idpHTML?`<div class="sec">IDP — Lộ trình 3 tháng tiếp theo</div>
+  ${idpHTML?`<div class="sec">Lộ trình phát triển 3 tháng tiếp theo</div>
   <table><thead><tr><th style="width:80px"></th><th>Mục tiêu</th><th style="width:160px">Mentor</th><th style="width:180px">Đo lường</th></tr></thead><tbody>${idpHTML}</tbody></table>`:''}
 
   <div class="sig-area" style="display:flex;justify-content:space-between;gap:30px">
@@ -2109,7 +2110,7 @@ async function generatePDFBase64(){
   // ===== II. CÔNG VIỆC THEO TUẦN =====
   sectionTitle('II. GHI NHẬN CÔNG VIỆC THEO TUẦN (không tính điểm)');
   if(data.weeks.length){
-    table(['Tuần','Hạng mục (theo JD)','Mô tả cụ thể'], data.weeks.map(w=>[w.label,w.jd||'—',w.note||'—']), {0:{cellWidth:16},1:{cellWidth:50}});
+    table(['Tuần','Hạng mục (theo JD)'], data.weeks.map(w=>[w.label,w.jd||'—']), {0:{cellWidth:16}});
   } else {
     bodyText('Chưa điền.');
   }
@@ -2144,15 +2145,13 @@ async function generatePDFBase64(){
   sectionTitle('VII. KẾT LUẬN');
   table(['Mục','Nội dung'],[
     ['Quyết định', data.conclusion],
-    ['Lý do & căn cứ', data.reason||'—'],
-    ['Điểm mạnh', data.strength||'—'],
     ['Điểm cần cải thiện', data.weakness||'—'],
   ],{0:{cellWidth:45,fontStyle:'bold',textColor:[0,90,171]}});
 
   if(data.idpRows.length){
-    sectionTitle('IDP — LỘ TRÌNH 3 THÁNG TIẾP THEO');
+    sectionTitle('LỘ TRÌNH PHÁT TRIỂN 3 THÁNG TIẾP THEO');
     table(['','Mục tiêu','Mentor','Đo lường'], data.idpRows, {0:{cellWidth:20}});
-    console.log('[PDF] Sau bảng IDP — y:', y, '| tổng số trang hiện tại:', doc.internal.getNumberOfPages());
+    console.log('[PDF] Sau bảng lộ trình phát triển — y:', y, '| tổng số trang hiện tại:', doc.internal.getNumberOfPages());
   }
 
   // ===== KÝ TÊN =====
@@ -2221,21 +2220,21 @@ function collectEvalData(){
 
   const weeks=[];
   for(let i=1;i<=activeWeeks;i++){
-    const note=document.getElementById('wn'+i)?.value;
     const jdNames=getWeekJDNames(i,dCritFull);
     const jdName=jdNames.join('; ');
-    if(note||jdName) weeks.push({label:'Tuần '+i, note, jd:jdName});
+    if(jdName) weeks.push({label:'Tuần '+i, jd:jdName});
   }
 
-  const scoreLabels=['','Kém','Yếu','Đạt','Tốt','Xuất sắc'];
+  const scoreLabels=['','Chưa đạt','Đạt','Tốt','Khác'];
   function buildRows(criteria,prefix){
     return criteria.map(c=>{
       const key=prefix+'_'+c.id;
       if(naState[key]) return [c.name,'N/A',''];
+      const ev=document.getElementById(`evt_${prefix}_${c.id}`)?.value||'';
+      if(khacState[key]) return [c.name,'Khác',ev];
       const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
       const m=sel?sel.className.match(/sel-(\d)/):null;
       const sc=m?parseInt(m[1]):null;
-      const ev=document.getElementById(`evt_${prefix}_${c.id}`)?.value||'';
       return [c.name, sc?sc+' — '+scoreLabels[sc]:'—', ev];
     });
   }
@@ -2251,11 +2250,9 @@ function collectEvalData(){
     return [c.name, sc?(sc+' — '+(cultLabels[c.id]?cultLabels[c.id][sc-1]:'')):'—'];
   });
 
-  const conclusionMap={'hire':'Ký hợp đồng chính thức','promote':'Ký hợp đồng & Tăng chức/lương','fail':'Không tiếp tục'};
+  const conclusionMap={'hire':'Ký hợp đồng chính thức','fail':'Không tiếp tục'};
   const conclusionVal=document.querySelector('input[name="conclusion"]:checked')?.value||'';
   const conclusion=conclusionMap[conclusionVal]||'Chưa chọn';
-  const reason=document.getElementById('conclusion_reason')?.value||'';
-  const strength=document.getElementById('strength')?.value||'';
   const weakness=document.getElementById('weakness')?.value||'';
   const sigManager=document.getElementById('sig_manager')?.value||'';
   const sigTitle=document.getElementById('sig_title')?.value||'';
@@ -2276,7 +2273,7 @@ function collectEvalData(){
 
   return {name,deptLabel,title,level,manager,mgrTitle,start,end,dur,evalDate,
     pCore,pDept,pCult,total,weeks,coreRows,deptRows,mgmtRows,cultRows,
-    conclusion,reason,strength,weakness,sigManager,sigTitle,sigDate,sigEmployee,sigEmpTitle,sigEmpDate,
+    conclusion,weakness,sigManager,sigTitle,sigDate,sigEmployee,sigEmpTitle,sigEmpDate,
     idpRows,verdictText};
 }
 
@@ -2291,7 +2288,7 @@ document.getElementById('f_evaldate').value=`${dd}/${mm}/${yyyy}`;
 updateLocks();
 syncSigInfo();
 // Listen to strength/weakness for final summary update
-['strength','weakness','conclusion_reason'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',updateFinalSummary);});
+['weakness'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',updateFinalSummary);});
 
 // ============================================================
 // PHÂN QUYỀN THEO LINK BỘ PHẬN (?dept=xxx)
