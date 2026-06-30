@@ -1304,39 +1304,47 @@ function updateFinalSummary(){
   document.getElementById('fs_decision').textContent=cv?dmap[cv]:'— Chưa chọn —';
 
   // AUTO-GENERATE SUMMARY from all evaluation data — KHÔNG hiện số điểm/% (tránh bias ngược lên TBP)
-  // Mỗi tiêu chí/hạng mục đã đánh giá = 1 DÒNG ĐỘC LẬP riêng biệt, KHÔNG gộp thành 1 đoạn dài —
-  // định dạng: "Tên tiêu chí — Mức: nội dung dẫn chứng". Dùng \n nối dòng, hiển thị qua
-  // CSS white-space:pre-line ở #fs_summary_text nên textContent giữ nguyên xuống dòng.
-  let lines=[];
-
-  // Work log (ghi nhận, không tính điểm) — vẫn là 1 dòng riêng đầu tiên
-  let wkFilled=0;
-  for(let i=1;i<=activeWeeks;i++){ if(getWeekJDNames(i,dCrit||[]).length>0) wkFilled++; }
-  if(wkFilled>0) lines.push(`Đã ghi nhận công việc ${wkFilled} tuần.`);
-
-  const LEVEL_TXT={1:'Chưa đạt',2:'Đạt',3:'Tốt'};
-  function pushCritLines(criteria,prefix){
+  // LOGIC TÓM TẮT ĐIỀU HÀNH (executive summary) — KHÔNG liệt kê toàn bộ tiêu chí (sẽ thành
+  // 1 bức tường chữ rất dài và dư thừa vì đã có đầy đủ trong Phần III/IV/V + PDF):
+  //  - Bỏ qua mức "Đạt" (đúng kỳ vọng cơ bản, không có gì đặc biệt cần nêu trong tóm tắt).
+  //  - Chỉ nêu tiêu chí ở mức "Tốt" (điểm mạnh nổi bật), "Chưa đạt" (cần cải thiện) và "Khác"
+  //    (ghi chú riêng) — đúng tinh thần "tổng kết", không phải "liệt kê dữ liệu thô".
+  //  - Gom theo NHÓM có tiêu đề rõ (Điểm nổi bật / Cần cải thiện / Ghi chú khác), mỗi tiêu chí
+  //    vẫn là 1 dòng riêng trong nhóm của nó.
+  //  - Dẫn chứng được CẮT NGẮN (≤70 ký tự) — chỉ để gợi nhớ, không dán nguyên văn đoạn dài.
+  // KHÔNG còn cắt/hiện dẫn chứng trong tóm tắt — chỉ liệt kê TÊN TIÊU CHÍ cho gọn,
+  // dẫn chứng đầy đủ vẫn xem được ở Phần III/IV/V và trong PDF xuất ra.
+  const tot=[], yeu=[], khac=[];
+  function collectCritLines(criteria,prefix){
     for(const c of criteria){
       const key=`${prefix}_${c.id}`;
-      if(naState[key]) continue; // Không Áp Dụng — bỏ qua, không hiện dòng
-      const ev=document.getElementById(`evt_${prefix}_${c.id}`)?.value?.trim()||'';
-      if(khacState[key]){
-        lines.push(`${c.name} — Khác: ${ev||'(chưa có ghi chú)'}`);
-        continue;
-      }
+      if(naState[key]) continue; // Không Áp Dụng — bỏ qua, không đưa vào tóm tắt
+      if(khacState[key]){ khac.push(c.name); continue; }
       const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
       const m=sel?sel.className.match(/sel-(\d)/):null;
       const sc=m?parseInt(m[1]):null;
-      if(!sc) continue; // chưa chọn mức — chưa đủ dữ liệu, không hiện dòng
-      lines.push(`${c.name} — ${LEVEL_TXT[sc]}: ${ev||'(chưa có dẫn chứng)'}`);
+      if(sc===3) tot.push(c.name);
+      else if(sc===1) yeu.push(c.name);
+      // sc===2 (Đạt) hoặc chưa chọn mức -> không đưa vào tóm tắt
     }
   }
-  pushCritLines(CORE,'core');
-  if(currentDept&&dCrit) pushCritLines(dCrit,'dept');
+  collectCritLines(CORE,'core');
+  if(currentDept&&dCrit) collectCritLines(dCrit,'dept');
   const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
-  if(hasManagement) pushCritLines(MANAGEMENT,'mgmt');
+  if(hasManagement) collectCritLines(MANAGEMENT,'mgmt');
 
-  const autoText=lines.join('\n');
+  let lines=[];
+  let wkFilled=0;
+  for(let i=1;i<=activeWeeks;i++){ if(getWeekJDNames(i,dCrit||[]).length>0) wkFilled++; }
+  if(wkFilled>0) lines.push(`Đã ghi nhận công việc ${wkFilled} tuần.`);
+  if(tot.length){ lines.push(''); lines.push('✅ ĐIỂM NỔI BẬT (Tốt):'); tot.forEach(t=>lines.push('• '+t)); }
+  if(yeu.length){ lines.push(''); lines.push('⚠️ CẦN CẢI THIỆN (Chưa đạt):'); yeu.forEach(t=>lines.push('• '+t)); }
+  if(khac.length){ lines.push(''); lines.push('📝 GHI CHÚ KHÁC:'); khac.forEach(t=>lines.push('• '+t)); }
+  if(!tot.length&&!yeu.length&&!khac.length&&wkFilled>0){
+    lines.push('Các tiêu chí đã chấm đều ở mức "Đạt" — không có điểm nổi bật hay cần lưu ý đặc biệt.');
+  }
+
+  const autoText=lines.join('\n').trim();
 
   // Tự động điền duy nhất 1 ô hiển thị (không còn ô ghi tay riêng để tránh trùng/dư) — KHÔNG kèm điểm/% tổng
   const summaryEl=document.getElementById('fs_summary_text');
