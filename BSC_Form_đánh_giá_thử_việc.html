@@ -374,15 +374,22 @@ input[readonly]{background:#f0f5fb;color:#88a}
 
 <!-- VI -->
 <div class="card locked" id="card6">
-  <div class="sec">VI. Tổng điểm</div>
-  <div id="vi_score_visible" style="background:#f4f8fd;border:1.5px solid #d0e4f7;border-radius:12px;padding:18px 20px">
-    <ul id="vi_score_list" style="margin:0;padding-left:20px;font-size:13px;line-height:2;color:#223"></ul>
-    <div id="vi_score_total" style="margin-top:8px;font-size:14px;font-weight:900;color:#005AAB"></div>
+  <div class="sec">VI. Xác nhận hoàn tất đánh giá</div>
+  <div style="background:#f4f8fd;border:1.5px solid #d0e4f7;border-radius:12px;padding:28px 24px;text-align:center">
+    <div style="font-size:32px;margin-bottom:10px">🔒</div>
+    <div style="font-size:14px;font-weight:900;color:#005AAB;margin-bottom:8px">Kết quả tổng hợp được giữ bảo mật</div>
+    <div style="font-size:12.5px;color:#557;max-width:480px;margin:0 auto;line-height:1.6">
+      Điểm số và tỷ lệ % tổng hợp sẽ <strong>không hiển thị</strong> ở bước này, nhằm đảm bảo người đánh giá tập trung vào quan sát hành vi khách quan ở từng tiêu chí — không bị ảnh hưởng ngược lại bởi điểm số.
+      Kết quả đầy đủ sẽ có trong file PDF / email gửi về HR sau khi hoàn tất.
+    </div>
+    <div id="vi_status_box" style="margin-top:18px;padding:12px 16px;border-radius:9px;font-size:13px;font-weight:800;background:#fde8e8;color:#c0392b;display:inline-block">
+      ⏳ Chưa hoàn thành đủ các phần đánh giá phía trên
+    </div>
   </div>
-  <div id="vi_status_box" style="margin-top:14px;padding:12px 16px;border-radius:9px;font-size:13px;font-weight:800;background:#fde8e8;color:#c0392b;display:inline-block">
-    ⏳ Chưa hoàn thành đủ các phần đánh giá phía trên
-  </div>
-  <!-- Hidden elements kept for JS calculation compatibility — not visible to reviewer -->
+  <!-- Hidden elements kept for JS calculation compatibility — not visible to reviewer.
+       PHÂN QUYỀN BẢO MẬT: Mục VI ẩn hoàn toàn % khỏi giao diện TBP — chỉ HR mới thấy đầy đủ
+       breakdown trong PDF/email (xem getScoreBreakdown() + renderScoreBreakdown() không còn
+       được gọi để hiển thị trên web nữa, chỉ dùng nội bộ cho 2 bản PDF). -->
   <div style="display:none">
     <span class="sb-pct" id="pct_core">—</span><span class="sb-sub" id="sub_core"></span><div class="sb-fill" id="bar_core"></div>
     <span class="sb-pct" id="pct_dept">—</span><span class="sb-sub" id="sub_dept"></span><div class="sb-fill" id="bar_dept"></div>
@@ -2489,23 +2496,4 @@ async function copyDeptLink(deptKey,rowId){
   }catch(e){
     // Fallback cho trình duyệt/môi trường không hỗ trợ Clipboard API (vd. mở file local trực tiếp)
     const ta=document.createElement('textarea');
-    ta.value=link; ta.style.position='fixed'; ta.style.left='-9999px';
-    document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); }catch(e2){}
-    document.body.removeChild(ta);
-  }
-  const rowEl=document.getElementById(rowId);
-  const original=rowEl.textContent;
-  rowEl.textContent='✅ Đã copy!';
-  rowEl.style.color='#1a5c30';
-  rowEl.style.fontWeight='800';
-  setTimeout(()=>{rowEl.textContent=original;rowEl.style.color='#789';rowEl.style.fontWeight='400';},1400);
-}
-// Đóng modal khi bấm ra ngoài vùng nội dung
-document.getElementById('linkModalOverlay').addEventListener('click',function(e){
-  if(e.target===this) closeLinkModal();
-});
-
-</script>
-</body>
-</html>
+    ta.value=link; ta.style.position='fixed'; ta.style.le
