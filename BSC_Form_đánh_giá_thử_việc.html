@@ -51,6 +51,8 @@ input[readonly]{background:#f0f5fb;color:#88a}
 
 /* INFO */
 .info{background:#d8ecff;border-radius:8px;padding:8px 12px;margin-bottom:.85rem;font-size:12px;color:#005AAB;display:flex;gap:7px;align-items:flex-start;font-weight:600}
+.khac-extra-box{margin-top:10px;padding:12px 14px;border:1.5px dashed #c8d8f0;border-radius:9px;background:#fbfdff}
+.khac-extra-box textarea{margin-top:4px}
 
 /* WEEK TABLE */
 .wtbl{width:100%;border-collapse:collapse;font-size:12px}
@@ -107,17 +109,17 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .bopt:last-child{border-right:none}
 .bopt:hover{background:#d8ecff}
 .bopt-score{font-size:16px;font-weight:900;display:block;line-height:1}
-.bopt-label{font-size:10px;color:#888;margin-top:2px;display:block;font-weight:700}
-.bopt[data-s="1"] .bopt-score{color:#c0392b}
-.bopt[data-s="2"] .bopt-score{color:#e67e22}
-.bopt[data-s="3"] .bopt-score{color:#27ae60}
-.bopt[data-s="4"] .bopt-score{color:#005AAB}
-.bopt[data-s="5"] .bopt-score{color:#5c3fc5}
-.bopt.sel-1{background:#fce8e8;border:2px solid #c0392b}.bopt.sel-1 .bopt-score{color:#8b0000;font-size:20px}.bopt.sel-1 .bopt-label{color:#8b0000;font-weight:900}
-.bopt.sel-2{background:#fef0e0;border:2px solid #e67e22}.bopt.sel-2 .bopt-score{color:#a04000;font-size:20px}.bopt.sel-2 .bopt-label{color:#a04000;font-weight:900}
-.bopt.sel-3{background:#e4f5ea;border:2px solid #27ae60}.bopt.sel-3 .bopt-score{color:#1a5c30;font-size:20px}.bopt.sel-3 .bopt-label{color:#1a5c30;font-weight:900}
-.bopt.sel-4{background:#d4e8ff;border:2px solid #005AAB}.bopt.sel-4 .bopt-score{color:#003d7a;font-size:20px}.bopt.sel-4 .bopt-label{color:#003d7a;font-weight:900}
-.bopt.sel-5{background:#ede8ff;border:2px solid #5c3fc5}.bopt.sel-5 .bopt-score{color:#3d1fa0;font-size:20px}.bopt.sel-5 .bopt-label{color:#3d1fa0;font-weight:900}
+.bopt-label{font-size:12px;color:#557;margin-top:2px;display:block;font-weight:800}
+.bopt[data-s="1"] .bopt-label{color:#c0392b}
+.bopt[data-s="2"] .bopt-label{color:#e67e22}
+.bopt[data-s="3"] .bopt-label{color:#27ae60}
+.bopt[data-s="4"] .bopt-label{color:#005AAB}
+.bopt[data-s="5"] .bopt-label{color:#5c3fc5}
+.bopt.sel-1{background:#fce8e8;border:2px solid #c0392b}.bopt.sel-1 .bopt-label{color:#8b0000;font-weight:900;font-size:13px}
+.bopt.sel-2{background:#fef0e0;border:2px solid #e67e22}.bopt.sel-2 .bopt-label{color:#a04000;font-weight:900;font-size:13px}
+.bopt.sel-3{background:#e4f5ea;border:2px solid #27ae60}.bopt.sel-3 .bopt-label{color:#1a5c30;font-weight:900;font-size:13px}
+.bopt.sel-4{background:#d4e8ff;border:2px solid #005AAB}.bopt.sel-4 .bopt-label{color:#003d7a;font-weight:900;font-size:13px}
+.bopt.sel-5{background:#ede8ff;border:2px solid #5c3fc5}.bopt.sel-5 .bopt-label{color:#3d1fa0;font-weight:900;font-size:13px}
 .bi-detail{padding:7px 12px;background:#f4f8fd;border-top:.5px solid #d0e4f7;font-size:11px;color:#335;display:none;line-height:1.5;border-left:3px solid #005AAB}
 .bi-detail.show{display:block}
 .bi-detail strong{color:#005AAB;font-weight:900}
@@ -135,6 +137,8 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .cult-opt:hover{background:#d8ecff;color:#005AAB}
 .cult-opt.sel{background:#005AAB;color:#fff;font-weight:900}
 .cult-num{display:block;font-size:16px;font-weight:900;margin-bottom:1px}
+.cult-pctdef{display:block;font-size:9.5px;color:#9aa;font-weight:600;margin-top:3px;line-height:1.25}
+.cult-opt.sel .cult-pctdef{color:#d8ecff}
 
 /* SCORE SECTION */
 .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
@@ -348,6 +352,10 @@ input[readonly]{background:#f0f5fb;color:#88a}
   <div class="info"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#005AAB" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
     <span>Chọn điểm 1–5 · Click để xem mô tả chi tiết · Chọn <strong>Áp Dụng / Không Áp Dụng</strong> · Điểm 1–2 hoặc 4–5 yêu cầu dẫn chứng</span></div>
   <div id="coreArea"></div>
+  <div class="khac-extra-box">
+    <label class="fl">➕ KHÁC <span style="font-weight:600;color:#789">(tiêu chí phát sinh ngoài JD chuẩn của HR, nếu có)</span></label>
+    <textarea id="khacExtra_core" rows="3" placeholder="Ghi rõ tiêu chí/thông tin phát sinh không thuộc mô tả công việc chuẩn ban đầu (nếu có)..."></textarea>
+  </div>
 </div>
 
 <!-- IV -->
@@ -357,7 +365,15 @@ input[readonly]{background:#f0f5fb;color:#88a}
     <span id="deptHint">Tiêu chí sẽ hiển thị theo bộ phận đã chọn ở Phần I.</span></div>
   <div id="deptLevelNote" style="display:none;background:#fff8e6;border:1.5px solid #f5c842;border-left:4px solid #f5a623;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;font-weight:700;color:#7c4a00"></div>
   <div id="deptArea"><div style="text-align:center;padding:2rem;color:#aac;font-size:13px">Chọn bộ phận ở Phần I.</div></div>
+  <div class="khac-extra-box">
+    <label class="fl">➕ KHÁC <span style="font-weight:600;color:#789">(tiêu chí chuyên môn phát sinh ngoài JD chuẩn của HR, nếu có)</span></label>
+    <textarea id="khacExtra_dept" rows="3" placeholder="Ghi rõ tiêu chí/thông tin phát sinh không thuộc mô tả công việc chuẩn ban đầu (nếu có)..."></textarea>
+  </div>
   <div id="mgmtArea"></div>
+  <div class="khac-extra-box">
+    <label class="fl">➕ KHÁC <span style="font-weight:600;color:#789">(tiêu chí quản lý phát sinh ngoài JD chuẩn của HR, nếu có)</span></label>
+    <textarea id="khacExtra_mgmt" rows="3" placeholder="Ghi rõ tiêu chí/thông tin phát sinh không thuộc mô tả công việc chuẩn ban đầu (nếu có)..."></textarea>
+  </div>
 </div>
 
 <!-- V -->
@@ -366,6 +382,10 @@ input[readonly]{background:#f0f5fb;color:#88a}
   <div class="info"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#005AAB" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
     <span>Quan sát hành vi thực tế trong toàn bộ thời gian thử việc · <strong>1=Thấp nhất · 4=Cao nhất</strong></span></div>
   <div id="cultureArea"></div>
+  <div class="khac-extra-box">
+    <label class="fl">➕ KHÁC <span style="font-weight:600;color:#789">(hành vi/tiêu chí văn hóa phát sinh ngoài mô tả chuẩn của HR, nếu có)</span></label>
+    <textarea id="khacExtra_culture" rows="3" placeholder="Ghi rõ tiêu chí/thông tin phát sinh không thuộc mô tả chuẩn ban đầu (nếu có)..."></textarea>
+  </div>
   <div class="cult-score-row" id="cultScoreRow" style="display:none">
     <span class="cult-score-label">Tỉ lệ đạt được (Phù hợp văn hóa BSC)</span>
     <span class="cult-score-pct" id="cultPct">—</span>
@@ -410,11 +430,14 @@ input[readonly]{background:#f0f5fb;color:#88a}
   </div>
   <div id="verdict-warning" style="display:none;background:#fff0f0;border:1.5px solid #e74c3c;border-left:4px solid #c0392b;border-radius:8px;padding:10px 14px;margin:8px 0 4px;font-size:12px;color:#c0392b;font-weight:700"></div>
   <div style="border-top:.5px solid #d0e4f7;padding-top:.85rem;margin:.85rem 0">
-    <div class="r1"><label class="fl">Điểm cần cải thiện <span class="req">*</span></label><textarea id="weakness" placeholder="Kỹ năng paperwork cần hoàn thiện, tốc độ xử lý brief còn chậm..." style="min-height:80px" onblur="markFieldQuality(this)"></textarea></div>
+    <div class="r1"><label class="fl">Điểm cần cải thiện <span class="req">*</span></label>
+      <div style="font-size:11px;color:#c0392b;font-weight:800;margin-bottom:4px">Liệt kê ít nhất 5 điều cần cải thiện. (bắt buộc điền)</div>
+      <textarea id="weakness" placeholder="Kỹ năng paperwork cần hoàn thiện, tốc độ xử lý brief còn chậm...&#10;1. ...&#10;2. ...&#10;3. ...&#10;4. ...&#10;5. ..." style="min-height:110px" onblur="markFieldQuality(this)" oninput="markFieldQuality(this);updateWeaknessCounter()"></textarea>
+      <div id="weaknessCounter" style="font-size:11px;font-weight:800;margin-top:4px;color:#aab">Đã liệt kê 0/5 điều</div></div>
   </div>
 
   <div style="margin:.5rem 0 .5rem"><div style="font-size:12px;font-weight:900;color:#005AAB;margin-bottom:2px">Lộ trình phát triển 3 tháng tiếp theo</div>
-    <div style="font-size:11px;color:#88a;font-weight:700">3 mục tiêu phát triển · Người hỗ trợ · Cách đo lường</div></div>
+    <div style="font-size:11px;color:#88a;font-weight:700">3 mục tiêu phát triển · Người hỗ trợ · KPI cụ thể</div></div>
   <div id="idpArea"></div>
 
   <!-- FINAL SUMMARY -->
@@ -958,7 +981,7 @@ function renderBARSGroup(containerId,criteria,prefix){
       </div>
       <div class="bi-opts">
         ${crit.scores.map((s,i)=>`<div class="bopt" id="bopt_${prefix}_${crit.id}_${i+1}" data-s="${i+1}" onclick="selBOpt('${prefix}','${crit.id}',${i+1},'${encodeURIComponent(s)}')">
-          <span class="bopt-score">${i+1}</span><span class="bopt-label">${sl[i]}</span></div>`).join('')}
+          <span class="bopt-label">${sl[i]}</span></div>`).join('')}
         <label class="khac-toggle" id="khacToggle_${prefix}_${crit.id}">
           <input type="checkbox" id="khacChk_${prefix}_${crit.id}" onchange="toggleKhac('${prefix}','${crit.id}')">
           <span>Khác</span><em>không tính điểm</em>
@@ -967,7 +990,7 @@ function renderBARSGroup(containerId,criteria,prefix){
       <div class="bi-detail" id="det_${prefix}_${crit.id}"></div>
       <div class="ev-box" id="ev_${prefix}_${crit.id}">
         <label id="evLabel_${prefix}_${crit.id}">✏️ Nhận xét & dẫn chứng <span style="color:#c0392b;font-weight:900">*bắt buộc</span> — cần điền để mở phần tiếp theo</label>
-        <textarea id="evt_${prefix}_${crit.id}" rows="3" style="min-height:64px;resize:vertical" placeholder="BẰNG CHỨNG CHỨNG MINH CỤ THỂ VẤN ĐỀ (Ví dụ: Số liệu kết quả công việc, link báo cáo, tiến độ dự án, hoặc hành vi thực tế đã quan sát được...)" oninput="checkSects()" onblur="checkSects()" onpaste="setTimeout(checkSects,0)"></textarea>
+        <textarea id="evt_${prefix}_${crit.id}" rows="3" style="min-height:64px;resize:vertical" placeholder="Vui lòng cho 1 kết quả cụ thể để chứng minh." oninput="checkSects()" onblur="checkSects()" onpaste="setTimeout(checkSects,0)"></textarea>
       </div>`;
     wrap.appendChild(div);
     // Gán title (tooltip) cho từng nút mức bằng thuộc tính DOM (an toàn với dấu ngoặc kép
@@ -1047,10 +1070,11 @@ function toggleKhac(prefix,critId){
 // RENDER CULTURE
 function renderCulture(){
   let h='';
+  const cultPctDef=['0%/100% các công việc/dự án tham gia','30%/100% các công việc/dự án tham gia','70%/100% các công việc/dự án tham gia','100%/100% các công việc/dự án tham gia'];
   CULTURE.forEach((c,ci)=>{
     h+=`<div class="cult-item"><div class="cult-head">${ci+1}. ${c.name}</div><div class="cult-opts">
       ${c.opts.map((o,i)=>`<div class="cult-opt" id="copt_${c.id}_${i+1}" onclick="selCult('${c.id}',${i+1})">
-        <span class="cult-num">${i+1}</span>${o}</div>`).join('')}
+        <span class="cult-num">${i+1}</span>${o}<span class="cult-pctdef">${cultPctDef[i]}</span></div>`).join('')}
     </div></div>`;
   });
   document.getElementById('cultureArea').innerHTML=h;
@@ -1076,7 +1100,7 @@ function renderIDP(){
   for(let i=1;i<=3;i++) h+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
     <div><label class="fl">Mục tiêu ${i}</label><textarea id="idp_g${i}" rows="3" style="${taStyle}" placeholder="Mô tả ngắn gọn năng lực hoặc kết quả cần đạt được trong 3 tháng tới..."></textarea></div>
     <div><label class="fl">Người hỗ trợ / Mentor</label><textarea id="idp_m${i}" rows="3" style="${taStyle}" placeholder="Tên người hỗ trợ..."></textarea></div>
-    <div><label class="fl">Cách đo lường</label><textarea id="idp_k${i}" rows="3" style="${taStyle}" placeholder="Tiêu chí cụ thể để biết mục tiêu đã đạt được..."></textarea></div>
+    <div><label class="fl">KPI cụ thể</label><textarea id="idp_k${i}" rows="3" style="${taStyle}" placeholder="Tiêu chí cụ thể để biết mục tiêu đã đạt được..."></textarea></div>
   </div>`;
   document.getElementById('idpArea').innerHTML=h;
 }
@@ -1459,6 +1483,24 @@ function isMeaningfulText(raw){
 }
 // Đánh dấu viền cảnh báo (cam) lên 1 ô textarea/input khi nội dung chưa đủ thực chất —
 // giúp TBP biết ngay ô nào cần bổ sung, không chỉ thấy thông báo chung ở cấp Phần.
+// Đếm số "điều" đã liệt kê trong ô Điểm cần cải thiện — mỗi dòng không rỗng và đủ
+// dài (không tính số thứ tự "1." hay gạch đầu dòng đơn thuần) được tính là 1 điều.
+function countListItems(raw){
+  const text=(raw||'').trim();
+  if(!text) return 0;
+  return text.split(/\r?\n/)
+    .map(l=>l.replace(/^[\s•\-*]*\d*[.)]?\s*/,'').trim())
+    .filter(l=>l.length>=1).length;
+}
+// Cập nhật dòng "Đã liệt kê X/5 điều" ngay dưới ô Điểm cần cải thiện — giúp TBP biết ngay
+// còn thiếu bao nhiêu, không phải đợi tới lúc bấm Gửi mới bị chặn.
+function updateWeaknessCounter(){
+  const el=document.getElementById('weaknessCounter');
+  if(!el) return;
+  const n=countListItems(document.getElementById('weakness')?.value);
+  el.textContent=`Đã liệt kê ${n}/5 điều`;
+  el.style.color=n>=5?'#1a5c30':'#c0392b';
+}
 function markFieldQuality(el){
   if(!el) return;
   if(!isMeaningfulText(el.value) && el.value.trim().length>0){
@@ -1690,6 +1732,7 @@ function validate(){
     [()=>!sectionDone[5],'Phần V: Chưa hoàn thành đánh giá Phù hợp văn hóa BSC',null,'card5','ntab5'],
     [()=>!document.querySelector('input[name="conclusion"]:checked'),'Phần VII: Chưa chọn quyết định sau thử việc',null,'card7','ntab7'],
     [()=>!isMeaningfulText(document.getElementById('weakness').value),'Phần VII: Điểm cần cải thiện cần mô tả rõ hơn (không chỉ điền qua loa)','weakness'],
+    [()=>countListItems(document.getElementById('weakness').value)<5,'Phần VII: Điểm cần cải thiện — vui lòng liệt kê ít nhất 5 điều (mỗi điều 1 dòng)','weakness'],
     [()=>!document.getElementById('sig_manager').value.trim(),'Phần VII: Chưa điền họ tên người ký','sig_manager'],
     [()=>!document.getElementById('sig_title').value.trim(),'Phần VII: Chưa điền chức vụ người ký','sig_title'],
   ];
@@ -1793,6 +1836,10 @@ async function submitForm(){
     total_score:total,
     conclusion:document.querySelector('input[name="conclusion"]:checked')?.value||'',
     weakness:document.getElementById('weakness').value,
+    khac_core:document.getElementById('khacExtra_core')?.value||'',
+    khac_dept:document.getElementById('khacExtra_dept')?.value||'',
+    khac_mgmt:document.getElementById('khacExtra_mgmt')?.value||'',
+    khac_culture:document.getElementById('khacExtra_culture')?.value||'',
     sig_manager:document.getElementById('sig_manager').value,
     sig_title:document.getElementById('sig_title').value,
     sig_date:document.getElementById('sig_date').value,
@@ -1936,6 +1983,10 @@ function buildEvalHTML(){
   const conclusionVal=document.querySelector('input[name="conclusion"]:checked')?.value||'';
   const conclusion=conclusionMap[conclusionVal]||'Chưa chọn';
   const weakness=document.getElementById('weakness')?.value||'';
+  const khacCore=document.getElementById('khacExtra_core')?.value||'';
+  const khacDept=document.getElementById('khacExtra_dept')?.value||'';
+  const khacMgmt=document.getElementById('khacExtra_mgmt')?.value||'';
+  const khacCulture=document.getElementById('khacExtra_culture')?.value||'';
   const sigManager=document.getElementById('sig_manager')?.value||'';
   const sigTitle=document.getElementById('sig_title')?.value||'';
   const sigDate=document.getElementById('sig_date')?.value||'';
@@ -1996,13 +2047,17 @@ function buildEvalHTML(){
 
   <div class="sec">III. Tinh thần làm việc (38%)</div>
   <table><thead><tr><th>Tiêu chí</th><th style="width:160px">Điểm</th><th>Dẫn chứng</th></tr></thead><tbody>${coreHTML}</tbody></table>
+  ${khacCore?`<div style="font-size:11px;background:#fbfdff;border:1px dashed #c8d8f0;border-radius:6px;padding:6px 10px;margin-top:4px"><b>➕ KHÁC:</b> ${khacCore}</div>`:''}
 
   <div class="sec">IV. Năng lực chuyên môn — ${deptLabel} (38%)</div>
   <table><thead><tr><th>Tiêu chí</th><th style="width:160px">Điểm</th><th>Dẫn chứng</th></tr></thead><tbody>${deptHTML||'<tr><td colspan="3" style="padding:6px 8px;border:1px solid #d0e4f7;color:#aaa;text-align:center">Chưa điền</td></tr>'}</tbody></table>
+  ${khacDept?`<div style="font-size:11px;background:#fbfdff;border:1px dashed #c8d8f0;border-radius:6px;padding:6px 10px;margin-top:4px"><b>➕ KHÁC (chuyên môn):</b> ${khacDept}</div>`:''}
   ${mgmtHTML?`<div style="font-size:11px;font-weight:900;color:#5c3fc5;margin:8px 0 4px">👤 Tiêu chí quản lý (áp dụng từ Assistant Manager trở lên)</div><table><thead><tr><th>Tiêu chí</th><th style="width:160px">Điểm</th><th>Dẫn chứng</th></tr></thead><tbody>${mgmtHTML}</tbody></table>`:''}
+  ${khacMgmt?`<div style="font-size:11px;background:#fbfdff;border:1px dashed #c8d8f0;border-radius:6px;padding:6px 10px;margin-top:4px"><b>➕ KHÁC (quản lý):</b> ${khacMgmt}</div>`:''}
 
   <div class="sec">V. Phù hợp văn hóa BSC (24%)</div>
   <table><thead><tr><th>Tiêu chí</th><th style="width:200px">Đánh giá</th></tr></thead><tbody>${cultHTML}</tbody></table>
+  ${khacCulture?`<div style="font-size:11px;background:#fbfdff;border:1px dashed #c8d8f0;border-radius:6px;padding:6px 10px;margin-top:4px"><b>➕ KHÁC (văn hóa):</b> ${khacCulture}</div>`:''}
 
   <div class="sec">VI. Tổng điểm</div>
   <div class="score-box" style="display:block">
@@ -2036,7 +2091,7 @@ function buildEvalHTML(){
   </tbody></table>
 
   ${idpHTML?`<div class="sec">Lộ trình phát triển 3 tháng tiếp theo</div>
-  <table><thead><tr><th style="width:80px"></th><th>Mục tiêu</th><th style="width:160px">Mentor</th><th style="width:180px">Đo lường</th></tr></thead><tbody>${idpHTML}</tbody></table>`:''}
+  <table><thead><tr><th style="width:80px"></th><th>Mục tiêu</th><th style="width:160px">Mentor</th><th style="width:180px">KPI cụ thể</th></tr></thead><tbody>${idpHTML}</tbody></table>`:''}
 
   <div class="sig-area" style="display:flex;justify-content:space-between;gap:30px">
     <div class="sig-box" style="flex:1;text-align:center">
@@ -2223,6 +2278,7 @@ async function generatePDFBase64(){
   // ===== III. TINH THẦN LÀM VIỆC =====
   sectionTitle('III. TINH THẦN LÀM VIỆC (38%)');
   table(['Tiêu chí','Điểm','Dẫn chứng'], data.coreRows, {0:{cellWidth:55},1:{cellWidth:28}});
+  if(data.khacCore) bodyText(`➕ KHÁC: ${data.khacCore}`);
 
   // ===== IV. CHUYÊN MÔN =====
   sectionTitle(`IV. NĂNG LỰC CHUYÊN MÔN — ${data.deptLabel} (38%)`);
@@ -2231,14 +2287,17 @@ async function generatePDFBase64(){
   } else {
     bodyText('Chưa điền.');
   }
+  if(data.khacDept) bodyText(`➕ KHÁC (chuyên môn): ${data.khacDept}`);
   if(data.mgmtRows.length){
     bodyText('👤 Tiêu chí quản lý (Assistant Manager trở lên):');
     table(['Tiêu chí','Điểm','Dẫn chứng'], data.mgmtRows, {0:{cellWidth:55},1:{cellWidth:28}});
   }
+  if(data.khacMgmt) bodyText(`➕ KHÁC (quản lý): ${data.khacMgmt}`);
 
-  // ===== V. CULTURE FIT =====
-  sectionTitle('V. CULTURE FIT (24%)');
+  // ===== V. PHÙ HỢP VĂN HÓA =====
+  sectionTitle('V. PHÙ HỢP VĂN HÓA (24%)');
   table(['Tiêu chí','Đánh giá'], data.cultRows, {1:{cellWidth:55}});
+  if(data.khacCulture) bodyText(`➕ KHÁC (văn hóa): ${data.khacCulture}`);
 
   // ===== VI. TỔNG ĐIỂM =====
   sectionTitle('VI. TỔNG ĐIỂM');
@@ -2285,7 +2344,7 @@ async function generatePDFBase64(){
 
   if(data.idpRows.length){
     sectionTitle('LỘ TRÌNH PHÁT TRIỂN 3 THÁNG TIẾP THEO');
-    table(['','Mục tiêu','Mentor','Đo lường'], data.idpRows, {0:{cellWidth:20}});
+    table(['','Mục tiêu','Mentor','KPI cụ thể'], data.idpRows, {0:{cellWidth:20}});
     console.log('[PDF] Sau bảng lộ trình phát triển — y:', y, '| tổng số trang hiện tại:', doc.internal.getNumberOfPages());
   }
 
@@ -2389,6 +2448,10 @@ function collectEvalData(){
   const conclusionVal=document.querySelector('input[name="conclusion"]:checked')?.value||'';
   const conclusion=conclusionMap[conclusionVal]||'Chưa chọn';
   const weakness=document.getElementById('weakness')?.value||'';
+  const khacCore=document.getElementById('khacExtra_core')?.value||'';
+  const khacDept=document.getElementById('khacExtra_dept')?.value||'';
+  const khacMgmt=document.getElementById('khacExtra_mgmt')?.value||'';
+  const khacCulture=document.getElementById('khacExtra_culture')?.value||'';
   const sigManager=document.getElementById('sig_manager')?.value||'';
   const sigTitle=document.getElementById('sig_title')?.value||'';
   const sigDate=document.getElementById('sig_date')?.value||'';
@@ -2408,7 +2471,7 @@ function collectEvalData(){
 
   return {name,deptLabel,title,level,manager,mgrTitle,start,end,dur,evalDate,
     pCore,pDept,pCult,total,weeks,coreRows,deptRows,mgmtRows,cultRows,
-    conclusion,weakness,sigManager,sigTitle,sigDate,sigEmployee,sigEmpTitle,sigEmpDate,
+    conclusion,weakness,khacCore,khacDept,khacMgmt,khacCulture,sigManager,sigTitle,sigDate,sigEmployee,sigEmpTitle,sigEmpDate,
     idpRows,verdictText,obsGroups:getObservationGroups(dCrit),scoreBreakdown:getScoreBreakdown(),weekStats:getWeekCompletionStats(dCritFull)};
 }
 
