@@ -1543,6 +1543,16 @@ function updateWeaknessCounter(){
   el.textContent=`Đã liệt kê ${n}/5 điều`;
   el.style.color=n>=5?'#1a5c30':'#c0392b';
 }
+// Định dạng "Ngày ký" cho bản in/PDF — dùng CHUNG cho buildEvalHTML và file PDF thật.
+// TBP không bắt buộc điền ngày lúc làm form online (tránh lệch ngày so với lúc ký thực tế),
+// nên khi để trống, bản in/PDF phải chừa khoảng trống theo đúng mẫu "Ngày .... tháng .... năm 20...."
+// để hai bên tự viết tay ngày ký thật khi gặp mặt, thay vì in ra dòng "Ngày" cụt lủn không có gì.
+function formatSigDateForPrint(raw){
+  const v=(raw||'').trim();
+  const m=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(m) return `Ngày ${m[1]} tháng ${m[2]} năm ${m[3]}`;
+  return 'Ngày .... tháng .... năm 20....';
+}
 function markFieldQuality(el){
   if(!el) return;
   if(!isMeaningfulText(el.value) && el.value.trim().length>0){
@@ -2174,13 +2184,13 @@ function buildEvalHTML(){
       <div style="font-size:10px;font-weight:900;color:#005AAB;text-transform:uppercase;margin-bottom:50px">Người đánh giá</div>
       <div style="font-size:12px;font-weight:900">${sigManager}</div>
       <div style="font-size:11px;color:#557">${sigTitle}</div>
-      <div style="font-size:11px;color:#557">Ngày ${sigDate}</div>
+      <div style="font-size:11px;color:#557">${formatSigDateForPrint(sigDate)}</div>
     </div>
     <div class="sig-box" style="flex:1;text-align:center">
       <div style="font-size:10px;font-weight:900;color:#005AAB;text-transform:uppercase;margin-bottom:50px">Nhân viên được đánh giá</div>
       <div style="font-size:12px;font-weight:900">${sigEmployee}</div>
       <div style="font-size:11px;color:#557">${sigEmpTitle}</div>
-      <div style="font-size:11px;color:#557">Ngày ${sigEmpDate}</div>
+      <div style="font-size:11px;color:#557">${formatSigDateForPrint(sigEmpDate)}</div>
     </div>
   </div>
   </body></html>`;
@@ -2453,8 +2463,8 @@ async function generatePDFBase64(){
   doc.text(data.sigTitle||'—', sigLeftX, y);
   doc.text(data.sigEmpTitle||'—', sigRightX, y);
   y+=5;
-  doc.text('Ngày '+(data.sigDate||'—'), sigLeftX, y);
-  doc.text('Ngày '+(data.sigEmpDate||'—'), sigRightX, y);
+  doc.text(formatSigDateForPrint(data.sigDate), sigLeftX, y);
+  doc.text(formatSigDateForPrint(data.sigEmpDate), sigRightX, y);
   doc.setTextColor(20,20,18);
 
   const dataUriStr=doc.output('datauristring');
