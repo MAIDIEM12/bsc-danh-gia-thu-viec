@@ -51,6 +51,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
 
 /* INFO */
 .info{background:#d8ecff;border-radius:8px;padding:8px 12px;margin-bottom:.85rem;font-size:12px;color:#005AAB;display:flex;gap:7px;align-items:flex-start;font-weight:600}
+#formArea.locked-submitted{pointer-events:none;user-select:none;opacity:.65;filter:grayscale(.15)}
 .khac-extra-box{margin-top:10px;padding:12px 14px;border:1.5px dashed #c8d8f0;border-radius:9px;background:#fbfdff}
 .khac-extra-box textarea{margin-top:4px}
 
@@ -132,12 +133,11 @@ input[readonly]{background:#f0f5fb;color:#88a}
 .cult-item{border:1px solid #d0e4f7;border-radius:9px;overflow:hidden;margin-bottom:.55rem}
 .cult-head{padding:7px 12px;background:#eef3fa;font-size:12px;font-weight:900;color:#005AAB;border-bottom:.5px solid #d0e4f7}
 .cult-opts{display:flex}
-.cult-opt{flex:1;text-align:center;padding:9px 4px;cursor:pointer;border-right:.5px solid #d0e4f7;font-size:11px;color:#557;transition:all .14s;font-weight:700}
+.cult-opt{flex:1;text-align:center;padding:11px 4px;cursor:pointer;border-right:.5px solid #d0e4f7;font-size:12.5px;color:#557;transition:all .14s;font-weight:800}
 .cult-opt:last-child{border-right:none}
 .cult-opt:hover{background:#d8ecff;color:#005AAB}
 .cult-opt.sel{background:#005AAB;color:#fff;font-weight:900}
-.cult-num{display:block;font-size:16px;font-weight:900;margin-bottom:1px}
-.cult-pctdef{display:block;font-size:9.5px;color:#9aa;font-weight:600;margin-top:3px;line-height:1.25}
+.cult-pctdef{display:block;font-size:9.5px;color:#9aa;font-weight:600;margin-top:4px;line-height:1.25}
 .cult-opt.sel .cult-pctdef{color:#d8ecff}
 
 /* SCORE SECTION */
@@ -365,14 +365,10 @@ input[readonly]{background:#f0f5fb;color:#88a}
     <span id="deptHint">Tiêu chí sẽ hiển thị theo bộ phận đã chọn ở Phần I.</span></div>
   <div id="deptLevelNote" style="display:none;background:#fff8e6;border:1.5px solid #f5c842;border-left:4px solid #f5a623;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;font-weight:700;color:#7c4a00"></div>
   <div id="deptArea"><div style="text-align:center;padding:2rem;color:#aac;font-size:13px">Chọn bộ phận ở Phần I.</div></div>
-  <div class="khac-extra-box">
-    <label class="fl">➕ KHÁC <span style="font-weight:600;color:#789">(tiêu chí chuyên môn phát sinh ngoài JD chuẩn của HR, nếu có)</span></label>
-    <textarea id="khacExtra_dept" rows="3" placeholder="Ghi rõ tiêu chí/thông tin phát sinh không thuộc mô tả công việc chuẩn ban đầu (nếu có)..."></textarea>
-  </div>
   <div id="mgmtArea"></div>
   <div class="khac-extra-box">
-    <label class="fl">➕ KHÁC <span style="font-weight:600;color:#789">(tiêu chí quản lý phát sinh ngoài JD chuẩn của HR, nếu có)</span></label>
-    <textarea id="khacExtra_mgmt" rows="3" placeholder="Ghi rõ tiêu chí/thông tin phát sinh không thuộc mô tả công việc chuẩn ban đầu (nếu có)..."></textarea>
+    <label class="fl">➕ KHÁC <span style="font-weight:600;color:#789">(tiêu chí phát sinh ngoài JD chuẩn của HR, nếu có)</span></label>
+    <textarea id="khacExtra_dept" rows="3" placeholder="Ghi rõ tiêu chí/thông tin phát sinh không thuộc mô tả công việc chuẩn ban đầu (nếu có)..."></textarea>
   </div>
 </div>
 
@@ -498,6 +494,7 @@ input[readonly]{background:#f0f5fb;color:#88a}
     <h2 style="font-size:20px;font-weight:900;margin-bottom:.5rem;color:#005AAB">Đã hoàn tất đánh giá!</h2>
     <p style="font-size:13px;color:#88a;font-weight:700;margin-bottom:14px">Cảm ơn bạn đã hoàn thành đánh giá. Dữ liệu đã được gửi về HR để lưu hồ sơ.</p>
     <div id="successEmailNote" style="font-size:12.5px;font-weight:700;padding:10px 14px;border-radius:9px;background:#f4f6fa;display:inline-block;max-width:480px;line-height:1.6"></div>
+    <p style="font-size:11.5px;color:#c0392b;font-weight:700;margin-top:14px;max-width:480px;margin-left:auto;margin-right:auto">🔒 Bài đánh giá này đã được khóa. Nếu cần chỉnh sửa lại thông tin, vui lòng liên hệ HR để được reset hoặc cấp lại biểu mẫu mới.</p>
   </div>
 </div>
 
@@ -691,15 +688,24 @@ const DEPT_DATA={
 };
 
 const CULTURE=[
-  {id:'cu1',name:'Chủ động đề xuất ý tưởng / giải pháp cải tiến',opts:['Chưa bao giờ','Thỉnh thoảng','Thường xuyên','Luôn luôn']},
-  {id:'cu2',name:'Chịu được áp lực deadline cao và multi-project',opts:['Chưa thể hiện','Đôi khi mất bình tĩnh','Chịu được tốt','Làm tốt dưới áp lực cao']},
-  {id:'cu3',name:'Linh hoạt & thích ứng nhanh với thay đổi',opts:['Khó thích nghi','Thích nghi chậm','Thích nghi tốt','Coi thay đổi là cơ hội']},
-  {id:'cu4',name:'Phù hợp văn hóa agency BSC',opts:['Chưa phù hợp','Đang cải thiện','Cơ bản phù hợp','Hoàn toàn phù hợp']},
-  {id:'cu5',name:'Tôn trọng & chủ động hỗ trợ đồng nghiệp',opts:['Chưa thể hiện','Thỉnh thoảng','Thường xuyên','Luôn là chỗ dựa']},
+  {id:'cu1',name:'Chủ động đề xuất ý tưởng / giải pháp cải tiến',opts:['Chưa bao giờ','Thỉnh thoảng','Thường xuyên','Luôn luôn'],
+    defs:['0% ý tưởng thực tế','Đóng góp giải pháp trong 30% số lượng dự án','Đóng góp giải pháp trong 70% số lượng dự án','Chủ động đề xuất cải tiến trên 100% dự án tham gia']},
+  {id:'cu2',name:'Chịu được áp lực deadline cao và multi-project',opts:['Chưa thể hiện','Đôi khi mất bình tĩnh','Chịu được tốt','Làm tốt dưới áp lực cao'],
+    defs:['0% khả năng chịu áp lực','Xử lý tốt dưới 30% khối lượng deadline gấp','Xử lý tốt dưới 70% khối lượng deadline gấp','Đảm bảo hiệu suất trên 100% dự án chạy song song']},
+  {id:'cu3',name:'Linh hoạt & thích ứng nhanh với thay đổi',opts:['Khó thích nghi','Thích nghi chậm','Thích nghi tốt','Coi thay đổi là cơ hội'],
+    defs:['0% thích ứng trước thay đổi','Cần thời gian điều chỉnh trong 30% tình huống mới','Bắt nhịp tốt trong 70% tình huống thay đổi','Linh hoạt ứng biến trên 100% các tình huống phát sinh']},
+  {id:'cu4',name:'Phù hợp văn hóa agency BSC',opts:['Chưa phù hợp','Đang cải thiện','Cơ bản phù hợp','Hoàn toàn phù hợp'],
+    defs:['0% mức độ hòa nhập','Hòa nhập được 30% phong cách làm việc chung','Hòa nhập tốt 70% phong cách làm việc chung','Đạt độ tương thích 100% với văn hóa cốt lõi công ty']},
+  {id:'cu5',name:'Tôn trọng & chủ động hỗ trợ đồng nghiệp',opts:['Chưa thể hiện','Thỉnh thoảng','Thường xuyên','Luôn là chỗ dựa'],
+    defs:['0% tinh thần hỗ trợ','Sẵn sàng hỗ trợ trong 30% trường hợp team cần','Sẵn sàng hỗ trợ trong 70% trường hợp team cần','Chủ động tương trợ phối hợp trên 100% đầu việc chung']},
 ];
 
 // STATE
 let naState={}, khacState={}, currentDept='', sectionDone={1:false,2:false,3:false,4:false,5:false,6:false}, activeWeeks=12, currentDeptCriteria=null;
+// formLocked: bật=true NGAY khi TBP bấm Gửi đánh giá — chặn mọi thao tác chọn điểm/chỉnh sửa
+// tiếp theo (kể cả khi email đang gửi dở hoặc lỗi mạng), đúng yêu cầu "khóa ngay lập tức,
+// không cho sửa lại sau khi Gửi". Muốn sửa phải liên hệ HR để được reset/tạo link mới.
+let formLocked=false;
 // effectiveDeptKey: bộ phận "thực dùng" để lấy tiêu chí Mục IV — thường = currentDept,
 // nhưng có thể đổi sang key khác (vd hr_letan, hr_baove...) khi TBP chọn 1 vị trí đặc thù
 // trong số nhiều lựa chọn cùng 1 cấp bậc (xem TITLE_MAP.hr.executive/senior dạng array).
@@ -1005,6 +1011,7 @@ function renderBARSGroup(containerId,criteria,prefix){
 }
 
 function setApply(prefix,critId,apply){
+  if(formLocked)return;
   const key=`${prefix}_${critId}`;naState[key]=!apply;
   const bi=document.getElementById(`bi_${prefix}_${critId}`);
   const aB=document.getElementById(`ab_y_${prefix}_${critId}`);
@@ -1022,6 +1029,7 @@ function setApply(prefix,critId,apply){
 }
 
 function selBOpt(prefix,critId,val,enc){
+  if(formLocked)return;
   // Chọn 1 trong 3 mức điểm sẽ tự huỷ trạng thái "Khác" (loại trừ lẫn nhau) — PHẢI cập nhật
   // cả khacState (biến trạng thái dùng để tính điểm), không chỉ UI checkbox, nếu không tiêu
   // chí vừa chấm điểm sẽ vẫn bị loại khỏi công thức tính % (sai điểm trung bình).
@@ -1060,6 +1068,7 @@ function applyKhacUI(prefix,critId,checked){
   }
 }
 function toggleKhac(prefix,critId){
+  if(formLocked)return;
   const key=`${prefix}_${critId}`;
   const chk=document.getElementById(`khacChk_${prefix}_${critId}`);
   khacState[key]=!!chk?.checked;
@@ -1070,16 +1079,16 @@ function toggleKhac(prefix,critId){
 // RENDER CULTURE
 function renderCulture(){
   let h='';
-  const cultPctDef=['0%/100% các công việc/dự án tham gia','30%/100% các công việc/dự án tham gia','70%/100% các công việc/dự án tham gia','100%/100% các công việc/dự án tham gia'];
   CULTURE.forEach((c,ci)=>{
     h+=`<div class="cult-item"><div class="cult-head">${ci+1}. ${c.name}</div><div class="cult-opts">
       ${c.opts.map((o,i)=>`<div class="cult-opt" id="copt_${c.id}_${i+1}" onclick="selCult('${c.id}',${i+1})">
-        <span class="cult-num">${i+1}</span>${o}<span class="cult-pctdef">${cultPctDef[i]}</span></div>`).join('')}
+        ${o}<span class="cult-pctdef">${c.defs[i]}</span></div>`).join('')}
     </div></div>`;
   });
   document.getElementById('cultureArea').innerHTML=h;
 }
 function selCult(id,val){
+  if(formLocked)return;
   document.querySelectorAll(`[id^="copt_${id}_"]`).forEach(el=>el.classList.remove('sel'));
   document.getElementById(`copt_${id}_${val}`).classList.add('sel');
   calcAndShow();checkS5();
@@ -1809,8 +1818,20 @@ QUYẾT ĐỊNH: ${decision}
 
   await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams, {publicKey: EMAILJS_KEY});
 }
+// Khóa cứng toàn bộ form NGAY khi TBP bấm Gửi — disable mọi input/textarea/select/button,
+// khóa các khối chọn điểm dạng div (bopt/cult-opt/apply-toggle) bằng CSS pointer-events:none
+// + cờ formLocked (chặn luôn ở tầng JS phòng khi CSS không kịp áp dụng). Không tự mở lại được
+// bằng thao tác trên trình duyệt — TBP phải liên hệ HR để được reset/tạo link đánh giá mới.
+function lockFormAfterSubmit(){
+  formLocked=true;
+  const fa=document.getElementById('formArea');
+  if(!fa) return;
+  fa.classList.add('locked-submitted');
+  fa.querySelectorAll('input,textarea,select,button').forEach(el=>{ el.disabled=true; });
+}
 async function submitForm(){
   if(!validate())return;
+  lockFormAfterSubmit();
   const btn=document.getElementById('btnSubmit');btn.disabled=true;btn.textContent='Đang gửi...';
   const dept=document.getElementById('f_dept').value;
   const dCrit=dept?(currentDeptCriteria||DEPT_DATA[dept].criteria):[];
@@ -1838,7 +1859,6 @@ async function submitForm(){
     weakness:document.getElementById('weakness').value,
     khac_core:document.getElementById('khacExtra_core')?.value||'',
     khac_dept:document.getElementById('khacExtra_dept')?.value||'',
-    khac_mgmt:document.getElementById('khacExtra_mgmt')?.value||'',
     khac_culture:document.getElementById('khacExtra_culture')?.value||'',
     sig_manager:document.getElementById('sig_manager').value,
     sig_title:document.getElementById('sig_title').value,
@@ -1905,6 +1925,8 @@ async function submitForm(){
 
   // Luôn hiện màn hình hoàn tất — KHÔNG bao giờ hiện số điểm/PDF cho TBP
   document.getElementById('formArea').style.display='none';
+  const navTabsEl=document.getElementById('navTabs');
+  if(navTabsEl) navTabsEl.style.display='none';
   const successEl=document.getElementById('successScreen');
   successEl.classList.add('show');
   const noteEl=document.getElementById('successEmailNote');
@@ -1962,7 +1984,7 @@ function buildEvalHTML(){
       const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
       const m=sel?sel.className.match(/sel-(\d)/):null;
       const sc=m?parseInt(m[1]):null;
-      h+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7">${c.name}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;text-align:center;font-weight:900;color:#005AAB">${sc?sc+' — '+scoreLabels[sc]:'—'}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-size:11px;color:#557">${ev}</td></tr>`;
+      h+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7">${c.name}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;text-align:center;font-weight:900;color:#005AAB">${sc?scoreLabels[sc]:'—'}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;font-size:11px;color:#557">${ev}</td></tr>`;
     });
     return h;
   }
@@ -1970,13 +1992,13 @@ function buildEvalHTML(){
   const deptHTML=buildRows(dCrit,'dept');
   const mgmtHTML=hasManagement?buildRows(MANAGEMENT,'mgmt'):'';
 
-  const cultLabels={cu1:['Chưa bao giờ','Thỉnh thoảng','Thường xuyên','Luôn luôn'],cu2:['Chưa thể hiện','Đôi khi mất bình tĩnh','Chịu được tốt','Làm tốt dưới áp lực cao'],cu3:['Khó thích nghi','Thích nghi chậm','Thích nghi tốt','Coi thay đổi là cơ hội'],cu4:['Chưa phù hợp','Đang cải thiện','Cơ bản phù hợp','Hoàn toàn phù hợp'],cu5:['Chưa thể hiện','Thỉnh thoảng','Thường xuyên','Luôn là chỗ dựa']};
+  const cultLabels=Object.fromEntries(CULTURE.map(c=>[c.id,c.opts])); // lấy trực tiếp từ CULTURE, tránh trùng lặp/lệch dữ liệu
   let cultHTML='';
   CULTURE.forEach(c=>{
     const el=document.querySelector(`[id^="copt_${c.id}_"].sel`);
     const m=el?el.id.match(/_(\d)$/):null;
     const sc=m?parseInt(m[1]):null;
-    cultHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7">${c.name}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;text-align:center;font-weight:900;color:#005AAB">${sc?(sc+' — '+(cultLabels[c.id]?cultLabels[c.id][sc-1]:'')):'—'}</td></tr>`;
+    cultHTML+=`<tr><td style="padding:4px 8px;border:1px solid #d0e4f7">${c.name}</td><td style="padding:4px 8px;border:1px solid #d0e4f7;text-align:center;font-weight:900;color:#005AAB">${sc?(cultLabels[c.id]?cultLabels[c.id][sc-1]:''):'—'}</td></tr>`;
   });
 
   const conclusionMap={'hire':'✅ Ký hợp đồng chính thức','fail':'❌ Không tiếp tục'};
@@ -1985,7 +2007,6 @@ function buildEvalHTML(){
   const weakness=document.getElementById('weakness')?.value||'';
   const khacCore=document.getElementById('khacExtra_core')?.value||'';
   const khacDept=document.getElementById('khacExtra_dept')?.value||'';
-  const khacMgmt=document.getElementById('khacExtra_mgmt')?.value||'';
   const khacCulture=document.getElementById('khacExtra_culture')?.value||'';
   const sigManager=document.getElementById('sig_manager')?.value||'';
   const sigTitle=document.getElementById('sig_title')?.value||'';
@@ -2051,9 +2072,8 @@ function buildEvalHTML(){
 
   <div class="sec">IV. Năng lực chuyên môn — ${deptLabel} (38%)</div>
   <table><thead><tr><th>Tiêu chí</th><th style="width:160px">Điểm</th><th>Dẫn chứng</th></tr></thead><tbody>${deptHTML||'<tr><td colspan="3" style="padding:6px 8px;border:1px solid #d0e4f7;color:#aaa;text-align:center">Chưa điền</td></tr>'}</tbody></table>
-  ${khacDept?`<div style="font-size:11px;background:#fbfdff;border:1px dashed #c8d8f0;border-radius:6px;padding:6px 10px;margin-top:4px"><b>➕ KHÁC (chuyên môn):</b> ${khacDept}</div>`:''}
   ${mgmtHTML?`<div style="font-size:11px;font-weight:900;color:#5c3fc5;margin:8px 0 4px">👤 Tiêu chí quản lý (áp dụng từ Assistant Manager trở lên)</div><table><thead><tr><th>Tiêu chí</th><th style="width:160px">Điểm</th><th>Dẫn chứng</th></tr></thead><tbody>${mgmtHTML}</tbody></table>`:''}
-  ${khacMgmt?`<div style="font-size:11px;background:#fbfdff;border:1px dashed #c8d8f0;border-radius:6px;padding:6px 10px;margin-top:4px"><b>➕ KHÁC (quản lý):</b> ${khacMgmt}</div>`:''}
+  ${khacDept?`<div style="font-size:11px;background:#fbfdff;border:1px dashed #c8d8f0;border-radius:6px;padding:6px 10px;margin-top:4px"><b>➕ KHÁC:</b> ${khacDept}</div>`:''}
 
   <div class="sec">V. Phù hợp văn hóa BSC (24%)</div>
   <table><thead><tr><th>Tiêu chí</th><th style="width:200px">Đánh giá</th></tr></thead><tbody>${cultHTML}</tbody></table>
@@ -2287,12 +2307,11 @@ async function generatePDFBase64(){
   } else {
     bodyText('Chưa điền.');
   }
-  if(data.khacDept) bodyText(`➕ KHÁC (chuyên môn): ${data.khacDept}`);
   if(data.mgmtRows.length){
     bodyText('👤 Tiêu chí quản lý (Assistant Manager trở lên):');
     table(['Tiêu chí','Điểm','Dẫn chứng'], data.mgmtRows, {0:{cellWidth:55},1:{cellWidth:28}});
   }
-  if(data.khacMgmt) bodyText(`➕ KHÁC (quản lý): ${data.khacMgmt}`);
+  if(data.khacDept) bodyText(`➕ KHÁC: ${data.khacDept}`);
 
   // ===== V. PHÙ HỢP VĂN HÓA =====
   sectionTitle('V. PHÙ HỢP VĂN HÓA (24%)');
@@ -2429,19 +2448,19 @@ function collectEvalData(){
       const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
       const m=sel?sel.className.match(/sel-(\d)/):null;
       const sc=m?parseInt(m[1]):null;
-      return [c.name, sc?sc+' — '+scoreLabels[sc]:'—', ev];
+      return [c.name, sc?scoreLabels[sc]:'—', ev];
     });
   }
   const coreRows=buildRows(CORE,'core');
   const deptRows=buildRows(dCrit,'dept');
   const mgmtRows=hasManagement?buildRows(MANAGEMENT,'mgmt'):[];
 
-  const cultLabels={cu1:['Chưa bao giờ','Thỉnh thoảng','Thường xuyên','Luôn luôn'],cu2:['Chưa thể hiện','Đôi khi mất bình tĩnh','Chịu được tốt','Làm tốt dưới áp lực cao'],cu3:['Khó thích nghi','Thích nghi chậm','Thích nghi tốt','Coi thay đổi là cơ hội'],cu4:['Chưa phù hợp','Đang cải thiện','Cơ bản phù hợp','Hoàn toàn phù hợp'],cu5:['Chưa thể hiện','Thỉnh thoảng','Thường xuyên','Luôn là chỗ dựa']};
+  const cultLabels=Object.fromEntries(CULTURE.map(c=>[c.id,c.opts])); // lấy trực tiếp từ CULTURE, tránh trùng lặp/lệch dữ liệu
   const cultRows=CULTURE.map(c=>{
     const el=document.querySelector(`[id^="copt_${c.id}_"].sel`);
     const m=el?el.id.match(/_(\d)$/):null;
     const sc=m?parseInt(m[1]):null;
-    return [c.name, sc?(sc+' — '+(cultLabels[c.id]?cultLabels[c.id][sc-1]:'')):'—'];
+    return [c.name, sc?(cultLabels[c.id]?cultLabels[c.id][sc-1]:''):'—'];
   });
 
   const conclusionMap={'hire':'Ký hợp đồng chính thức','fail':'Không tiếp tục'};
@@ -2450,7 +2469,6 @@ function collectEvalData(){
   const weakness=document.getElementById('weakness')?.value||'';
   const khacCore=document.getElementById('khacExtra_core')?.value||'';
   const khacDept=document.getElementById('khacExtra_dept')?.value||'';
-  const khacMgmt=document.getElementById('khacExtra_mgmt')?.value||'';
   const khacCulture=document.getElementById('khacExtra_culture')?.value||'';
   const sigManager=document.getElementById('sig_manager')?.value||'';
   const sigTitle=document.getElementById('sig_title')?.value||'';
@@ -2471,7 +2489,7 @@ function collectEvalData(){
 
   return {name,deptLabel,title,level,manager,mgrTitle,start,end,dur,evalDate,
     pCore,pDept,pCult,total,weeks,coreRows,deptRows,mgmtRows,cultRows,
-    conclusion,weakness,khacCore,khacDept,khacMgmt,khacCulture,sigManager,sigTitle,sigDate,sigEmployee,sigEmpTitle,sigEmpDate,
+    conclusion,weakness,khacCore,khacDept,khacCulture,sigManager,sigTitle,sigDate,sigEmployee,sigEmpTitle,sigEmpDate,
     idpRows,verdictText,obsGroups:getObservationGroups(dCrit),scoreBreakdown:getScoreBreakdown(),weekStats:getWeekCompletionStats(dCritFull)};
 }
 
