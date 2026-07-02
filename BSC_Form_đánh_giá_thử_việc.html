@@ -515,6 +515,8 @@ const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzz3Ob6S-V42UpGs8Bd8pE
 const SCRIPT_READY = SCRIPT_URL && !SCRIPT_URL.includes('YOUR_');
 const NOTIFY_EMAIL = 'maithidiem201090@gmail.com';
 const MAX_EVAL_MONTHS = 3; // Thời gian thử việc đánh giá tối đa 3 tháng
+const MAX_EVAL_DAYS = 90; // Giới hạn cứng: tối đa 90 ngày (~3 tháng)
+const MAX_EVAL_WEEKS = 13; // Math.ceil(90/7) = 13 — số tuần tối đa có thể phát sinh ở Mục II
 
 // EmailJS config — đã setup thật, sẵn sàng gửi email
 const EMAILJS_KEY = 'etiy8vdDzqxP8gJTr';
@@ -767,18 +769,20 @@ function calcDur(){
       return;
     }
     const days=Math.round((e-s)/86400000);
-    // Tự động tính số tuần = làm tròn(số ngày / 7) — vd 30 ngày = 4 tuần, 44/45 ngày = 6 tuần,
-    // 47 ngày = 7 tuần. Giới hạn hợp lệ: 4-12 tuần (≈1-3 tháng thử việc) — ngoài khoảng
-    // này báo lỗi rõ ràng, không tự ý làm tròn ép về biên.
-    const weeks=Math.round(days/7);
-    if(weeks<4||weeks>12){
-      durEl.value=`${days} ngày (~${weeks} tuần) — không hợp lệ, số tuần phải trong khoảng 4-12 tuần. Hãy kiểm tra lại "Ngày bắt đầu" / "Ngày kết thúc".`;
+    // Giới hạn Thời gian thử việc tối đa: 90 ngày (~3 tháng). Vượt quá -> chặn ngay,
+    // không cho chuyển bước, hiển thị đúng thông báo lỗi yêu cầu.
+    if(days>MAX_EVAL_DAYS){
+      durEl.value=`Thời gian thử việc vượt quá giới hạn tối đa (3 tháng). Vui lòng kiểm tra lại!`;
       durEl.style.color='#c0392b';
       endEl.style.borderColor='#e74c3c';
       endEl.style.boxShadow='0 0 0 3px rgba(231,76,60,.18)';
       activeWeeks=0; renderWeeks(0);
       return;
     }
+    // Chuẩn hóa: Số tuần = Math.ceil(Số ngày / 7) — làm tròn LÊN để bao phủ toàn bộ thời
+    // gian thực tế nhân sự có làm việc, đồng bộ tuyệt đối với số dòng ở Mục II.
+    // VD: 32 ngày / 7 = 4.57 -> 5 tuần. 60 ngày / 7 = 8.57 -> 9 tuần.
+    const weeks=Math.ceil(days/7);
     durEl.value=`${days} ngày (${weeks} tuần)`;
     if(!document.getElementById('f_evaldate').value) document.getElementById('f_evaldate').value=ev;
     activeWeeks=weeks;
@@ -857,7 +861,7 @@ function onTitleChange(){
 // toggleWeekMenu() tự tính toán vị trí (top/left) bằng getBoundingClientRect() của ô đã bấm —
 // hoàn toàn độc lập khỏi mọi ảnh hưởng CSS của bảng/td cha.
 function renderWeeks(count){
-  const n=count||activeWeeks||(MAX_EVAL_MONTHS*4);
+  const n=count||activeWeeks||(MAX_EVAL_WEEKS);
   const lvl=document.getElementById('f_level')?.value;
   const titleMapForLvl=currentDept&&TITLE_MAP[currentDept]&&TITLE_MAP[currentDept][lvl];
   const needsPositionChoice=Array.isArray(titleMapForLvl);
@@ -1648,7 +1652,7 @@ function checkS2(){
   // sẽ không được nhận diện dù đã tick.
   const dKey=effectiveDeptKey||currentDept;
   const dCrit=dKey?(DEPT_DATA[dKey]?.criteria||[]):[];
-  for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
+  for(let i=1;i<=MAX_EVAL_WEEKS;i++){
     const box=document.getElementById('mselBox'+i);
     if(!box) continue; // tuần chưa được render (vượt quá activeWeeks hiện tại)
     const anyJdChecked=dCrit.some(c=>document.getElementById(`wjc${i}_${c.id}`)?.checked);
@@ -1936,7 +1940,7 @@ async function submitForm(){
   // trạng thái Trung bình/Đạt/Xuất sắc (đã bỏ theo yêu cầu, Phần II chỉ ghi nhận không chấm điểm).
   // Phần II giờ ghi nhận: danh sách hạng mục JD đã tick (có thể nhiều, nối bằng "; ") +
   // mô tả cụ thể chung cho cả tuần — không còn trạng thái Trung bình/Đạt/Xuất sắc.
-  for(let i=1;i<=MAX_EVAL_MONTHS*4;i++){
+  for(let i=1;i<=MAX_EVAL_WEEKS;i++){
     p[`w_jd_${i}`]=getWeekJDNames(i,dCritFull).join('; ');
   }
   CORE.forEach(c=>{const sel=document.querySelector(`[id^="bopt_core_${c.id}_"][class*="sel-"]`);const m=sel?sel.className.match(/sel-(\d)/):null;p[`core_${c.id}`]=naState[`core_${c.id}`]?'N/A':(m?m[1]:'');p[`core_ev_${c.id}`]=document.getElementById(`evt_core_${c.id}`)?.value||'';});
