@@ -427,9 +427,15 @@ input[readonly]{background:#f0f5fb;color:#88a}
   <div id="verdict-warning" style="display:none;background:#fff0f0;border:1.5px solid #e74c3c;border-left:4px solid #c0392b;border-radius:8px;padding:10px 14px;margin:8px 0 4px;font-size:12px;color:#c0392b;font-weight:700"></div>
   <div style="border-top:.5px solid #d0e4f7;padding-top:.85rem;margin:.85rem 0">
     <div class="r1"><label class="fl">Điểm cần cải thiện <span class="req">*</span></label>
-      <div style="font-size:11px;color:#c0392b;font-weight:800;margin-bottom:4px">Liệt kê ít nhất 5 điều cần cải thiện. (bắt buộc điền)</div>
-      <textarea id="weakness" placeholder="Kỹ năng paperwork cần hoàn thiện, tốc độ xử lý brief còn chậm...&#10;1. ...&#10;2. ...&#10;3. ...&#10;4. ...&#10;5. ..." style="min-height:110px" onblur="markFieldQuality(this)" oninput="markFieldQuality(this);updateWeaknessCounter()"></textarea>
-      <div id="weaknessCounter" style="font-size:11px;font-weight:800;margin-top:4px;color:#aab">Đã liệt kê 0/5 điều</div></div>
+      <div style="font-size:11px;color:#c0392b;font-weight:800;margin-bottom:6px">Liệt kê đúng 5 điều cần cải thiện — mỗi điều 1 ô riêng bên dưới. (bắt buộc điền đủ)</div>
+      <div id="weaknessList" style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:0 0 20px;text-align:center;font-weight:900;color:#005AAB;font-size:12px">1.</span><input id="weakness_1" type="text" placeholder="Vd: Kỹ năng paperwork cần hoàn thiện" oninput="markFieldQuality(this);updateWeaknessCounter()" onblur="markFieldQuality(this)" style="flex:1"></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:0 0 20px;text-align:center;font-weight:900;color:#005AAB;font-size:12px">2.</span><input id="weakness_2" type="text" placeholder="Vd: Tốc độ xử lý brief còn chậm" oninput="markFieldQuality(this);updateWeaknessCounter()" onblur="markFieldQuality(this)" style="flex:1"></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:0 0 20px;text-align:center;font-weight:900;color:#005AAB;font-size:12px">3.</span><input id="weakness_3" type="text" placeholder="Điều cần cải thiện thứ 3" oninput="markFieldQuality(this);updateWeaknessCounter()" onblur="markFieldQuality(this)" style="flex:1"></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:0 0 20px;text-align:center;font-weight:900;color:#005AAB;font-size:12px">4.</span><input id="weakness_4" type="text" placeholder="Điều cần cải thiện thứ 4" oninput="markFieldQuality(this);updateWeaknessCounter()" onblur="markFieldQuality(this)" style="flex:1"></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:0 0 20px;text-align:center;font-weight:900;color:#005AAB;font-size:12px">5.</span><input id="weakness_5" type="text" placeholder="Điều cần cải thiện thứ 5" oninput="markFieldQuality(this);updateWeaknessCounter()" onblur="markFieldQuality(this)" style="flex:1"></div>
+      </div>
+      <div id="weaknessCounter" style="font-size:11px;font-weight:800;margin-top:6px;color:#aab">Đã liệt kê 0/5 điều</div></div>
   </div>
 
   <div style="margin:.5rem 0 .5rem"><div style="font-size:12px;font-weight:900;color:#005AAB;margin-bottom:2px">Lộ trình phát triển 3 tháng tiếp theo</div>
@@ -437,7 +443,10 @@ input[readonly]{background:#f0f5fb;color:#88a}
   <div id="idpArea"></div>
 
   <!-- FINAL SUMMARY -->
-  <div style="border-top:.5px solid #d0e4f7;padding-top:.85rem;margin-top:.85rem">
+  <div style="border-top:.5px solid #d0e4f7;padding-top:.85rem;margin-top:.85rem;display:none">
+    <!-- Ẩn hoàn toàn khối "Tổng kết quan sát" khỏi link nhập liệu của TBP — tránh gây ảnh hưởng
+         tâm lý chấm điểm hoặc khiến TBP quay lại sửa kết quả thô. Dữ liệu vẫn được tính ngầm qua
+         getObservationGroups() và chỉ hiển thị đầy đủ trên bản in/PDF gửi HR & BOD. -->
     <div class="sec" style="margin-bottom:.75rem">Tổng kết quan sát (tham khảo)</div>
     <div class="final-summary" id="finalSummary">
       <div style="margin-top:0;padding:10px 12px;background:#fff;border-radius:8px;border:1px solid #d0e4f7">
@@ -1314,27 +1323,48 @@ function getWeekCompletionStats(dCrit){
 }
 
 function getObservationGroups(dCrit){
-  const tot=[], yeu=[], khac=[];
+  const tot=[], dat=[], yeu=[], khac=[];
   function collect(criteria,prefix){
     for(const c of criteria){
       const key=`${prefix}_${c.id}`;
       if(naState[key]) continue; // Không Áp Dụng — bỏ qua, không đưa vào tóm tắt
-      if(khacState[key]){ khac.push(c.name); continue; }
+      if(khacState[key]){
+        const note=(document.getElementById(`evt_${prefix}_${c.id}`)?.value||'').trim();
+        khac.push(note?`${c.name}: ${note}`:c.name);
+        continue;
+      }
       const sel=document.querySelector(`[id^="bopt_${prefix}_${c.id}_"][class*="sel-"]`);
       const m=sel?sel.className.match(/sel-(\d)/):null;
       const sc=m?parseInt(m[1]):null;
       if(sc===3) tot.push(c.name);
+      else if(sc===2) dat.push(c.name);
       else if(sc===1) yeu.push(c.name);
-      // sc===2 (Đạt) hoặc chưa chọn mức -> không đưa vào tóm tắt
     }
   }
   collect(CORE,'core');
   if(currentDept&&dCrit) collect(dCrit,'dept');
   const hasManagement=document.querySelectorAll('[id^="bi_mgmt_"]').length>0;
   if(hasManagement) collect(MANAGEMENT,'mgmt');
+  // Mục V — Phù hợp văn hóa BSC: thang 4 mức riêng (không dùng bopt/khacState như 3 mục trên)
+  // nên trước đây bị bỏ sót hoàn toàn khỏi tổng kết — nay gom vào theo đúng yêu cầu: mức cao nhất
+  // (4=100%) -> Tốt, 2 mức giữa (30%/70%) -> Đạt, mức thấp nhất (1=0%) -> Chưa đạt.
+  CULTURE.forEach(c=>{
+    const sel=document.querySelector(`[id^="copt_${c.id}_"].sel`);
+    const m=sel?sel.id.match(/_(\d)$/):null;
+    const lv=m?parseInt(m[1]):null;
+    if(lv===4) tot.push(c.name);
+    else if(lv===2||lv===3) dat.push(c.name);
+    else if(lv===1) yeu.push(c.name);
+  });
+  // Gom nội dung tay các ô "KHÁC" tự do trên toàn form (III/IV-quản lý/V) vào chung nhóm Ghi chú khác,
+  // cùng với các tiêu chí đã đánh dấu "Khác" ở trên.
+  ['khacExtra_core','khacExtra_dept','khacExtra_culture'].forEach(id=>{
+    const v=(document.getElementById(id)?.value||'').trim();
+    if(v) khac.push(v);
+  });
   let wkFilled=0;
   for(let i=1;i<=activeWeeks;i++){ if(getWeekJDNames(i,dCrit||[]).length>0) wkFilled++; }
-  return {tot,yeu,khac,wkFilled};
+  return {tot,dat,yeu,khac,wkFilled};
 }
 
 function calcAndShow(){
@@ -1430,15 +1460,16 @@ function updateFinalSummary(){
 
   // AUTO-GENERATE SUMMARY from all evaluation data — KHÔNG hiện số điểm/% (tránh bias ngược lên TBP)
   // LOGIC TÓM TẮT ĐIỀU HÀNH (executive summary) — dùng getObservationGroups() chung với PDF.
-  const {tot,yeu,khac,wkFilled}=getObservationGroups(dCrit);
+  const {tot,dat,yeu,khac,wkFilled}=getObservationGroups(dCrit);
 
   let lines=[];
   if(wkFilled>0) lines.push(`Đã ghi nhận công việc ${wkFilled} tuần.`);
   if(tot.length){ lines.push(''); lines.push('✅ ĐIỂM NỔI BẬT (Tốt):'); tot.forEach(t=>lines.push('• '+t)); }
+  if(dat.length){ lines.push(''); lines.push('⚖️ KẾT QUẢ ĐẠT ĐƯỢC (Đạt):'); dat.forEach(t=>lines.push('• '+t)); }
   if(yeu.length){ lines.push(''); lines.push('⚠️ CẦN CẢI THIỆN (Chưa đạt):'); yeu.forEach(t=>lines.push('• '+t)); }
   if(khac.length){ lines.push(''); lines.push('📝 GHI CHÚ KHÁC:'); khac.forEach(t=>lines.push('• '+t)); }
-  if(!tot.length&&!yeu.length&&!khac.length&&wkFilled>0){
-    lines.push('Các tiêu chí đã chấm đều ở mức "Đạt" — không có điểm nổi bật hay cần lưu ý đặc biệt.');
+  if(!tot.length&&!dat.length&&!yeu.length&&!khac.length&&wkFilled>0){
+    lines.push('Chưa có tiêu chí nào được chấm điểm.');
   }
 
   const autoText=lines.join('\n').trim();
@@ -1490,23 +1521,26 @@ function isMeaningfulText(raw){
   if(words.length>3 && (uniqueWords.size/words.length)<MIN_UNIQUE_WORD_RATIO) return false;
   return true;
 }
-// Đánh dấu viền cảnh báo (cam) lên 1 ô textarea/input khi nội dung chưa đủ thực chất —
-// giúp TBP biết ngay ô nào cần bổ sung, không chỉ thấy thông báo chung ở cấp Phần.
-// Đếm số "điều" đã liệt kê trong ô Điểm cần cải thiện — mỗi dòng không rỗng và đủ
-// dài (không tính số thứ tự "1." hay gạch đầu dòng đơn thuần) được tính là 1 điều.
-function countListItems(raw){
-  const text=(raw||'').trim();
-  if(!text) return 0;
-  return text.split(/\r?\n/)
-    .map(l=>l.replace(/^[\s•\-*]*\d*[.)]?\s*/,'').trim())
-    .filter(l=>l.length>=1).length;
+// Lấy nội dung 5 ô "Điều 1..5" — mỗi ô là 1 điều riêng biệt, không còn suy đoán qua dấu xuống dòng
+// (trước đây dùng 1 ô textarea to nên chữ tự động xuống hàng theo bề ngang ô có thể bị hiểu nhầm
+// là 1 điều mới dù người dùng không hề bấm Enter — tách hẳn thành 5 ô để không còn mập mờ).
+function getWeaknessItems(){
+  return [1,2,3,4,5].map(i=>(document.getElementById('weakness_'+i)?.value||'').trim());
 }
-// Cập nhật dòng "Đã liệt kê X/5 điều" ngay dưới ô Điểm cần cải thiện — giúp TBP biết ngay
-// còn thiếu bao nhiêu, không phải đợi tới lúc bấm Gửi mới bị chặn.
+function countWeaknessFilled(){
+  return getWeaknessItems().filter(t=>t.length>=1).length;
+}
+// Ghép 5 ô lại thành 1 chuỗi có đánh số, dùng khi gửi email/xuất bản in/PDF (giữ nguyên định dạng
+// cũ để không phải sửa lại các chỗ khác đang đọc trường "weakness").
+function getWeaknessValue(){
+  return getWeaknessItems().filter(t=>t.length>=1).map((t,i)=>`${i+1}. ${t}`).join('\n');
+}
+// Cập nhật dòng "Đã liệt kê X/5 điều" ngay dưới 5 ô — giúp TBP biết ngay còn thiếu ô nào,
+// không phải đợi tới lúc bấm Gửi mới bị chặn.
 function updateWeaknessCounter(){
   const el=document.getElementById('weaknessCounter');
   if(!el) return;
-  const n=countListItems(document.getElementById('weakness')?.value);
+  const n=countWeaknessFilled();
   el.textContent=`Đã liệt kê ${n}/5 điều`;
   el.style.color=n>=5?'#1a5c30':'#c0392b';
 }
@@ -1740,8 +1774,8 @@ function validate(){
     [()=>!sectionDone[4],'Phần IV: Chưa hoàn thành đánh giá Năng lực chuyên môn',null,'card4','ntab4'],
     [()=>!sectionDone[5],'Phần V: Chưa hoàn thành đánh giá Phù hợp văn hóa BSC',null,'card5','ntab5'],
     [()=>!document.querySelector('input[name="conclusion"]:checked'),'Phần VII: Chưa chọn quyết định sau thử việc',null,'card7','ntab7'],
-    [()=>!isMeaningfulText(document.getElementById('weakness').value),'Phần VII: Điểm cần cải thiện cần mô tả rõ hơn (không chỉ điền qua loa)','weakness'],
-    [()=>countListItems(document.getElementById('weakness').value)<5,'Phần VII: Điểm cần cải thiện — vui lòng liệt kê ít nhất 5 điều (mỗi điều 1 dòng)','weakness'],
+    [()=>{const items=getWeaknessItems(); return items.some((t,i)=>t.length>0&&!isMeaningfulText(t));},'Phần VII: Có điều cải thiện chưa đủ rõ ràng — vui lòng mô tả cụ thể hơn (không điền qua loa)',(()=>{const items=getWeaknessItems();const i=items.findIndex((t)=>t.length>0&&!isMeaningfulText(t));return i>=0?'weakness_'+(i+1):'weakness_1';})()],
+    [()=>countWeaknessFilled()<5,'Phần VII: Điểm cần cải thiện — vui lòng điền đủ cả 5 ô, mỗi ô 1 điều',(()=>{const items=getWeaknessItems();const i=items.findIndex(t=>t.length===0);return 'weakness_'+(i>=0?i+1:1);})()],
     [()=>!document.getElementById('sig_manager').value.trim(),'Phần VII: Chưa điền họ tên người ký','sig_manager'],
     [()=>!document.getElementById('sig_title').value.trim(),'Phần VII: Chưa điền chức vụ người ký','sig_title'],
   ];
@@ -1856,7 +1890,7 @@ async function submitForm(){
     pct_core:pCore,pct_dept:pDept,pct_culture:pCult,
     total_score:total,
     conclusion:document.querySelector('input[name="conclusion"]:checked')?.value||'',
-    weakness:document.getElementById('weakness').value,
+    weakness:getWeaknessValue(),
     khac_core:document.getElementById('khacExtra_core')?.value||'',
     khac_dept:document.getElementById('khacExtra_dept')?.value||'',
     khac_culture:document.getElementById('khacExtra_culture')?.value||'',
@@ -2004,7 +2038,7 @@ function buildEvalHTML(){
   const conclusionMap={'hire':'✅ Ký hợp đồng chính thức','fail':'❌ Không tiếp tục'};
   const conclusionVal=document.querySelector('input[name="conclusion"]:checked')?.value||'';
   const conclusion=conclusionMap[conclusionVal]||'Chưa chọn';
-  const weakness=document.getElementById('weakness')?.value||'';
+  const weakness=getWeaknessValue();
   const khacCore=document.getElementById('khacExtra_core')?.value||'';
   const khacDept=document.getElementById('khacExtra_dept')?.value||'';
   const khacCulture=document.getElementById('khacExtra_culture')?.value||'';
@@ -2091,9 +2125,10 @@ function buildEvalHTML(){
   <div class="verdict">${verdictText}</div>
 
   ${(()=>{
-    const {tot,yeu,khac,wkFilled}=getObservationGroups(dCrit);
+    const {tot,dat,yeu,khac,wkFilled}=getObservationGroups(dCrit);
     const blocks=[];
     if(tot.length) blocks.push(`<div style="margin-top:6px"><strong style="color:#1a5c30">✅ ĐIỂM NỔI BẬT (Tốt):</strong><ul style="margin:4px 0 0;padding-left:18px">${tot.map(t=>`<li>${t}</li>`).join('')}</ul></div>`);
+    if(dat.length) blocks.push(`<div style="margin-top:6px"><strong style="color:#e67e22">⚖️ KẾT QUẢ ĐẠT ĐƯỢC (Đạt):</strong><ul style="margin:4px 0 0;padding-left:18px">${dat.map(t=>`<li>${t}</li>`).join('')}</ul></div>`);
     if(yeu.length) blocks.push(`<div style="margin-top:6px"><strong style="color:#c0392b">⚠️ CẦN CẢI THIỆN (Chưa đạt):</strong><ul style="margin:4px 0 0;padding-left:18px">${yeu.map(t=>`<li>${t}</li>`).join('')}</ul></div>`);
     if(khac.length) blocks.push(`<div style="margin-top:6px"><strong style="color:#005AAB">📝 GHI CHÚ KHÁC:</strong><ul style="margin:4px 0 0;padding-left:18px">${khac.map(t=>`<li>${t}</li>`).join('')}</ul></div>`);
     if(!blocks.length) return '';
@@ -2334,8 +2369,8 @@ async function generatePDFBase64(){
   // đủ glyph emoji (có thể hiện ô vuông trống) — dùng tiêu đề chữ + màu sắc phân biệt để
   // vẫn rõ ràng, an toàn hiển thị 100% trên mọi máy đọc PDF.
   {
-    const {tot,yeu,khac,wkFilled}=data.obsGroups;
-    if(tot.length||yeu.length||khac.length||wkFilled>0){
+    const {tot,dat,yeu,khac,wkFilled}=data.obsGroups;
+    if(tot.length||dat.length||yeu.length||khac.length||wkFilled>0){
       sectionTitle('TỔNG HỢP QUAN SÁT (THAM KHẢO)');
       if(wkFilled>0) bodyText(`Đã ghi nhận công việc ${wkFilled} tuần.`);
       function obsGroup(title,items,color){
@@ -2348,6 +2383,7 @@ async function generatePDFBase64(){
         y+=1;
       }
       obsGroup('ĐIỂM NỔI BẬT (TỐT):', tot, [26,92,48]);
+      obsGroup('KẾT QUẢ ĐẠT ĐƯỢC (ĐẠT):', dat, [204,102,0]);
       obsGroup('CẦN CẢI THIỆN (CHƯA ĐẠT):', yeu, [192,57,43]);
       obsGroup('GHI CHÚ KHÁC:', khac, [0,90,171]);
       y+=2;
@@ -2466,7 +2502,7 @@ function collectEvalData(){
   const conclusionMap={'hire':'Ký hợp đồng chính thức','fail':'Không tiếp tục'};
   const conclusionVal=document.querySelector('input[name="conclusion"]:checked')?.value||'';
   const conclusion=conclusionMap[conclusionVal]||'Chưa chọn';
-  const weakness=document.getElementById('weakness')?.value||'';
+  const weakness=getWeaknessValue();
   const khacCore=document.getElementById('khacExtra_core')?.value||'';
   const khacDept=document.getElementById('khacExtra_dept')?.value||'';
   const khacCulture=document.getElementById('khacExtra_culture')?.value||'';
@@ -2504,7 +2540,7 @@ document.getElementById('f_evaldate').value=`${dd}/${mm}/${yyyy}`;
 updateLocks();
 syncSigInfo();
 // Listen to strength/weakness for final summary update
-['weakness'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',updateFinalSummary);});
+['weakness_1','weakness_2','weakness_3','weakness_4','weakness_5'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',updateFinalSummary);});
 
 // ============================================================
 // PHÂN QUYỀN THEO LINK BỘ PHẬN (?dept=xxx)
